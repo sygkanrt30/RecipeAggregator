@@ -18,9 +18,10 @@ public class ParserService {
     private final WebSiteParser parser;
     private final String rootUrl;
 
-    public ParserService(KafkaProducerService producerService,
-                         WebSiteParser parser,
-                         @Value("${parser.website-with-recipe.url.main-page}") String rootUrl) {
+    public ParserService(
+            KafkaProducerService producerService,
+            WebSiteParser parser,
+            @Value("${parser.website-with-recipe.url.main-page}") String rootUrl) {
         this.producerService = producerService;
         this.parser = parser;
         this.rootUrl = rootUrl;

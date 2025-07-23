@@ -27,12 +27,14 @@ public class WebSiteParser {
     private final String referrer;
     private final String recipeTag;
 
-    public WebSiteParser(@Value("${parser.website-with-recipe.browser-agent}") String userAgent,
-                         @Value("${parser.max.recipes}") int maxRecipes,
-                         @Value("${parser.max.depth}") int maxDepth,
-                         @Value("${parser.container.selectors}") String selectorsConfig,
-                         @Value("${parser.website-with-recipe.referrer}") String referrer,
-                         @Value("${parser.website-with-recipe.recipe-tag}") String recipeTag) {
+    public WebSiteParser(
+            @Value("${parser.website-with-recipe.browser-agent}") String userAgent,
+            @Value("${parser.max.recipes}") int maxRecipes,
+            @Value("${parser.max.depth}") int maxDepth,
+            @Value("${parser.container.selectors}") String selectorsConfig,
+            @Value("${parser.website-with-recipe.referrer}") String referrer,
+            @Value("${parser.website-with-recipe.recipe-tag}") String recipeTag) {
+
         this.visitedUrls = Collections.synchronizedSet(new HashSet<>());
         this.recipes = Collections.synchronizedList(new ArrayList<>());
         this.recipeCount = new AtomicInteger(0);
@@ -52,12 +54,15 @@ public class WebSiteParser {
         if (recipeCount.get() >= maxRecipes || depth > maxDepth || visitedUrls.contains(url)) {
             return recipes;
         }
+
         visitedUrls.add(url);
+
         try {
             Document doc = getDocument(url);
             log.info("Processing URL (depth {}): {}", depth, url);
             if (isRecipePage(doc)) {
                 Recipe recipe = RecipeParser.parseRecipePage(doc);
+
                 synchronized (recipes) {
                     if (isCountOfRecipesIsTAsMuchAsPossible()) {
                         recipes.add(recipe);
