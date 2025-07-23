@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 public class TimeParser {
     private static final Pattern TIME_PATTERN = Pattern.compile("(?:((\\d+) hrs?)\\s*)?((\\d+) mins?)?");
 
-    public Duration parseTimeToDuration(String timeStr) {
+    public Duration parseDurationFromString(String timeStr) {
         Matcher matcher = TIME_PATTERN.matcher(timeStr);
         int hours = 0;
         int minutes = 0;

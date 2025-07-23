@@ -64,7 +64,7 @@ public class WebSiteParser {
                 Recipe recipe = RecipeParser.parseRecipePage(doc);
 
                 synchronized (recipes) {
-                    if (isCountOfRecipesIsTAsMuchAsPossible()) {
+                    if (isCountOfRecipesAsMuchAsPossible()) {
                         recipes.add(recipe);
                         if (recipeCount.incrementAndGet() >= maxRecipes) {
                             log.info("Достигнут лимит в {} рецептов", maxRecipes);
@@ -73,7 +73,7 @@ public class WebSiteParser {
                     }
                 }
             }
-            if (isCountOfRecipesIsTAsMuchAsPossible()) {
+            if (isCountOfRecipesAsMuchAsPossible()) {
                 findAndProcessLinks(doc, depth);
             }
         } catch (Exception e) {
@@ -104,13 +104,13 @@ public class WebSiteParser {
         return !doc.select(recipeTag).isEmpty();
     }
 
-    private boolean isCountOfRecipesIsTAsMuchAsPossible() {
+    private boolean isCountOfRecipesAsMuchAsPossible() {
         return recipeCount.get() < maxRecipes;
     }
 
     private void findAndProcessLinks(Document doc, int currentDepth) {
         doc.select(tagClasses).parallelStream().forEach(tag -> {
-            if (isCountOfRecipesIsTAsMuchAsPossible()) {
+            if (isCountOfRecipesAsMuchAsPossible()) {
                 tag.select(ValidHtmlTag.HREF_TAG.value()).parallelStream()
                         .filter(link -> isValidUrl(link.absUrl(ValidHtmlTag.HREF.value())))
                         .filter(link -> !visitedUrls.contains(link.absUrl(ValidHtmlTag.HREF.value())))

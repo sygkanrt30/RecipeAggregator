@@ -19,10 +19,10 @@ public class TimeParserTest {
     void parseTimeToDuration_shouldReturnDurationWithMinutes(String time) {
         var duration = Duration.ofMinutes(parseMinutes(time));
 
-        Duration result = TimeParser.parseTimeToDuration(time);
+        Duration result = TimeParser.parseDurationFromString(time);
 
         Assertions.assertEquals(duration, result);
-        Assertions.assertDoesNotThrow(() -> TimeParser.parseTimeToDuration(time));
+        Assertions.assertDoesNotThrow(() -> TimeParser.parseDurationFromString(time));
     }
 
     private int parseMinutes(String time) {
@@ -39,10 +39,10 @@ public class TimeParserTest {
     void parseTimeToDuration_shouldReturnDurationWithHours(String time) {
         var duration = Duration.ofHours(parseHours(time));
 
-        Duration result = TimeParser.parseTimeToDuration(time);
+        Duration result = TimeParser.parseDurationFromString(time);
 
         Assertions.assertEquals(duration, result);
-        Assertions.assertDoesNotThrow(() -> TimeParser.parseTimeToDuration(time));
+        Assertions.assertDoesNotThrow(() -> TimeParser.parseDurationFromString(time));
     }
 
     private int parseHours(String time) {
@@ -59,10 +59,10 @@ public class TimeParserTest {
     void parseTimeToDuration_shouldReturnDurationWithMinutesAndHours(String time) {
         var duration = Duration.ofHours(parseHours(time)).plusMinutes(parseMinutesInFullString(time));
 
-        Duration result = TimeParser.parseTimeToDuration(time);
+        Duration result = TimeParser.parseDurationFromString(time);
 
         Assertions.assertEquals(duration, result);
-        Assertions.assertDoesNotThrow(() -> TimeParser.parseTimeToDuration(time));
+        Assertions.assertDoesNotThrow(() -> TimeParser.parseDurationFromString(time));
     }
 
     private int parseMinutesInFullString(String time) {
@@ -79,9 +79,9 @@ public class TimeParserTest {
     void parseTimeToDuration_shouldReturnEmptyString(String s) {
         var duration = Duration.ofHours(0).plusMinutes(0);
 
-        Duration result = TimeParser.parseTimeToDuration(s);
+        Duration result = TimeParser.parseDurationFromString(s);
 
         Assertions.assertEquals(duration, result);
-        Assertions.assertDoesNotThrow(() -> TimeParser.parseTimeToDuration(""));
+        Assertions.assertDoesNotThrow(() -> TimeParser.parseDurationFromString(""));
     }
 }

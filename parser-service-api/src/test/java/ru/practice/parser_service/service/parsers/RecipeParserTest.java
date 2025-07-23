@@ -50,9 +50,9 @@ class RecipeParserTest {
 
         Document doc = Jsoup.parse(html);
         try (MockedStatic<TimeParser> mockedTime = mockStatic(TimeParser.class)) {
-            mockedTime.when(() -> TimeParser.parseTimeToDuration("30 mins"))
+            mockedTime.when(() -> TimeParser.parseDurationFromString("30 mins"))
                     .thenReturn(Duration.ofMinutes(30));
-            mockedTime.when(() -> TimeParser.parseTimeToDuration("1 hour"))
+            mockedTime.when(() -> TimeParser.parseDurationFromString("1 hour"))
                     .thenReturn(Duration.ofHours(1));
 
             // Act

@@ -49,7 +49,7 @@ public class RecipeParser {
                 .build();
     }
 
-    private HashMap<String, String> fillParamsMap(Document doc) {
+    private Map<String, String> fillParamsMap(Document doc) {
         var detailsMap = new HashMap<String, String>();
 
         Elements items = doc.select(CssQueryOfPartsOfRecipes.RECIPE_DETAILS_ITEM.cssQuery());
@@ -63,7 +63,7 @@ public class RecipeParser {
 
     private Duration parseTimeParam(String timeLabel, Map<String, String> detailsMap) {
         if (detailsMap.containsKey(timeLabel)) {
-            return TimeParser.parseTimeToDuration(detailsMap.get(timeLabel));
+            return TimeParser.parseDurationFromString(detailsMap.get(timeLabel));
         }
         return Duration.ZERO;
     }
