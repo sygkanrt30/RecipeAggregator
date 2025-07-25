@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class KafkaProducerService {
+public class KafkaProducerService implements ProducerService {
     private final KafkaTemplate<String, List<Recipe>> kafkaTemplate;
     private final String kafkaTopic;
 
@@ -21,6 +21,7 @@ public class KafkaProducerService {
         this.kafkaTopic = kafkaTopic;
     }
 
+    @Override
     public void sendMessage(List<Recipe> recipes) {
         kafkaTemplate.send(kafkaTopic, recipes);
         log.info("Сообщение отправлено: {}", recipes);

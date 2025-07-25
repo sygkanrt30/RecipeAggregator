@@ -5,8 +5,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.practice.parser_service.kafka.KafkaProducerService;
+import ru.practice.parser_service.kafka.ProducerService;
 import ru.practice.parser_service.model.Recipe;
-import ru.practice.parser_service.service.parsers.WebSiteParser;
+import ru.practice.parser_service.service.parsers.WebsiteParserImpl;
+import ru.practice.parser_service.service.parsers.WebsiteParser;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -14,13 +16,13 @@ import java.util.concurrent.TimeUnit;
 @Service
 @EnableScheduling
 public class ParserService {
-    private final KafkaProducerService producerService;
-    private final WebSiteParser parser;
+    private final ProducerService producerService;
+    private final WebsiteParser parser;
     private final String rootUrl;
 
     public ParserService(
             KafkaProducerService producerService,
-            WebSiteParser parser,
+            WebsiteParserImpl parser,
             @Value("${parser.website-with-recipe.url.main-page}") String rootUrl) {
         this.producerService = producerService;
         this.parser = parser;

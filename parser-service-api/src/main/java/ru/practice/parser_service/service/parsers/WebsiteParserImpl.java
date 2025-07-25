@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 @Slf4j
-public class WebSiteParser {
+public class WebsiteParserImpl implements WebsiteParser {
     private final String tagClasses;
     private final int maxRecipes;
     private final int maxDepth;
@@ -27,7 +27,7 @@ public class WebSiteParser {
     private final String referrer;
     private final String recipeTag;
 
-    public WebSiteParser(
+    public WebsiteParserImpl(
             @Value("${parser.website-with-recipe.browser-agent}") String userAgent,
             @Value("${parser.max.recipes}") int maxRecipes,
             @Value("${parser.max.depth}") int maxDepth,
@@ -46,6 +46,7 @@ public class WebSiteParser {
         this.recipeTag = recipeTag;
     }
 
+    @Override
     public List<Recipe> parseWebsite(String url) {
         return parseWebsiteRecursive(url, 0);
     }

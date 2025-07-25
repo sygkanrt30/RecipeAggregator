@@ -16,11 +16,11 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class WebSiteParserTest {
-    private WebSiteParser webSiteParser;
+    private WebsiteParserImpl webSiteParser;
 
     @BeforeEach
     void setUp() {
-        webSiteParser = new WebSiteParser(
+        webSiteParser = new WebsiteParserImpl(
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
                 3600,
                 3,
