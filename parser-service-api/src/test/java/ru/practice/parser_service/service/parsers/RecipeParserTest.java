@@ -5,7 +5,8 @@ import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import ru.practice.parser_service.model.Recipe;
-import ru.practice.parser_service.service.parsers.part_of_recipes.TimeParser;
+import ru.practice.parser_service.service.parsers.recipe.part_of_recipe.TimeParser;
+import ru.practice.parser_service.service.parsers.recipe.RecipeParser;
 
 import java.time.Duration;
 import java.util.Map;

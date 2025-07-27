@@ -1,4 +1,4 @@
-package ru.practice.parser_service.service.enums;
+package ru.practice.parser_service.service.parsers.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

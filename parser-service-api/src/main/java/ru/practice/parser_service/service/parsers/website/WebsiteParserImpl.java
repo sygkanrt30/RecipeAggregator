@@ -1,4 +1,4 @@
-package ru.practice.parser_service.service.parsers;
+package ru.practice.parser_service.service.parsers.website;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -6,9 +6,10 @@ import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.practice.parser_service.model.Recipe;
-import ru.practice.parser_service.service.enums.InvalidRequestPrefix;
-import ru.practice.parser_service.service.enums.ValidHtmlTag;
+import ru.practice.parser_service.service.parsers.enums.InvalidRequestPrefix;
+import ru.practice.parser_service.service.parsers.enums.ValidHtmlTag;
 import ru.practice.parser_service.service.exception.ParserException;
+import ru.practice.parser_service.service.parsers.recipe.RecipeParser;
 
 import java.io.IOException;
 import java.util.*;

@@ -1,4 +1,4 @@
-package ru.practice.parser_service.service.parsers;
+package ru.practice.parser_service.service.parsers.website;
 
 import ru.practice.parser_service.model.Recipe;
 

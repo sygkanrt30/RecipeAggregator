@@ -3,6 +3,7 @@ package ru.practice.parser_service.service.parsers.part_of_recipes;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Test;
+import ru.practice.parser_service.service.parsers.recipe.part_of_recipe.IngredientsParser;
 
 import java.util.Map;
 

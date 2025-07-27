@@ -1,14 +1,14 @@
-package ru.practice.parser_service.service.parsers;
+package ru.practice.parser_service.service.parsers.recipe;
 
 import lombok.experimental.UtilityClass;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import ru.practice.parser_service.model.Recipe;
-import ru.practice.parser_service.service.enums.CssQueryOfPartsOfRecipes;
-import ru.practice.parser_service.service.parsers.part_of_recipes.DirectionParser;
-import ru.practice.parser_service.service.parsers.part_of_recipes.IngredientsParser;
-import ru.practice.parser_service.service.parsers.part_of_recipes.TimeParser;
+import ru.practice.parser_service.service.parsers.enums.CssQueryOfPartsOfRecipes;
+import ru.practice.parser_service.service.parsers.recipe.part_of_recipe.DirectionParser;
+import ru.practice.parser_service.service.parsers.recipe.part_of_recipe.IngredientsParser;
+import ru.practice.parser_service.service.parsers.recipe.part_of_recipe.TimeParser;
 
 import java.time.Duration;
 import java.util.HashMap;

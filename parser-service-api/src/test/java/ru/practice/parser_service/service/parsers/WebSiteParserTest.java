@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practice.parser_service.model.Recipe;
+import ru.practice.parser_service.service.parsers.website.WebsiteParserImpl;
 
 import java.util.List;
 

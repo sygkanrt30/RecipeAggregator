@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import ru.practice.parser_service.kafka.KafkaProducerService;
 import ru.practice.parser_service.kafka.ProducerService;
 import ru.practice.parser_service.model.Recipe;
-import ru.practice.parser_service.service.parsers.WebsiteParserImpl;
-import ru.practice.parser_service.service.parsers.WebsiteParser;
+import ru.practice.parser_service.service.parsers.website.WebsiteParserImpl;
+import ru.practice.parser_service.service.parsers.website.WebsiteParser;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;

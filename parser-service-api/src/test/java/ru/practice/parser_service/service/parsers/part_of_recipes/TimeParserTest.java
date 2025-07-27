@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import ru.practice.parser_service.service.parsers.recipe.part_of_recipe.TimeParser;
 
 import java.time.Duration;
 
