@@ -1,6 +1,7 @@
 package ru.practice.parser_service.kafka;
 
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -11,15 +12,11 @@ import java.util.List;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class KafkaProducerService implements ProducerService {
     private final KafkaTemplate<String, List<Recipe>> kafkaTemplate;
-    private final String kafkaTopic;
-
-    public KafkaProducerService(KafkaTemplate<String, List<Recipe>> kafkaTemplate,
-                                @Value("${custom-kafka.topic}") String kafkaTopic) {
-        this.kafkaTemplate = kafkaTemplate;
-        this.kafkaTopic = kafkaTopic;
-    }
+    @Value("${custom-kafka.topic}")
+    private String kafkaTopic;
 
     @Override
     public void sendMessage(List<Recipe> recipes) {

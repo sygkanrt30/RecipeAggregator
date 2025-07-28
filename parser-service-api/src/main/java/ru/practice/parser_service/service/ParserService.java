@@ -30,7 +30,7 @@ public class ParserService {
     }
 
     @Scheduled(fixedRate = 1, timeUnit = TimeUnit.DAYS)
-    public void parceRecipesAndSendToKafka() {
+    public void parceRecipesAndSend2Kafka() {
         List<Recipe> recipes = parser.parseWebsite(rootUrl);
         producerService.sendMessage(recipes);
     }

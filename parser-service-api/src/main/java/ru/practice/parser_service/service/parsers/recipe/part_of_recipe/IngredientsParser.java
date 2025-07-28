@@ -14,13 +14,11 @@ public class IngredientsParser {
     public Map<String, String> parseIngredients(Document doc) {
         Elements ingredientItems = doc.select(CssQueryOfPartsOfRecipes.INGREDIENTS_NODE.cssQuery());
         Map<String, String> ingredientsMap = new HashMap<>();
-
         for (Element item : ingredientItems) {
             String quantity = item.select(CssQueryOfPartsOfRecipes.INGREDIENT_QUANTITY.cssQuery()).text();
             String unit = item.select(CssQueryOfPartsOfRecipes.INGREDIENTS_UNIT.cssQuery()).text();
             String name = item.select(CssQueryOfPartsOfRecipes.INGREDIENTS_NAME.cssQuery()).text();
             String amount = quantity + " " + unit;
-
             put(ingredientsMap, name, amount, quantity);
         }
         return ingredientsMap;

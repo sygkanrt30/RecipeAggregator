@@ -51,7 +51,6 @@ public class RecipeParser {
 
     private Map<String, String> fillParamsMap(Document doc) {
         var detailsMap = new HashMap<String, String>();
-
         Elements items = doc.select(CssQueryOfPartsOfRecipes.RECIPE_DETAILS_ITEM.cssQuery());
         for (Element item : items) {
             String label = item.select(CssQueryOfPartsOfRecipes.RECIPE_DETAILS_LABEL.cssQuery()).text();
