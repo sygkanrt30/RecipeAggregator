@@ -69,10 +69,10 @@ class RecipeParserTest {
             );
             assertEquals(expectedIngredients, result.ingredients());
             assertEquals(4, result.servings());
-            assertEquals(Duration.ofMinutes(30), result.timeForPreparing());
-            assertEquals(Duration.ofHours(1), result.timeForCooking());
-            assertEquals(Duration.ZERO, result.additionalTime()); // Not in HTML
-            assertEquals(Duration.ZERO, result.totalTime()); // Not in HTML
+            assertEquals(30, result.mins4Prep());
+            assertEquals(1, result.mins4Cook());
+            assertEquals(0, result.additionalMins());
+            assertEquals(0, result.totalMins());
         }
     }
 
@@ -123,10 +123,10 @@ class RecipeParserTest {
 
             // Assert
             assertNotNull(result);
-            assertEquals(Duration.ZERO, result.timeForPreparing());
-            assertEquals(Duration.ZERO, result.timeForCooking());
-            assertEquals(Duration.ZERO, result.additionalTime());
-            assertEquals(Duration.ZERO, result.totalTime());
+            assertEquals(0, result.mins4Prep());
+            assertEquals(0, result.mins4Cook());
+            assertEquals(0, result.additionalMins());
+            assertEquals(0, result.totalMins());
             mockedTime.verifyNoInteractions();
         }
     }

@@ -1,6 +1,8 @@
 spring:
   application:
     name: parser-service-api
+  kafka:
+    bootstrap-servers: localhost:9092
 
 server:
   port: 8081
@@ -18,7 +20,7 @@ parser:
 
   max:
     depth: 3
-    recipes: 3600
+    recipes: 100
   container:
     selectors: >
       div.mntl-alphabetical-list__group, 

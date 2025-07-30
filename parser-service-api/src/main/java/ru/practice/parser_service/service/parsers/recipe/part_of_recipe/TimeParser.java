@@ -2,7 +2,6 @@ package ru.practice.parser_service.service.parsers.recipe.part_of_recipe;
 
 import lombok.experimental.UtilityClass;
 
-import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,7 +9,7 @@ import java.util.regex.Pattern;
 public class TimeParser {
     private static final Pattern TIME_PATTERN = Pattern.compile("(?:((\\d+) hrs?)\\s*)?((\\d+) mins?)?");
 
-    public Duration parseDurationFromString(String timeStr) {
+    public int parseDurationFromString(String timeStr) {
         Matcher matcher = TIME_PATTERN.matcher(timeStr);
         int hours = 0;
         int minutes = 0;
@@ -22,6 +21,6 @@ public class TimeParser {
                 minutes = Integer.parseInt(matcher.group(4));
             }
         }
-        return Duration.ofHours(hours).plusMinutes(minutes);
+        return hours * 60 + minutes;
     }
 }

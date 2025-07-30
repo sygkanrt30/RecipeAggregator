@@ -1,13 +1,8 @@
-package ru.practice.parser_service.model;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Builder;
+package ru.practice.recipe_service.model.dto.request;
 
 import java.util.Map;
 
-@Builder
-@JsonIgnoreProperties(ignoreUnknown = true)
-public record Recipe(
+public record RecipeKafkaDto(
         String name,
         int mins4Prep,
         int mins4Cook,

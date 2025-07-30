@@ -28,24 +28,24 @@ public class RecipeParser {
 
         int servings = Integer.parseInt(detailsMap.get("servings"));
 
-        Duration timeForCooking = parseTimeParam("cook time", detailsMap);
-        Duration additionalTime = parseTimeParam("additional time", detailsMap);
-        Duration totalTime = parseTimeParam("total time", detailsMap);
-        Duration timeForPrep = parseTimeParam("prep time", detailsMap);
+        int mins4Cook = parseTimeParam("cook time", detailsMap);
+        int additionalMins = parseTimeParam("additional time", detailsMap);
+        int totalMins = parseTimeParam("total time", detailsMap);
+        int mins4Prep = parseTimeParam("prep time", detailsMap);
 
         Map<String, String> ingredients = IngredientsParser.parseIngredients(doc);
 
         String directions = DirectionParser.parseDirections(doc);
         return Recipe.builder()
-                .name(name)
+                .name(name.trim().toLowerCase())
                 .description(description)
                 .direction(directions)
                 .ingredients(ingredients)
-                .timeForPreparing(timeForPrep)
-                .additionalTime(additionalTime)
-                .timeForCooking(timeForCooking)
+                .totalMins(totalMins)
+                .additionalMins(additionalMins)
+                .mins4Cook(mins4Cook)
+                .mins4Prep(mins4Prep)
                 .servings(servings)
-                .totalTime(totalTime)
                 .build();
     }
 
@@ -60,10 +60,10 @@ public class RecipeParser {
         return detailsMap;
     }
 
-    private Duration parseTimeParam(String timeLabel, Map<String, String> detailsMap) {
+    private int parseTimeParam(String timeLabel, Map<String, String> detailsMap) {
         if (detailsMap.containsKey(timeLabel)) {
             return TimeParser.parseDurationFromString(detailsMap.get(timeLabel));
         }
-        return Duration.ZERO;
+        return 0;
     }
 }
