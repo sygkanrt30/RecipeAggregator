@@ -7,4 +7,6 @@ public interface RecipeService {
     RecipeResponseDto findRecipe(String name);
 
     void saveRecipe(RecipeRestRequestDto recipe);
+
+    void deleteRecipe(String username);
 }

@@ -59,7 +59,7 @@ public class RecipeEntity {
         Class<?> thisEffectiveClass = this instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
         RecipeEntity recipe = (RecipeEntity) o;
-        return getId() != null && Objects.equals(getId(), recipe.getId());
+        return getName() != null && Objects.equals(getName(), recipe.getName());
     }
 
     @Override

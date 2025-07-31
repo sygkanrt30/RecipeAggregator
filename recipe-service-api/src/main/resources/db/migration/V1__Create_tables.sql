@@ -21,6 +21,7 @@ CREATE TABLE ingredient (
 );
 
 CREATE INDEX idx_ingredient_recipe_id ON ingredient (recipe_id);
+CREATE INDEX idx_recipe_name ON recipe(name);
 
 COMMENT ON TABLE recipe IS 'Таблица рецептов';
 COMMENT ON TABLE ingredient IS 'Таблица ингредиентов для рецептов';

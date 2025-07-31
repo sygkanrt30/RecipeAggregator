@@ -2,13 +2,17 @@ package ru.practice.recipe_service.service.entity;
 
 import ru.practice.recipe_service.model.entity.RecipeEntity;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface RecipeEntityService {
-    void trySaveRecipe(RecipeEntity recipe);
+    void save(RecipeEntity recipe);
 
     Optional<RecipeEntity> findRecipeByName(String name);
 
-    void tryToSaveAllRecipes(Collection<RecipeEntity> recipes);
+    List<RecipeEntity> findAll();
+
+    void deleteRecipeByName(String name);
+
+    void saveAllWithBatches(List<RecipeEntity> recipes, int batchSize);
 }
