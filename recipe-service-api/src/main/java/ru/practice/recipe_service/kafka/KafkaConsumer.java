@@ -18,7 +18,7 @@ public class KafkaConsumer implements Listener {
     @Override
     @KafkaListener(topics = "${custom.kafka.topic}", groupId = "${custom.kafka.group-id}")
     public void listen(List<RecipeKafkaDto> recipes) {
-        processor.saveFromKafka(recipes);
         log.info("Listening recipes: {}", recipes.size());
+        processor.saveFromKafka(recipes);
     }
 }

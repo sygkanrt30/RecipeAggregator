@@ -21,20 +21,25 @@ public class RecipeEntity {
     @Id
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 60)
+    @Column(nullable = false, unique = true, length = 100)
     private String name;
 
     private int servings;
 
-    @Column(nullable = false, length = 300)
+    @Column(nullable = false, length = 600)
     private String description;
 
-    @Column(nullable = false, length = 300)
+    @Column(nullable = false, length = 3000)
     private String direction;
 
     @ToString.Exclude
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "recipe")
     private List<IngredientEntity> ingredients = new ArrayList<>();
+
+    public void setIngredients(List<IngredientEntity> ingredients) {
+        ingredients.forEach(phone -> phone.setRecipe(this));
+        this.ingredients = ingredients;
+    }
 
     @Column(name = "mins_for_preparing")
     private int mins4Prep;

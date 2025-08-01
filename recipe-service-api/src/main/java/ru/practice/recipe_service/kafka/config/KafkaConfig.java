@@ -35,22 +35,21 @@ public class KafkaConfig {
         configProps.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        configProps.put(JsonDeserializer.TRUSTED_PACKAGES, trustedPackage);
 
         var objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-
         var deserializer = new JsonDeserializer<List<RecipeKafkaDto>>(
                 new TypeReference<>() {
                 },
                 objectMapper
         );
         deserializer.addTrustedPackages(trustedPackage);
+        deserializer.setUseTypeHeaders(false);
 
         return new DefaultKafkaConsumerFactory<>(
                 configProps,
                 new StringDeserializer(),
-                new JsonDeserializer<>(objectMapper)
+                deserializer
         );
     }
 

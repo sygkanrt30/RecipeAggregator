@@ -37,10 +37,16 @@ public interface RecipeMapper {
         return map.entrySet().stream()
                 .map(entry -> {
                     var parts = entry.getValue().split(" ");
+                    if (parts.length == 2) {
+                        return IngredientEntity.builder()
+                                .name(entry.getKey())
+                                .quantity(parts[0])
+                                .unit(parts[1])
+                                .build();
+                    }
                     return IngredientEntity.builder()
                             .name(entry.getKey())
                             .quantity(parts[0])
-                            .unit(parts[1])
                             .build();
                 })
                 .toList();

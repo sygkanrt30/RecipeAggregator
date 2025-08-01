@@ -42,4 +42,4 @@ custom:
     topic: recipes
     group-id: recipe-group
     trusted:
-      package: ru.practice.recipe_service.model.dto.request
+      package: ru.practice.*

@@ -19,17 +19,17 @@ public class IngredientEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(nullable = false, length = 3)
+    @Column(nullable = false, length = 20)
     private String quantity;
 
-    @Column(length = 10)
+    @Column(length = 30)
     private String unit;
 
     @ManyToOne
-    @JoinColumn(name = "recipe_id")
+    @JoinColumn(name = "recipe_id", foreignKey = @ForeignKey(foreignKeyDefinition = ""))
     private RecipeEntity recipe;
 
     @Override

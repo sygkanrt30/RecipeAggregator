@@ -1,9 +1,9 @@
 CREATE TABLE recipe (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(60) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL UNIQUE,
     servings INTEGER NOT NULL,
-    description TEXT NOT NULL,
-    direction TEXT NOT NULL,
+    description VARCHAR(600) NOT NULL,
+    direction VARCHAR(3000) NOT NULL,
     mins_for_preparing INTEGER,
     mins_for_cooking INTEGER NOT NULL,
     additional_mins INTEGER,
@@ -13,9 +13,9 @@ CREATE TABLE recipe (
 
 CREATE TABLE ingredient (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    quantity VARCHAR(3) NOT NULL,
-    unit VARCHAR(10),
+    name VARCHAR(100) NOT NULL,
+    quantity VARCHAR(20) NOT NULL,
+    unit VARCHAR(30),
     recipe_id BIGINT NOT NULL,
     CONSTRAINT fk_ingredient_recipe FOREIGN KEY (recipe_id) REFERENCES recipe (id) ON DELETE CASCADE
 );
