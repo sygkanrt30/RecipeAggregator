@@ -6,8 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practice.recipe_service.model.dto.mapper.RecipeMapper;
-import ru.practice.recipe_service.model.dto.request.RecipeKafkaDto;
-import ru.practice.recipe_service.model.dto.request.RecipeRestRequestDto;
+import ru.practice.recipe_service.model.dto.kafka.request.RecipeKafkaDto;
 import ru.practice.recipe_service.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_service.model.entity.RecipeEntity;
 import ru.practice.recipe_service.service.entity.RecipeEntityService;
@@ -28,13 +27,6 @@ public class RecipeServiceImpl implements RecipeService, ConsumerProcessor {
     public RecipeResponseDto findRecipe(String name) {
         var recipe = recipeEntityService.findRecipeByName(name).orElseThrow(EntityNotFoundException::new);
         return recipeMapper.toRecipeResponseDto(recipe);
-    }
-
-    @Override
-    @Transactional
-    public void saveRecipe(RecipeRestRequestDto recipeDto) {
-        var recipe = recipeMapper.fromRecipeRestRequestDto(recipeDto);
-        recipeEntityService.save(recipe);
     }
 
     @Override

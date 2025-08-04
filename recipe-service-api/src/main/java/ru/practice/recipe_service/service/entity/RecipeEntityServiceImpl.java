@@ -1,6 +1,5 @@
 package ru.practice.recipe_service.service.entity;
 
-import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,16 +19,6 @@ public class RecipeEntityServiceImpl implements RecipeEntityService {
     private final EntityManager entityManager;
 
     @Override
-    @Transactional
-    public void save(RecipeEntity recipe) {
-        try {
-            recipeRepository.saveAndFlush(recipe);
-        } catch (Exception e) {
-            throw new EntityExistsException("Entity:" + recipe.toString() + " violates the uniqueness contract", e);
-        }
-    }
-
-    @Override
     public Optional<RecipeEntity> findRecipeByName(String name) {
         return recipeRepository.findRecipeByName(name);
     }
@@ -40,11 +29,14 @@ public class RecipeEntityServiceImpl implements RecipeEntityService {
     }
 
     @Override
+    @Transactional
     public void deleteRecipeByName(String name) {
-        recipeRepository.deleteRecipeEntityByName(name)
-                .ifPresentOrElse(
-                        recipe -> log.info("Recipe deleted: {}", recipe),
-                        () -> log.info("Recipe not deleted: {}", name));
+        int isDeleted = recipeRepository.deleteRecipeEntityByName(name);
+        if (isDeleted > 0) {
+            log.info("Recipe with name: {} deleted", name);
+        } else {
+            log.info("Recipe not deleted: {}", name);
+        }
     }
 
 

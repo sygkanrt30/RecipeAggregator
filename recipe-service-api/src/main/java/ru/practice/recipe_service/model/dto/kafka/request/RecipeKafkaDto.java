@@ -1,4 +1,4 @@
-package ru.practice.recipe_service.model.dto.request;
+package ru.practice.recipe_service.model.dto.kafka.request;
 
 import java.util.Map;
 

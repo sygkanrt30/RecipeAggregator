@@ -1,6 +1,6 @@
 package ru.practice.recipe_service.service;
 
-import ru.practice.recipe_service.model.dto.request.RecipeKafkaDto;
+import ru.practice.recipe_service.model.dto.kafka.request.RecipeKafkaDto;
 
 import java.util.List;
 

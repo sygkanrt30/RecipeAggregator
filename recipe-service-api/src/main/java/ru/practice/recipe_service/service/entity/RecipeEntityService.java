@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RecipeEntityService {
-    void save(RecipeEntity recipe);
-
     Optional<RecipeEntity> findRecipeByName(String name);
 
     List<RecipeEntity> findAll();
