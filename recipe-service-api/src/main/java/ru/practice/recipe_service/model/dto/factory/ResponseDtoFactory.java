@@ -11,11 +11,6 @@ public class ResponseDtoFactory {
         return new ResponseDto(status, status.getReasonPhrase());
     }
 
-    public ResponseDto getResponseCreated() {
-        var status = HttpStatus.CREATED;
-        return new ResponseDto(status, status.getReasonPhrase());
-    }
-
     public ResponseDto getResponseError(HttpStatus status, String reason) {
         return new ResponseDto(status, reason);
     }

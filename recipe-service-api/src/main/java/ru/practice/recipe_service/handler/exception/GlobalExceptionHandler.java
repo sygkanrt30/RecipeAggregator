@@ -1,4 +1,4 @@
-package ru.practice.recipe_service.handler;
+package ru.practice.recipe_service.handler.exception;
 
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;

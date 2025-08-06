@@ -5,7 +5,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import ru.practice.parser_service.model.Recipe;
-import ru.practice.parser_service.service.parsers.enums.CssQueryOfPartsOfRecipes;
+import ru.practice.parser_service.service.parsers.enums.CssQueryOfRecipesParts;
 import ru.practice.parser_service.service.parsers.recipe.part_of_recipe.DirectionParser;
 import ru.practice.parser_service.service.parsers.recipe.part_of_recipe.IngredientsParser;
 import ru.practice.parser_service.service.parsers.recipe.part_of_recipe.TimeParser;
@@ -17,10 +17,10 @@ import java.util.Objects;
 @UtilityClass
 public class RecipeParser {
     public Recipe parseRecipePage(Document doc) {
-        Element nameElement = doc.selectFirst(CssQueryOfPartsOfRecipes.NAME.cssQuery());
+        Element nameElement = doc.selectFirst(CssQueryOfRecipesParts.NAME.cssQuery());
         String name = Objects.requireNonNull(nameElement).text();
 
-        Element descriptionElement = doc.selectFirst(CssQueryOfPartsOfRecipes.DESCRIPTION.cssQuery());
+        Element descriptionElement = doc.selectFirst(CssQueryOfRecipesParts.DESCRIPTION.cssQuery());
         String description = Objects.requireNonNull(descriptionElement).text();
 
         var detailsMap = fillParamsMap(doc);
@@ -50,10 +50,10 @@ public class RecipeParser {
 
     private Map<String, String> fillParamsMap(Document doc) {
         var detailsMap = new HashMap<String, String>();
-        Elements items = doc.select(CssQueryOfPartsOfRecipes.RECIPE_DETAILS_ITEM.cssQuery());
+        Elements items = doc.select(CssQueryOfRecipesParts.RECIPE_DETAILS_ITEM.cssQuery());
         for (Element item : items) {
-            String label = item.select(CssQueryOfPartsOfRecipes.RECIPE_DETAILS_LABEL.cssQuery()).text();
-            String value = item.select(CssQueryOfPartsOfRecipes.RECIPE_DETAILS_VALUE.cssQuery()).text().trim();
+            String label = item.select(CssQueryOfRecipesParts.RECIPE_DETAILS_LABEL.cssQuery()).text();
+            String value = item.select(CssQueryOfRecipesParts.RECIPE_DETAILS_VALUE.cssQuery()).text().trim();
             detailsMap.put(label.substring(0, label.length() - 1).toLowerCase(), value);
         }
         return detailsMap;

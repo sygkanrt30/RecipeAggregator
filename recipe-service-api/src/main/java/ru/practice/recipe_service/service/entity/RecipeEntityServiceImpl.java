@@ -39,7 +39,6 @@ public class RecipeEntityServiceImpl implements RecipeEntityService {
         }
     }
 
-
     @Override
     @Transactional
     public void saveAllWithBatches(List<RecipeEntity> recipes, int batchSize) {

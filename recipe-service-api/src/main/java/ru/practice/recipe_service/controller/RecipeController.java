@@ -11,7 +11,7 @@ import ru.practice.recipe_service.service.RecipeService;
 @RestController
 @RequestMapping("/api/v1/recipes")
 @RequiredArgsConstructor
-//служебный контроллер(все апи только для других сервисов или админов)
+//служебный контроллер(апи только для других сервисов)
 public class RecipeController {
     private final RecipeService recipeService;
 
