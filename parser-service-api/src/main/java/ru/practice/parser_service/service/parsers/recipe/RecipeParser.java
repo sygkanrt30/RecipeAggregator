@@ -6,9 +6,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import ru.practice.parser_service.model.Recipe;
 import ru.practice.parser_service.service.parsers.enums.CssQueryOfRecipesParts;
-import ru.practice.parser_service.service.parsers.recipe.part_of_recipe.DirectionParser;
-import ru.practice.parser_service.service.parsers.recipe.part_of_recipe.IngredientsParser;
-import ru.practice.parser_service.service.parsers.recipe.part_of_recipe.TimeParser;
+import ru.practice.parser_service.service.parsers.recipe.recipes_parts.DirectionParser;
+import ru.practice.parser_service.service.parsers.recipe.recipes_parts.IngredientsParser;
+import ru.practice.parser_service.service.parsers.recipe.recipes_parts.TimeParser;
 
 import java.util.HashMap;
 import java.util.Map;
