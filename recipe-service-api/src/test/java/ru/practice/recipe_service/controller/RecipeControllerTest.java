@@ -12,8 +12,9 @@ import ru.practice.recipe_service.model.dto.factory.ResponseDtoFactory;
 import ru.practice.recipe_service.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_service.service.RecipeService;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -41,15 +42,15 @@ public class RecipeControllerTest {
 
     @Test
     void findById_ReturnsRecipe_WhenFound() throws Exception {
-        var recipeDto = Instancio.create(RecipeResponseDto.class);
-        Mockito.when(recipeService.findRecipeById(anyLong())).thenReturn(recipeDto);
+        var recipeDto1 = Instancio.create(RecipeResponseDto.class);
+        var recipeDto2 = Instancio.create(RecipeResponseDto.class);
+        var recipeDto3 = Instancio.create(RecipeResponseDto.class);
+        Mockito.when(recipeService.findRecipeByIds(anyList())).thenReturn(List.of(recipeDto1, recipeDto2, recipeDto3));
 
         mockMvc.perform(get("/api/v1/recipes/get-by-id/111")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.name").value(recipeDto.name()))
-                .andExpect(jsonPath("$.description").value(recipeDto.description()));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
     @Test

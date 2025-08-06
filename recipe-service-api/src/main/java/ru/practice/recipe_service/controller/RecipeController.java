@@ -8,6 +8,8 @@ import ru.practice.recipe_service.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_service.model.dto.response.ResponseDto;
 import ru.practice.recipe_service.service.RecipeService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/recipes")
 @RequiredArgsConstructor
@@ -21,9 +23,9 @@ public class RecipeController {
         return ResponseEntity.ok(recipe);
     }
 
-    @GetMapping("/get-by-id/{id}")
-    public ResponseEntity<RecipeResponseDto> findByName(@PathVariable long id) {
-        RecipeResponseDto recipe =  recipeService.findRecipeById(id);
+    @GetMapping("/get-by-ids")
+    public ResponseEntity<List<RecipeResponseDto>> findByName(@RequestBody List<Long> ids) {
+        List<RecipeResponseDto> recipe =  recipeService.findRecipeByIds(ids);
         return ResponseEntity.ok(recipe);
     }
 

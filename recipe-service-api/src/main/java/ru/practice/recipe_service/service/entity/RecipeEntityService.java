@@ -14,5 +14,5 @@ public interface RecipeEntityService {
 
     void saveAllWithBatches(List<RecipeEntity> recipes, int batchSize);
 
-    Optional<RecipeEntity> findRecipeById(long id);
+    List<RecipeEntity> findRecipeByIds(List<Long> ids);
 }

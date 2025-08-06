@@ -35,9 +35,10 @@ public class RecipeServiceImpl implements RecipeService, ConsumerProcessor {
     }
 
     @Override
-    public RecipeResponseDto findRecipeById(long id) {
-        var recipe = recipeEntityService.findRecipeById(id).orElseThrow(EntityNotFoundException::new);
-        return recipeMapper.toRecipeResponseDto(recipe);
+    public List<RecipeResponseDto> findRecipeByIds(List<Long> ids) {
+        return recipeEntityService.findRecipeByIds(ids).stream()
+                .map(recipeMapper::toRecipeResponseDto)
+                .toList();
     }
 
     @Override

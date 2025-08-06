@@ -54,7 +54,7 @@ public class RecipeEntityServiceImpl implements RecipeEntityService {
     }
 
     @Override
-    public Optional<RecipeEntity> findRecipeById(long id) {
-        return recipeRepository.findById(id);
+    public List<RecipeEntity> findRecipeByIds(List<Long> ids) {
+        return recipeRepository.findAllById(ids);
     }
 }

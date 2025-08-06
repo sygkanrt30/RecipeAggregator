@@ -1,3 +1,15 @@
 spring:
   application:
     name: search_service_api
+
+springdoc:
+  swagger-ui:
+    path: "/swagger-recipe-aggregator"
+
+application:
+  rest:
+    api:
+      prefix: /api
+
+server:
+  port: 8087
