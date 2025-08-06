@@ -13,6 +13,7 @@ import ru.practice.recipe_service.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_service.service.RecipeService;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -26,11 +27,24 @@ public class RecipeControllerTest {
     private RecipeService recipeService;
 
     @Test
-    void find_ReturnsRecipe_WhenFound() throws Exception {
+    void findByName_ReturnsRecipe_WhenFound() throws Exception {
         var recipeDto = Instancio.create(RecipeResponseDto.class);
-        Mockito.when(recipeService.findRecipe(any())).thenReturn(recipeDto);
+        Mockito.when(recipeService.findRecipeByName(any())).thenReturn(recipeDto);
 
-        mockMvc.perform(get("/api/v1/recipes/get/111")
+        mockMvc.perform(get("/api/v1/recipes/get-by-name/111")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.name").value(recipeDto.name()))
+                .andExpect(jsonPath("$.description").value(recipeDto.description()));
+    }
+
+    @Test
+    void findById_ReturnsRecipe_WhenFound() throws Exception {
+        var recipeDto = Instancio.create(RecipeResponseDto.class);
+        Mockito.when(recipeService.findRecipeById(anyLong())).thenReturn(recipeDto);
+
+        mockMvc.perform(get("/api/v1/recipes/get-by-id/111")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -43,7 +57,7 @@ public class RecipeControllerTest {
         var responseDto = ResponseDtoFactory.getResponseOK();
 
         mockMvc.perform(delete("/api/v1/recipes/delete/111")
-                .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.body").value(responseDto.body()));

@@ -15,9 +15,15 @@ import ru.practice.recipe_service.service.RecipeService;
 public class RecipeController {
     private final RecipeService recipeService;
 
-    @GetMapping("/get/{name}")
-    public ResponseEntity<RecipeResponseDto> find(@PathVariable String name) {
-        RecipeResponseDto recipe =  recipeService.findRecipe(name);
+    @GetMapping("/get-by-name/{name}")
+    public ResponseEntity<RecipeResponseDto> findByName(@PathVariable String name) {
+        RecipeResponseDto recipe =  recipeService.findRecipeByName(name);
+        return ResponseEntity.ok(recipe);
+    }
+
+    @GetMapping("/get-by-id/{id}")
+    public ResponseEntity<RecipeResponseDto> findByName(@PathVariable long id) {
+        RecipeResponseDto recipe =  recipeService.findRecipeById(id);
         return ResponseEntity.ok(recipe);
     }
 

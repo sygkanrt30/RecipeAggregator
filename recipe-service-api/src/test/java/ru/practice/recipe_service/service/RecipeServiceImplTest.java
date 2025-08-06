@@ -53,7 +53,7 @@ class RecipeServiceImplTest {
         when(recipeMapper.toRecipeResponseDto(entity))
                 .thenReturn(expectedDto);
 
-        RecipeResponseDto result = recipeService.findRecipe(recipeName);
+        RecipeResponseDto result = recipeService.findRecipeByName(recipeName);
 
         assertThat(result).isSameAs(expectedDto);
         verify(recipeEntityService).findRecipeByName(recipeName);
@@ -66,7 +66,7 @@ class RecipeServiceImplTest {
         when(recipeEntityService.findRecipeByName(recipeName))
                 .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> recipeService.findRecipe(recipeName))
+        assertThatThrownBy(() -> recipeService.findRecipeByName(recipeName))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 

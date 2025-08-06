@@ -3,6 +3,7 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/parser-service-api/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/recipe-service-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/search_service_api/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
   </component>

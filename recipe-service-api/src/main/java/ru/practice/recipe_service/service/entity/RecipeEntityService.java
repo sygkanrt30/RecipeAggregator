@@ -13,4 +13,6 @@ public interface RecipeEntityService {
     void deleteRecipeByName(String name);
 
     void saveAllWithBatches(List<RecipeEntity> recipes, int batchSize);
+
+    Optional<RecipeEntity> findRecipeById(long id);
 }
