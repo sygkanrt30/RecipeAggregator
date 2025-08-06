@@ -61,7 +61,7 @@ public class RecipeParser {
 
     private int parseTimeParam(String timeLabel, Map<String, String> detailsMap) {
         if (detailsMap.containsKey(timeLabel)) {
-            return TimeParser.parseDurationFromString(detailsMap.get(timeLabel));
+            return TimeParser.parseMinutesFromString(detailsMap.get(timeLabel));
         }
         return 0;
     }

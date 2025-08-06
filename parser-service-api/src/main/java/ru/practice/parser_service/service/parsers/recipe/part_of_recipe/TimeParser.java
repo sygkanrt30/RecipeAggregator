@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 public class TimeParser {
     private static final Pattern TIME_PATTERN = Pattern.compile("(?:((\\d+) hrs?)\\s*)?((\\d+) mins?)?");
 
-    public int parseDurationFromString(String timeStr) {
+    public int parseMinutesFromString(String timeStr) {
         Matcher matcher = TIME_PATTERN.matcher(timeStr);
         int hours = 0;
         int minutes = 0;

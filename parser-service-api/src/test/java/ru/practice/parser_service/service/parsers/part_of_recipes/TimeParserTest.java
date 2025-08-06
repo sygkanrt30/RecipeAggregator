@@ -18,10 +18,10 @@ public class TimeParserTest {
     void parseTimeToDuration_shouldReturnDurationWithMinutes(String time) {
         var duration = parseMinutes(time);
 
-        int result = TimeParser.parseDurationFromString(time);
+        int result = TimeParser.parseMinutesFromString(time);
 
         Assertions.assertEquals(duration, result);
-        Assertions.assertDoesNotThrow(() -> TimeParser.parseDurationFromString(time));
+        Assertions.assertDoesNotThrow(() -> TimeParser.parseMinutesFromString(time));
     }
 
     private int parseMinutes(String time) {
@@ -38,14 +38,14 @@ public class TimeParserTest {
     void parseTimeToDuration_shouldReturnDurationWithHours(String time) {
         var duration = parseHours(time);
 
-        int result = TimeParser.parseDurationFromString(time);
+        int result = TimeParser.parseMinutesFromString(time);
 
         Assertions.assertEquals(duration, result);
-        Assertions.assertDoesNotThrow(() -> TimeParser.parseDurationFromString(time));
+        Assertions.assertDoesNotThrow(() -> TimeParser.parseMinutesFromString(time));
     }
 
     private int parseHours(String time) {
-        return Integer.parseInt(time.substring(0, time.indexOf("h")).trim());
+        return Integer.parseInt(time.substring(0, time.indexOf("h")).trim()) * 60;
     }
 
     @ParameterizedTest
@@ -56,12 +56,12 @@ public class TimeParserTest {
     })
     @DisplayName("Проверяем как спарситься строка в которой есть и часы, и минуты")
     void parseTimeToDuration_shouldReturnDurationWithMinutesAndHours(String time) {
-        var duration = parseHours(time) * 60 + parseMinutesInFullString(time);
+        var duration = parseHours(time) + parseMinutesInFullString(time);
 
-        int result = TimeParser.parseDurationFromString(time);
+        int result = TimeParser.parseMinutesFromString(time);
 
         Assertions.assertEquals(duration, result);
-        Assertions.assertDoesNotThrow(() -> TimeParser.parseDurationFromString(time));
+        Assertions.assertDoesNotThrow(() -> TimeParser.parseMinutesFromString(time));
     }
 
     private int parseMinutesInFullString(String time) {
@@ -78,9 +78,9 @@ public class TimeParserTest {
     void parseTimeToDuration_shouldReturnEmptyString(String s) {
         var duration = 0;
 
-        int result = TimeParser.parseDurationFromString(s);
+        int result = TimeParser.parseMinutesFromString(s);
 
         Assertions.assertEquals(duration, result);
-        Assertions.assertDoesNotThrow(() -> TimeParser.parseDurationFromString(""));
+        Assertions.assertDoesNotThrow(() -> TimeParser.parseMinutesFromString(""));
     }
 }

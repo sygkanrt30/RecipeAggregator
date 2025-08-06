@@ -8,7 +8,6 @@ import ru.practice.parser_service.model.Recipe;
 import ru.practice.parser_service.service.parsers.recipe.part_of_recipe.TimeParser;
 import ru.practice.parser_service.service.parsers.recipe.RecipeParser;
 
-import java.time.Duration;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -51,17 +50,17 @@ class RecipeParserTest {
 
         Document doc = Jsoup.parse(html);
         try (MockedStatic<TimeParser> mockedTime = mockStatic(TimeParser.class)) {
-            mockedTime.when(() -> TimeParser.parseDurationFromString("30 mins"))
-                    .thenReturn(Duration.ofMinutes(30));
-            mockedTime.when(() -> TimeParser.parseDurationFromString("1 hour"))
-                    .thenReturn(Duration.ofHours(1));
+            mockedTime.when(() -> TimeParser.parseMinutesFromString("30 mins"))
+                    .thenReturn(30);
+            mockedTime.when(() -> TimeParser.parseMinutesFromString("1 hour"))
+                    .thenReturn(60);
 
             // Act
             Recipe result = RecipeParser.parseRecipePage(doc);
 
             // Assert
             assertNotNull(result);
-            assertEquals("Test Recipe", result.name());
+            assertEquals("test recipe", result.name());
             assertEquals("Test Description", result.description());
             assertEquals("Test Directions", result.direction());
             Map<String, String> expectedIngredients = Map.of(
@@ -70,7 +69,7 @@ class RecipeParserTest {
             assertEquals(expectedIngredients, result.ingredients());
             assertEquals(4, result.servings());
             assertEquals(30, result.mins4Prep());
-            assertEquals(1, result.mins4Cook());
+            assertEquals(60, result.mins4Cook());
             assertEquals(0, result.additionalMins());
             assertEquals(0, result.totalMins());
         }

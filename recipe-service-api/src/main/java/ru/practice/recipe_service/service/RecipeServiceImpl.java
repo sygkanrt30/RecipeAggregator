@@ -37,15 +37,22 @@ public class RecipeServiceImpl implements RecipeService, ConsumerProcessor {
     @Override
     @Transactional
     public void saveFromKafka(List<RecipeKafkaDto> recipesKafkaDto) {
+        if (recipesKafkaDto.isEmpty()) {
+            return;
+        }
+
         Set<String> nameOfEntitiesFromDb = recipeEntityService.findAll().stream()
                 .map(RecipeEntity::getName)
                 .collect(Collectors.toCollection(HashSet::new));
 
-        List<RecipeEntity> recipes = recipesKafkaDto.stream()
+        List<RecipeEntity> newRecipes = recipesKafkaDto.stream()
                 .filter(dto -> !nameOfEntitiesFromDb.contains(dto.name()))
                 .map(recipeMapper::fromRecipeKafkaDto)
                 .toList();
 
-        recipeEntityService.saveAllWithBatches(recipes, recipes.size() / 5);
+        if (!newRecipes.isEmpty()) {
+            int batchSize = Math.max(1, newRecipes.size() / 5);
+            recipeEntityService.saveAllWithBatches(newRecipes, batchSize);
+        }
     }
 }
