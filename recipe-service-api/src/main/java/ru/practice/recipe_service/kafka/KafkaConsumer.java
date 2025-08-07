@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import ru.practice.recipe_service.model.dto.kafka.request.RecipeKafkaDto;
+import ru.practice.recipe_service.model.dto.kafka.RecipeKafkaDto;
 import ru.practice.recipe_service.service.ConsumerProcessor;
 
 import java.util.List;

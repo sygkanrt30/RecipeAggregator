@@ -31,7 +31,7 @@ public class RecipeController {
 
     @DeleteMapping("/delete/{username}")
     public ResponseDto delete(@PathVariable String username) {
-        recipeService.deleteRecipe(username);
+        recipeService.deleteRecipeByName(username);
         return ResponseDtoFactory.getResponseOK();
     }
 }

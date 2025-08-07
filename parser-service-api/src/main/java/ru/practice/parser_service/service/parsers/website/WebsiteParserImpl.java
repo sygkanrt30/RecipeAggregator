@@ -63,7 +63,7 @@ public class WebsiteParserImpl implements WebsiteParser {
             Document doc = getDocument(url);
             log.info("Processing URL (depth {}): {}", depth, url);
             if (isRecipePage(doc)) {
-                Recipe recipe = RecipeParser.parseRecipePage(doc);
+                var recipe = RecipeParser.parseRecipePage(doc);
                 synchronized (recipes) {
                     if (isCountOfRecipesAsMuchAsPossible()) {
                         recipes.add(recipe);

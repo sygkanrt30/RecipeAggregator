@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practice.recipe_service.model.dto.mapper.RecipeMapper;
-import ru.practice.recipe_service.model.dto.kafka.request.RecipeKafkaDto;
+import ru.practice.recipe_service.model.dto.kafka.RecipeKafkaDto;
 import ru.practice.recipe_service.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_service.model.entity.RecipeEntity;
 import ru.practice.recipe_service.service.entity.RecipeEntityService;
@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class RecipeServiceImpl implements RecipeService, ConsumerProcessor {
+    private static final int BATCHES_COUNT = 5;
     private final RecipeMapper recipeMapper;
     private final RecipeEntityService recipeEntityService;
 
@@ -30,7 +31,7 @@ public class RecipeServiceImpl implements RecipeService, ConsumerProcessor {
     }
 
     @Override
-    public void deleteRecipe(String username) {
+    public void deleteRecipeByName(String username) {
         recipeEntityService.deleteRecipeByName(username.trim());
     }
 
@@ -58,7 +59,7 @@ public class RecipeServiceImpl implements RecipeService, ConsumerProcessor {
                 .toList();
 
         if (!newRecipes.isEmpty()) {
-            int batchSize = Math.max(1, newRecipes.size() / 5);
+            int batchSize = Math.max(1, newRecipes.size() / BATCHES_COUNT);
             recipeEntityService.saveAllWithBatches(newRecipes, batchSize);
         }
     }

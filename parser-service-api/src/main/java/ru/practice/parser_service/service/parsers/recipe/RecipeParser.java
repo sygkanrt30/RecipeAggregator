@@ -5,7 +5,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import ru.practice.parser_service.model.Recipe;
-import ru.practice.parser_service.service.parsers.enums.CssQueryOfRecipesParts;
 import ru.practice.parser_service.service.parsers.recipe.recipes_parts.DirectionParser;
 import ru.practice.parser_service.service.parsers.recipe.recipes_parts.IngredientsParser;
 import ru.practice.parser_service.service.parsers.recipe.recipes_parts.TimeParser;
@@ -14,13 +13,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static ru.practice.parser_service.service.parsers.enums.CssQueryOfRecipesParts.*;
+
 @UtilityClass
 public class RecipeParser {
     public Recipe parseRecipePage(Document doc) {
-        Element nameElement = doc.selectFirst(CssQueryOfRecipesParts.NAME.cssQuery());
+        Element nameElement = doc.selectFirst(NAME.cssQuery());
         String name = Objects.requireNonNull(nameElement).text();
 
-        Element descriptionElement = doc.selectFirst(CssQueryOfRecipesParts.DESCRIPTION.cssQuery());
+        Element descriptionElement = doc.selectFirst(DESCRIPTION.cssQuery());
         String description = Objects.requireNonNull(descriptionElement).text();
 
         var detailsMap = fillParamsMap(doc);
@@ -50,10 +51,10 @@ public class RecipeParser {
 
     private Map<String, String> fillParamsMap(Document doc) {
         var detailsMap = new HashMap<String, String>();
-        Elements items = doc.select(CssQueryOfRecipesParts.RECIPE_DETAILS_ITEM.cssQuery());
+        Elements items = doc.select(RECIPE_DETAILS_ITEM.cssQuery());
         for (Element item : items) {
-            String label = item.select(CssQueryOfRecipesParts.RECIPE_DETAILS_LABEL.cssQuery()).text();
-            String value = item.select(CssQueryOfRecipesParts.RECIPE_DETAILS_VALUE.cssQuery()).text().trim();
+            String label = item.select(RECIPE_DETAILS_LABEL.cssQuery()).text();
+            String value = item.select(RECIPE_DETAILS_VALUE.cssQuery()).text().trim();
             detailsMap.put(label.substring(0, label.length() - 1).toLowerCase(), value);
         }
         return detailsMap;

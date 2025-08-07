@@ -9,7 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.practice.recipe_service.model.dto.kafka.request.RecipeKafkaDto;
+import ru.practice.recipe_service.model.dto.kafka.RecipeKafkaDto;
 import ru.practice.recipe_service.model.dto.mapper.RecipeMapper;
 import ru.practice.recipe_service.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_service.model.entity.RecipeEntity;
@@ -74,7 +74,7 @@ class RecipeServiceImplTest {
     void deleteRecipe_shouldDelegateToEntityService() {
         var recipeName = "Recipe to delete";
 
-        recipeService.deleteRecipe(recipeName);
+        recipeService.deleteRecipeByName(recipeName);
 
         verify(recipeEntityService).deleteRecipeByName(recipeName.trim());
     }
@@ -83,7 +83,7 @@ class RecipeServiceImplTest {
     void deleteRecipe_shouldTrimInput() {
         var recipeName = "  Recipe with spaces  ";
 
-        recipeService.deleteRecipe(recipeName);
+        recipeService.deleteRecipeByName(recipeName);
 
         verify(recipeEntityService).deleteRecipeByName("Recipe with spaces");
     }

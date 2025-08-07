@@ -3,7 +3,7 @@ package ru.practice.recipe_service.model.dto.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.stereotype.Component;
-import ru.practice.recipe_service.model.dto.kafka.request.RecipeKafkaDto;
+import ru.practice.recipe_service.model.dto.kafka.RecipeKafkaDto;
 import ru.practice.recipe_service.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_service.model.entity.IngredientEntity;
 import ru.practice.recipe_service.model.entity.RecipeEntity;

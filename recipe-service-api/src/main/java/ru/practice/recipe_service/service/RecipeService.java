@@ -7,7 +7,7 @@ import java.util.List;
 public interface RecipeService {
     RecipeResponseDto findRecipeByName(String name);
 
-    void deleteRecipe(String username);
+    void deleteRecipeByName(String username);
 
     List<RecipeResponseDto> findRecipeByIds(List<Long> ids);
 }
