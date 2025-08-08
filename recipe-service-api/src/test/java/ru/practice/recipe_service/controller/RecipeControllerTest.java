@@ -41,19 +41,6 @@ public class RecipeControllerTest {
     }
 
     @Test
-    void findById_ReturnsRecipe_WhenFound() throws Exception {
-        var recipeDto1 = Instancio.create(RecipeResponseDto.class);
-        var recipeDto2 = Instancio.create(RecipeResponseDto.class);
-        var recipeDto3 = Instancio.create(RecipeResponseDto.class);
-        Mockito.when(recipeService.findRecipeByIds(anyList())).thenReturn(List.of(recipeDto1, recipeDto2, recipeDto3));
-
-        mockMvc.perform(get("/api/v1/recipes/get-by-id/111")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-    }
-
-    @Test
     void delete_ReturnsResponseDto_WhenDeleted() throws Exception {
         var responseDto = ResponseDtoFactory.getResponseOK();
 

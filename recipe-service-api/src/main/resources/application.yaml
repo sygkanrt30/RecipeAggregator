@@ -2,7 +2,7 @@ spring:
   application:
     name: recipe-service-api
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka:9092
   datasource:
     url: jdbc:postgresql://localhost:5435/recipe_service
     username: postgres
