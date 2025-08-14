@@ -5,6 +5,7 @@ import ru.practice.recipe_service.model.entity.IngredientEntity;
 import java.util.List;
 
 public record RecipeResponseDto(
+        Long id,
         String name,
         int mins4Prep,
         int mins4Cook,

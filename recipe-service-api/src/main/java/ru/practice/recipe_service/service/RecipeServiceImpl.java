@@ -26,18 +26,18 @@ public class RecipeServiceImpl implements RecipeService, ConsumerProcessor {
 
     @Override
     public RecipeResponseDto findRecipeByName(String name) {
-        var recipe = recipeEntityService.findRecipeByName(name).orElseThrow(EntityNotFoundException::new);
+        var recipe = recipeEntityService.findByName(name).orElseThrow(EntityNotFoundException::new);
         return recipeMapper.toRecipeResponseDto(recipe);
     }
 
     @Override
     public void deleteRecipeByName(String username) {
-        recipeEntityService.deleteRecipeByName(username.trim());
+        recipeEntityService.deleteByName(username.trim());
     }
 
     @Override
     public List<RecipeResponseDto> findRecipeByIds(List<Long> ids) {
-        return recipeEntityService.findRecipeByIds(ids).stream()
+        return recipeEntityService.findByIds(ids).stream()
                 .map(recipeMapper::toRecipeResponseDto)
                 .toList();
     }

@@ -35,7 +35,7 @@ class RecipeEntityServiceImplTest {
         var recipe = Instancio.create(RecipeEntity.class);
         when(recipeRepository.findRecipeByName(recipe.getName())).thenReturn(Optional.of(recipe));
 
-        Optional<RecipeEntity> result = recipeService.findRecipeByName(recipe.getName());
+        Optional<RecipeEntity> result = recipeService.findByName(recipe.getName());
 
         assertThat(result).contains(recipe);
         verify(recipeRepository).findRecipeByName(recipe.getName());
@@ -59,8 +59,8 @@ class RecipeEntityServiceImplTest {
         when(recipeRepository.deleteRecipeEntityByName("Existing")).thenReturn(1);
         when(recipeRepository.deleteRecipeEntityByName("Missing")).thenReturn(0);
 
-        recipeService.deleteRecipeByName("Existing");
-        recipeService.deleteRecipeByName("Missing");
+        recipeService.deleteByName("Existing");
+        recipeService.deleteByName("Missing");
 
         verify(recipeRepository, times(2)).deleteRecipeEntityByName(anyString());
     }
@@ -93,7 +93,7 @@ class RecipeEntityServiceImplTest {
     void findRecipeByName_shouldReturnEmptyOptional_whenNotFound() {
         when(recipeRepository.findRecipeByName("Unknown")).thenReturn(Optional.empty());
 
-        Optional<RecipeEntity> result = recipeService.findRecipeByName("Unknown");
+        Optional<RecipeEntity> result = recipeService.findByName("Unknown");
 
         assertThat(result).isEmpty();
     }
@@ -103,7 +103,7 @@ class RecipeEntityServiceImplTest {
         when(recipeRepository.deleteRecipeEntityByName("Unknown")).thenReturn(0);
 
         assertThatNoException()
-                .isThrownBy(() -> recipeService.deleteRecipeByName("Unknown"));
+                .isThrownBy(() -> recipeService.deleteByName("Unknown"));
     }
 
     @Test

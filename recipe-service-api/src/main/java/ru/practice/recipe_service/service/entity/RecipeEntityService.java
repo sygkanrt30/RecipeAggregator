@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RecipeEntityService {
-    Optional<RecipeEntity> findRecipeByName(String name);
+    Optional<RecipeEntity> findByName(String name);
 
     List<RecipeEntity> findAll();
 
-    void deleteRecipeByName(String name);
+    void deleteByName(String name);
 
     void saveAllWithBatches(List<RecipeEntity> recipes, int batchSize);
 
-    List<RecipeEntity> findRecipeByIds(List<Long> ids);
+    List<RecipeEntity> findByIds(List<Long> ids);
 }

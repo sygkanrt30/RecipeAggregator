@@ -19,7 +19,7 @@ public class RecipeEntityServiceImpl implements RecipeEntityService {
     private final EntityManager entityManager;
 
     @Override
-    public Optional<RecipeEntity> findRecipeByName(String name) {
+    public Optional<RecipeEntity> findByName(String name) {
         return recipeRepository.findRecipeByName(name);
     }
 
@@ -30,7 +30,7 @@ public class RecipeEntityServiceImpl implements RecipeEntityService {
 
     @Override
     @Transactional
-    public void deleteRecipeByName(String name) {
+    public void deleteByName(String name) {
         int isDeleted = recipeRepository.deleteRecipeEntityByName(name);
         if (isDeleted > 0) {
             log.info("Recipe with name: {} deleted", name);
@@ -54,7 +54,7 @@ public class RecipeEntityServiceImpl implements RecipeEntityService {
     }
 
     @Override
-    public List<RecipeEntity> findRecipeByIds(List<Long> ids) {
+    public List<RecipeEntity> findByIds(List<Long> ids) {
         return recipeRepository.findAllById(ids);
     }
 }

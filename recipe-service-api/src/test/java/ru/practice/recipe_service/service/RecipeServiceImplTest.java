@@ -48,7 +48,7 @@ class RecipeServiceImplTest {
         var recipeName = "Test Recipe";
         var entity = Instancio.create(RecipeEntity.class);
         var expectedDto = Instancio.create(RecipeResponseDto.class);
-        when(recipeEntityService.findRecipeByName(recipeName))
+        when(recipeEntityService.findByName(recipeName))
                 .thenReturn(Optional.of(entity));
         when(recipeMapper.toRecipeResponseDto(entity))
                 .thenReturn(expectedDto);
@@ -56,14 +56,14 @@ class RecipeServiceImplTest {
         RecipeResponseDto result = recipeService.findRecipeByName(recipeName);
 
         assertThat(result).isSameAs(expectedDto);
-        verify(recipeEntityService).findRecipeByName(recipeName);
+        verify(recipeEntityService).findByName(recipeName);
         verify(recipeMapper).toRecipeResponseDto(entity);
     }
 
     @Test
     void findRecipe_shouldThrowException_whenRecipeNotFound() {
         var recipeName = "Non-existent Recipe";
-        when(recipeEntityService.findRecipeByName(recipeName))
+        when(recipeEntityService.findByName(recipeName))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> recipeService.findRecipeByName(recipeName))
@@ -76,7 +76,7 @@ class RecipeServiceImplTest {
 
         recipeService.deleteRecipeByName(recipeName);
 
-        verify(recipeEntityService).deleteRecipeByName(recipeName.trim());
+        verify(recipeEntityService).deleteByName(recipeName.trim());
     }
 
     @Test
@@ -85,7 +85,7 @@ class RecipeServiceImplTest {
 
         recipeService.deleteRecipeByName(recipeName);
 
-        verify(recipeEntityService).deleteRecipeByName("Recipe with spaces");
+        verify(recipeEntityService).deleteByName("Recipe with spaces");
     }
 
     @Test
