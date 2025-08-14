@@ -17,7 +17,7 @@ class RecipeParserTest {
     @Test
     void parseRecipePage_shouldReturnCorrectRecipe() {
         // Arrange
-        String html = """
+        var html = """
             <div>
                 <h1 class="article-heading text-headline-400">Test Recipe</h1>
                 <p class="article-subheading text-utility-300">Test Description</p>
@@ -50,9 +50,9 @@ class RecipeParserTest {
 
         Document doc = Jsoup.parse(html);
         try (MockedStatic<TimeParser> mockedTime = mockStatic(TimeParser.class)) {
-            mockedTime.when(() -> TimeParser.parseMinutesFromString("30 mins"))
+            mockedTime.when(() -> TimeParser.parseMinsFromString("30 mins"))
                     .thenReturn(30);
-            mockedTime.when(() -> TimeParser.parseMinutesFromString("1 hour"))
+            mockedTime.when(() -> TimeParser.parseMinsFromString("1 hour"))
                     .thenReturn(60);
 
             // Act
@@ -78,7 +78,7 @@ class RecipeParserTest {
     @Test
     void parseRecipePage_shouldThrowExceptionWhenNameIsMissing() {
         // Arrange
-        String html = """
+        var html = """
             <div>
                 <p class="article-subheading text-utility-300">Test Description</p>
             </div>
@@ -92,7 +92,7 @@ class RecipeParserTest {
     @Test
     void parseRecipePage_shouldHandleMissingTimeParameters() {
         // Arrange
-        String html = """
+        var html = """
             <div>
                 <h1 class="article-heading text-headline-400">Test Recipe</h1>
                 <p class="article-subheading text-utility-300">Test Description</p>
@@ -133,7 +133,7 @@ class RecipeParserTest {
     @Test
     void parseRecipePage_shouldHandleEmptyDescription() {
         // Arrange
-        String html = """
+        var html = """
             <div>
                 <h1 class="article-heading text-headline-400">Test Recipe</h1>
                 <div class="mm-recipes-details">

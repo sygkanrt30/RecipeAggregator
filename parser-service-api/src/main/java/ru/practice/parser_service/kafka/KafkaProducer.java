@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class KafkaProducerService implements ProducerService {
+public class KafkaProducer implements ProducerService {
     private final KafkaTemplate<String, List<Recipe>> kafkaTemplate;
     @Value("${custom-kafka.topic}")
     private String kafkaTopic;

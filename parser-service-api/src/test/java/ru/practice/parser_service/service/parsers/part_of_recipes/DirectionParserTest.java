@@ -11,11 +11,11 @@ class DirectionParserTest {
     @Test
     void parseDirections_shouldReturnEmptyString_whenNoDirectionsFound() {
         // Arrange
-        String html = "<div>No directions here</div>";
+        var html = "<div>No directions here</div>";
         Document doc = Jsoup.parse(html);
 
         // Act
-        String result = DirectionParser.parseDirections(doc);
+        String result = DirectionParser.parse(doc);
 
         // Assert
         assertEquals("", result);
@@ -24,7 +24,7 @@ class DirectionParserTest {
     @Test
     void parseDirections_shouldParseSingleStep() {
         // Arrange
-        String html = "<ol>" +
+        var html = "<ol>" +
                 "<li class='mntl-sc-block-group--LI'>" +
                 "<p class='mntl-sc-block-html'>Preheat oven to 350°F (175°C)</p>" +
                 "</li>" +
@@ -32,7 +32,7 @@ class DirectionParserTest {
         Document doc = Jsoup.parse(html);
 
         // Act
-        String result = DirectionParser.parseDirections(doc);
+        String result = DirectionParser.parse(doc);
 
         // Assert
         assertEquals("Preheat oven to 350°F (175°C)", result);
@@ -41,7 +41,7 @@ class DirectionParserTest {
     @Test
     void parseDirections_shouldParseMultipleSteps() {
         // Arrange
-        String html = "<ol>" +
+        var html = "<ol>" +
                 "<li class='mntl-sc-block-group--LI'>" +
                 "<p class='mntl-sc-block-html'>Preheat oven to 350°F (175°C)</p>" +
                 "</li>" +
@@ -55,10 +55,10 @@ class DirectionParserTest {
         Document doc = Jsoup.parse(html);
 
         // Act
-        String result = DirectionParser.parseDirections(doc);
+        var result = DirectionParser.parse(doc);
 
         // Assert
-        String expected = """
+        var expected = """
                 Preheat oven to 350°F (175°C)
                 Mix flour and sugar in a bowl
                 Bake for 30 minutes""";
@@ -68,7 +68,7 @@ class DirectionParserTest {
     @Test
     void parseDirections_shouldTrimWhitespace() {
         // Arrange
-        String html = "<ol>" +
+        var html = "<ol>" +
                 "<li class='mntl-sc-block-group--LI'>" +
                 "<p class='mntl-sc-block-html'>   Preheat oven to 350°F (175°C)   </p>" +
                 "</li>" +
@@ -79,10 +79,10 @@ class DirectionParserTest {
         Document doc = Jsoup.parse(html);
 
         // Act
-        String result = DirectionParser.parseDirections(doc);
+        String result = DirectionParser.parse(doc);
 
         // Assert
-        String expected = "Preheat oven to 350°F (175°C)\n" +
+        var expected = "Preheat oven to 350°F (175°C)\n" +
                 "Mix ingredients";
         assertEquals(expected, result);
     }
@@ -90,7 +90,7 @@ class DirectionParserTest {
     @Test
     void parseDirections_shouldIgnoreNonDirectionElements() {
         // Arrange
-        String html = "<ol>" +
+        var html = "<ol>" +
                 "<li class='mntl-sc-block-group--LI'>" +
                 "<p class='mntl-sc-block-html'>First step</p>" +
                 "<div class='ad'>Advertisement</div>" +
@@ -103,17 +103,17 @@ class DirectionParserTest {
         Document doc = Jsoup.parse(html);
 
         // Act
-        String result = DirectionParser.parseDirections(doc);
+        String result = DirectionParser.parse(doc);
 
         // Assert
-        String expected = "First step\nSecond step";
+        var expected = "First step\nSecond step";
         assertEquals(expected, result);
     }
 
     @Test
     void parseDirections_shouldHandleEmptySteps() {
         // Arrange
-        String html = "<ol>" +
+        var html = "<ol>" +
                 "<li class='mntl-sc-block-group--LI'>" +
                 "<p class='mntl-sc-block-html'></p>" +
                 "</li>" +
@@ -124,10 +124,10 @@ class DirectionParserTest {
         Document doc = Jsoup.parse(html);
 
         // Act
-        String result = DirectionParser.parseDirections(doc);
+        String result = DirectionParser.parse(doc);
 
         // Assert
-        String expected = "\nActual step";
+        var expected = "\nActual step";
         assertEquals(expected, result);
     }
 }

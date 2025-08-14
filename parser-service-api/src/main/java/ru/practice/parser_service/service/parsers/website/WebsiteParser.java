@@ -5,5 +5,5 @@ import ru.practice.parser_service.model.Recipe;
 import java.util.List;
 
 public interface WebsiteParser {
-    List<Recipe> parseWebsite(String url);
+    List<Recipe> parse(String url);
 }

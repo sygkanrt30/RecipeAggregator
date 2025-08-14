@@ -5,6 +5,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import ru.practice.parser_service.model.Recipe;
+import ru.practice.parser_service.service.parsers.enums.CssQueryOfRecipesParts;
 import ru.practice.parser_service.service.parsers.recipe.recipes_parts.DirectionParser;
 import ru.practice.parser_service.service.parsers.recipe.recipes_parts.IngredientsParser;
 import ru.practice.parser_service.service.parsers.recipe.recipes_parts.TimeParser;
@@ -18,24 +19,19 @@ import static ru.practice.parser_service.service.parsers.enums.CssQueryOfRecipes
 @UtilityClass
 public class RecipeParser {
     public Recipe parseRecipePage(Document doc) {
-        Element nameElement = doc.selectFirst(NAME.cssQuery());
-        String name = Objects.requireNonNull(nameElement).text();
-
-        Element descriptionElement = doc.selectFirst(DESCRIPTION.cssQuery());
-        String description = Objects.requireNonNull(descriptionElement).text();
+        String name = getSimplePartsOfRecipe(doc, NAME);
+        String description = getSimplePartsOfRecipe(doc, DESCRIPTION);
 
         var detailsMap = fillParamsMap(doc);
-
-        int servings = Integer.parseInt(detailsMap.get("servings"));
-
         int mins4Cook = parseTimeParam("cook time", detailsMap);
         int additionalMins = parseTimeParam("additional time", detailsMap);
         int totalMins = parseTimeParam("total time", detailsMap);
         int mins4Prep = parseTimeParam("prep time", detailsMap);
 
-        Map<String, String> ingredients = IngredientsParser.parseIngredients(doc);
+        int servings = Integer.parseInt(detailsMap.get("servings"));
 
-        String directions = DirectionParser.parseDirections(doc);
+        Map<String, String> ingredients = IngredientsParser.parse(doc);
+        String directions = DirectionParser.parse(doc);
         return Recipe.builder()
                 .name(name.trim().toLowerCase())
                 .description(description)
@@ -49,20 +45,26 @@ public class RecipeParser {
                 .build();
     }
 
+    private static String getSimplePartsOfRecipe(Document doc, CssQueryOfRecipesParts cssQuery) {
+        Element simpleElement = doc.selectFirst(cssQuery.cssQuery());
+        return Objects.requireNonNull(simpleElement).text();
+    }
+
     private Map<String, String> fillParamsMap(Document doc) {
         var detailsMap = new HashMap<String, String>();
         Elements items = doc.select(RECIPE_DETAILS_ITEM.cssQuery());
-        for (Element item : items) {
+        for (var item : items) {
             String label = item.select(RECIPE_DETAILS_LABEL.cssQuery()).text();
-            String value = item.select(RECIPE_DETAILS_VALUE.cssQuery()).text().trim();
-            detailsMap.put(label.substring(0, label.length() - 1).toLowerCase(), value);
+            String value = item.select(RECIPE_DETAILS_VALUE.cssQuery()).text();
+            var processedLabel = label.substring(0, label.length() - 1).toLowerCase();
+            detailsMap.put(processedLabel, value.trim());
         }
         return detailsMap;
     }
 
     private int parseTimeParam(String timeLabel, Map<String, String> detailsMap) {
         if (detailsMap.containsKey(timeLabel)) {
-            return TimeParser.parseMinutesFromString(detailsMap.get(timeLabel));
+            return TimeParser.parseMinsFromString(detailsMap.get(timeLabel));
         }
         return 0;
     }

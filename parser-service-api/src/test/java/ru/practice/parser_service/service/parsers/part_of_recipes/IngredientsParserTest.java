@@ -14,11 +14,11 @@ class IngredientsParserTest {
     @Test
     void parseIngredients_shouldReturnEmptyMap_whenNoIngredientsFound() {
         // Arrange
-        String html = "<div>No ingredients here</div>";
+        var html = "<div>No ingredients here</div>";
         Document doc = Jsoup.parse(html);
 
         // Act
-        Map<String, String> result = IngredientsParser.parseIngredients(doc);
+        Map<String, String> result = IngredientsParser.parse(doc);
 
         // Assert
         assertTrue(result.isEmpty());
@@ -27,7 +27,7 @@ class IngredientsParserTest {
     @Test
     void parseIngredients_shouldParseSingleIngredient() {
         // Arrange
-        String html = "<ul>" +
+        var html = "<ul>" +
                 "<li class='mm-recipes-structured-ingredients__list-item'>" +
                 "<span data-ingredient-quantity='true'>2</span>" +
                 "<span data-ingredient-unit='true'>cups</span>" +
@@ -37,7 +37,7 @@ class IngredientsParserTest {
         Document doc = Jsoup.parse(html);
 
         // Act
-        Map<String, String> result = IngredientsParser.parseIngredients(doc);
+        Map<String, String> result = IngredientsParser.parse(doc);
 
         // Assert
         assertEquals(1, result.size());
@@ -47,7 +47,7 @@ class IngredientsParserTest {
     @Test
     void parseIngredients_shouldHandleEmptyQuantity() {
         // Arrange
-        String html = "<ul>" +
+        var html = "<ul>" +
                 "<li class='mm-recipes-structured-ingredients__list-item'>" +
                 "<span data-ingredient-quantity='true'></span>" +
                 "<span data-ingredient-unit='true'>to taste</span>" +
@@ -57,7 +57,7 @@ class IngredientsParserTest {
         Document doc = Jsoup.parse(html);
 
         // Act
-        Map<String, String> result = IngredientsParser.parseIngredients(doc);
+        Map<String, String> result = IngredientsParser.parse(doc);
 
         // Assert
         assertEquals(1, result.size());
@@ -67,7 +67,7 @@ class IngredientsParserTest {
     @Test
     void parseIngredients_shouldHandleFractionalQuantities() {
         // Arrange
-        String html = "<ul>" +
+        var html = "<ul>" +
                 "<li class='mm-recipes-structured-ingredients__list-item'>" +
                 "<span data-ingredient-quantity='true'>1/2</span>" +
                 "<span data-ingredient-unit='true'>teaspoon</span>" +
@@ -77,7 +77,7 @@ class IngredientsParserTest {
         Document doc = Jsoup.parse(html);
 
         // Act
-        Map<String, String> result = IngredientsParser.parseIngredients(doc);
+        Map<String, String> result = IngredientsParser.parse(doc);
 
         // Assert
         assertEquals(1, result.size());
@@ -87,7 +87,7 @@ class IngredientsParserTest {
     @Test
     void parseIngredients_shouldHandleMultipleIngredients() {
         // Arrange
-        String html = "<ul>" +
+        var html = "<ul>" +
                 "<li class='mm-recipes-structured-ingredients__list-item'>" +
                 "<span data-ingredient-quantity='true'>2</span>" +
                 "<span data-ingredient-unit='true'>cups</span>" +
@@ -102,7 +102,7 @@ class IngredientsParserTest {
         Document doc = Jsoup.parse(html);
 
         // Act
-        Map<String, String> result = IngredientsParser.parseIngredients(doc);
+        Map<String, String> result = IngredientsParser.parse(doc);
 
         // Assert
         assertEquals(2, result.size());
@@ -113,7 +113,7 @@ class IngredientsParserTest {
     @Test
     void parseIngredients_shouldHandleComplexIngredientNames() {
         // Arrange
-        String html = "<ul>" +
+        var html = "<ul>" +
                 "<li class='mm-recipes-structured-ingredients__list-item'>" +
                 "<span data-ingredient-quantity='true'>3</span>" +
                 "<span data-ingredient-unit='true'>tablespoons</span>" +
@@ -123,7 +123,7 @@ class IngredientsParserTest {
         Document doc = Jsoup.parse(html);
 
         // Act
-        Map<String, String> result = IngredientsParser.parseIngredients(doc);
+        Map<String, String> result = IngredientsParser.parse(doc);
 
         // Assert
         assertEquals(1, result.size());

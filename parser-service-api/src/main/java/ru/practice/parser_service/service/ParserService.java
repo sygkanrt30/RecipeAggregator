@@ -16,14 +16,14 @@ import java.util.concurrent.TimeUnit;
 @EnableScheduling
 @RequiredArgsConstructor
 public class ParserService {
-    private final ProducerService producerService;
-    private final WebsiteParser parser;
     @Value("${parser.website-with-recipe.url.main-page}")
     private String rootUrl;
+    private final ProducerService producer;
+    private final WebsiteParser parser;
 
     @Scheduled(fixedRate = 2, timeUnit = TimeUnit.DAYS)
     public void parceRecipesAndSend2Kafka() {
-        List<Recipe> recipes = parser.parseWebsite(rootUrl);
-        producerService.sendMessage(recipes);
+        List<Recipe> recipes = parser.parse(rootUrl);
+        producer.sendMessage(recipes);
     }
 }

@@ -18,37 +18,33 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 @Slf4j
 public class WebsiteParserImpl implements WebsiteParser {
-    private final String tagClasses;
-    private final int maxRecipes;
-    private final int maxDepth;
-    private final String userAgent;
+    private static final int TIMEOUT = 15000;
+
+    @Value("${parser.container.selectors}")
+    private String tagClasses;
+    @Value("${parser.max.recipes}")
+    private int maxRecipes;
+    @Value("${parser.max.depth}")
+    private int maxDepth;
+    @Value("${parser.website-with-recipe.browser-agent}")
+    private String userAgent;
+    @Value("${parser.website-with-recipe.referrer}")
+    private String referrer;
+    @Value("${parser.website-with-recipe.recipe-tag}")
+    private String recipeTag;
+
     private final Set<String> visitedUrls;
     private final List<Recipe> recipes;
     private final AtomicInteger recipeCount;
-    private final String referrer;
-    private final String recipeTag;
 
-    public WebsiteParserImpl(
-            @Value("${parser.website-with-recipe.browser-agent}") String userAgent,
-            @Value("${parser.max.recipes}") int maxRecipes,
-            @Value("${parser.max.depth}") int maxDepth,
-            @Value("${parser.container.selectors}") String selectorsConfig,
-            @Value("${parser.website-with-recipe.referrer}") String referrer,
-            @Value("${parser.website-with-recipe.recipe-tag}") String recipeTag) {
-
+    public WebsiteParserImpl() {
         this.visitedUrls = Collections.synchronizedSet(new HashSet<>());
         this.recipes = Collections.synchronizedList(new ArrayList<>());
         this.recipeCount = new AtomicInteger(0);
-        this.userAgent = userAgent;
-        this.maxRecipes = maxRecipes;
-        this.maxDepth = maxDepth;
-        this.tagClasses = selectorsConfig;
-        this.referrer = referrer;
-        this.recipeTag = recipeTag;
     }
 
     @Override
-    public List<Recipe> parseWebsite(String url) {
+    public List<Recipe> parse(String url) {
         return parseWebsiteRecursive(url, 0);
     }
 
@@ -89,7 +85,7 @@ public class WebsiteParserImpl implements WebsiteParser {
             return Jsoup.connect(url)
                     .userAgent(userAgent)
                     .referrer(referrer)
-                    .timeout(15000)
+                    .timeout(TIMEOUT)
                     .followRedirects(true)
                     .ignoreHttpErrors(true)
                     .get();

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 @UtilityClass
 public class DirectionParser {
-    public String parseDirections(Document doc) {
+    public String parse(Document doc) {
         Elements steps = doc.select(CssQueryOfRecipesParts.DIRECTIONS.cssQuery());
         return steps.stream()
                 .map(Element::text)

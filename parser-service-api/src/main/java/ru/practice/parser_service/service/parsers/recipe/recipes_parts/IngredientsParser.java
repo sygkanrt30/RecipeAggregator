@@ -2,9 +2,7 @@ package ru.practice.parser_service.service.parsers.recipe.recipes_parts;
 
 import lombok.experimental.UtilityClass;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,10 +13,10 @@ import static ru.practice.parser_service.service.parsers.enums.CssQueryOfRecipes
 public class IngredientsParser {
     private final String DEFAULT_VALUE = "1";
 
-    public Map<String, String> parseIngredients(Document doc) {
-        Elements ingredientItems = doc.select(INGREDIENTS_NODE.cssQuery());
+    public Map<String, String> parse(Document doc) {
         Map<String, String> ingredientsMap = new HashMap<>();
-        for (Element item : ingredientItems) {
+        Elements ingredientItems = doc.select(INGREDIENTS_NODE.cssQuery());
+        for (var item : ingredientItems) {
             String quantity = item.select(INGREDIENT_QUANTITY.cssQuery()).text();
             String unit = item.select(INGREDIENTS_UNIT.cssQuery()).text();
             String name = item.select(INGREDIENTS_NAME.cssQuery()).text();
