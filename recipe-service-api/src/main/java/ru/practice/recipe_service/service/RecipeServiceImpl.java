@@ -36,13 +36,6 @@ public class RecipeServiceImpl implements RecipeService, ConsumerProcessor {
     }
 
     @Override
-    public List<RecipeResponseDto> findRecipeByIds(List<Long> ids) {
-        return recipeEntityService.findByIds(ids).stream()
-                .map(recipeMapper::toRecipeResponseDto)
-                .toList();
-    }
-
-    @Override
     @Transactional
     public void saveFromKafka(List<RecipeKafkaDto> recipesKafkaDto) {
         if (recipesKafkaDto.isEmpty()) {

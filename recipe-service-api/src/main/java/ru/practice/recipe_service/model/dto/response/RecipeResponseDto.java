@@ -1,7 +1,5 @@
 package ru.practice.recipe_service.model.dto.response;
 
-import ru.practice.recipe_service.model.entity.IngredientEntity;
-
 import java.util.List;
 
 public record RecipeResponseDto(
@@ -12,7 +10,7 @@ public record RecipeResponseDto(
         int additionalMins,
         int totalMins,
         int servings,
-        List<IngredientEntity> ingredients,
+        List<IngredientDto> ingredients,
         String direction,
         String description
 ) {

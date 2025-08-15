@@ -21,7 +21,6 @@ public interface RecipeMapper {
     @Mapping(target = "ingredients", expression = "java(getListOfRecipesFromMap(kafkaDto.ingredients()))")
     RecipeEntity fromRecipeKafkaDto(RecipeKafkaDto kafkaDto);
 
-    @SuppressWarnings("unused")
     default List<IngredientEntity> getListOfRecipesFromMap(Map<String, String> map) {
         return map.entrySet().stream()
                 .map(entry -> {
