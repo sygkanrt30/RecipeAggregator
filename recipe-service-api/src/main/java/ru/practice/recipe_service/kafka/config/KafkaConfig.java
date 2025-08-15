@@ -35,12 +35,12 @@ public class KafkaConfig {
         configProps.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        configProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
 
         var objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         var deserializer = new JsonDeserializer<List<RecipeKafkaDto>>(
-                new TypeReference<>() {
-                },
+                new TypeReference<>() {},
                 objectMapper
         );
         deserializer.addTrustedPackages(trustedPackage);
