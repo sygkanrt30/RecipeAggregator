@@ -1,0 +1,26 @@
+package ru.practice.search_service.model.entity.elasticsearch;
+
+import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+
+@Data
+@Document(indexName = "ingredient")
+public class IngredientDoc {
+    @Id
+    private Long id;
+
+    @Field(type = FieldType.Text)
+    private String name;
+
+    @Field(type = FieldType.Text)
+    private String unit;
+
+    @Field(type = FieldType.Text)
+    private String quantity;
+
+    @Field(type = FieldType.Keyword)
+    private RecipeDoc recipe;
+}
