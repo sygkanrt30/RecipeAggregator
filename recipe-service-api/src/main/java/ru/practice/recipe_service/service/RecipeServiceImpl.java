@@ -20,8 +20,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class RecipeServiceImpl implements RecipeService, ConsumerProcessor {
-    private static final int BATCHES_COUNT = 5;
+    private static final int BATCHES_SIZE = 1500;
     private final RecipeMapper recipeMapper;
+
     private final RecipeEntityService recipeEntityService;
 
     @Override
@@ -52,7 +53,7 @@ public class RecipeServiceImpl implements RecipeService, ConsumerProcessor {
                 .toList();
 
         if (!newRecipes.isEmpty()) {
-            int batchSize = Math.max(1, newRecipes.size() / BATCHES_COUNT);
+            int batchSize = Math.max(newRecipes.size(), BATCHES_SIZE);
             recipeEntityService.saveAllWithBatches(newRecipes, batchSize);
         }
     }

@@ -1,11 +1,18 @@
 package ru.practice.search_service.service.indexing;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
+import org.springframework.data.elasticsearch.core.query.IndexQuery;
+import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practice.search_service.model.dto.mapper.DocMapper;
-import ru.practice.search_service.model.entity.elasticsearch.RecipeDoc;
 import ru.practice.search_service.model.entity.postgres.RecipeEntity;
 import ru.practice.search_service.repository.postgres.RecipePostgresRepository;
 
@@ -14,18 +21,44 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class IndexingService {
+    private final static int BATCH_SIZE = 2000;
     private final RecipePostgresRepository recipeRepository;
     private final ElasticsearchOperations elasticsearchOperations;
+    private final EntityManager entityManager;
     private final DocMapper mapper;
 
-    @Scheduled(fixedRate = 6, timeUnit = TimeUnit.HOURS)
+    @Transactional(readOnly = true)
+    @Scheduled(fixedRate = 10, timeUnit = TimeUnit.HOURS)
     public void indexAllProducts() {
-        List<RecipeEntity> products = recipeRepository.findAll();
-        List<RecipeDoc> documents = products.stream()
-                .map(mapper::toRecipeDoc)
+        long count = recipeRepository.count();
+        int pages = (int) Math.ceil((double) count / BATCH_SIZE);
+        for (int i = 0; i < pages; i++) {
+            List<RecipeEntity> batch = recipeRepository.findAll(
+                    PageRequest.of(i, BATCH_SIZE, Sort.by("id"))
+            ).getContent();
+
+            indexBatch(batch);
+            entityManager.clear();
+            log.info("Indexed {} of {} recipes", i, batch.size());
+        }
+        log.info("All recipes indexed");
+    }
+
+    private void indexBatch(List<RecipeEntity> batch) {
+        var queries = batch.stream()
+                .map(this::createIndexQuery)
                 .collect(Collectors.toList());
-        elasticsearchOperations.save(documents);
+        elasticsearchOperations.bulkIndex(queries, IndexCoordinates.of("recipe"));
+    }
+
+    private IndexQuery createIndexQuery(RecipeEntity product) {
+        var doc = mapper.toRecipeDoc(product);
+        return new IndexQueryBuilder()
+                .withId(String.valueOf(doc.getId()))
+                .withObject(doc)
+                .build();
     }
 }
