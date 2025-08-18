@@ -9,20 +9,20 @@ import java.util.List;
 public class Mins4PrepFilter implements Filter {
     @Override
     public void filter(List<RecipeResponseDto> recipes, SearchContainer searchContainer) {
-        if (isValidConditionOrThrow(searchContainer)) {
-            recipes.removeIf(recipe ->
-                    recipe.mins4Prep() > searchContainer.maxMins4Prep());
+        if (searchContainer.maxMins4Prep() <= 0) {
+            searchContainer.maxMins4Prep(Integer.MAX_VALUE);
         }
-    }
-
-    private boolean isValidConditionOrThrow(SearchContainer searchContainer) {
-        int maxMins4Prep = searchContainer.maxMins4Prep();
-        if (maxMins4Prep < 1 || maxMins4Prep > searchContainer.maxTotalMins()){
+        if (!isValidCondition(searchContainer)) {
             throw new InvalidConditionException("""
                     Invalid condition:
                     total mins must be greater than upper limit of mins for preparing,
                     upper limit of mins for preparing must be greater than 0""");
         }
-        return true;
+        recipes.removeIf(recipe ->
+                recipe.mins4Prep() > searchContainer.maxMins4Prep());
+    }
+
+    private boolean isValidCondition(SearchContainer searchContainer) {
+        return searchContainer.maxMins4Prep() <= searchContainer.maxTotalMins();
     }
 }

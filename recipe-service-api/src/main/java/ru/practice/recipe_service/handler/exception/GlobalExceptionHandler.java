@@ -14,15 +14,15 @@ import ru.practice.recipe_service.model.dto.response.ResponseDto;
 public class GlobalExceptionHandler {
     @ExceptionHandler
     public ResponseDto catchEntityExistsException(EntityExistsException e) {
-        return getAppErrorHandlerResponseEntity(e, HttpStatus.CONFLICT);
+        return getAppErrorHandlerResponseDto(e, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler
     public ResponseDto catchEntityNotFoundException(EntityNotFoundException e) {
-        return getAppErrorHandlerResponseEntity(e, HttpStatus.NO_CONTENT);
+        return getAppErrorHandlerResponseDto(e, HttpStatus.NO_CONTENT);
     }
 
-    private ResponseDto getAppErrorHandlerResponseEntity(Exception e, HttpStatus status) {
+    private ResponseDto getAppErrorHandlerResponseDto(Exception e, HttpStatus status) {
         String error = e.getMessage();
         log.error(error, e);
         return ResponseDtoFactory.getResponseError(status, error);

@@ -9,20 +9,21 @@ import java.util.List;
 public class TotalMinsFilter implements Filter {
     @Override
     public void filter(List<RecipeResponseDto> recipes, SearchContainer searchContainer) {
-        if (isValidConditionOrThrow(searchContainer)) {
-            recipes.removeIf(recipe ->
-                    recipe.totalMins() > searchContainer.maxTotalMins());
+        if (searchContainer.maxTotalMins() <= 0) {
+            searchContainer.maxTotalMins(Integer.MAX_VALUE);
         }
-    }
-
-    private boolean isValidConditionOrThrow(SearchContainer searchContainer) {
-        int totalMins = searchContainer.maxTotalMins();
-        if (totalMins < (searchContainer.maxMins4Cook() + searchContainer.maxMins4Prep())){
+        if (!isValidCondition(searchContainer)) {
             throw new InvalidConditionException("""
                     Invalid condition:
                     total mins must be greater than sum of max mins for cooking and for preparing
                     """);
         }
-        return true;
+        recipes.removeIf(recipe ->
+                recipe.totalMins() > searchContainer.maxTotalMins());
+    }
+
+    private boolean isValidCondition(SearchContainer searchContainer) {
+        int totalMins = searchContainer.maxTotalMins();
+        return totalMins >= (searchContainer.maxMins4Cook() + searchContainer.maxMins4Prep());
     }
 }
