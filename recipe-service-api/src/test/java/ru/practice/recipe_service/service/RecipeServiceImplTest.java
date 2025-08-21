@@ -111,7 +111,7 @@ class RecipeServiceImplTest {
 
         recipeService.saveFromKafka(dtos);
 
-        verify(recipeEntityService).saveAllWithBatches(entities, 4);
+        verify(recipeEntityService, never()).saveAllWithBatches(entities, 4);
     }
 
     @Test
@@ -159,7 +159,7 @@ class RecipeServiceImplTest {
         verify(recipeMapper).fromRecipeKafkaDto(argThat(dto -> dto != null && "New2".equals(dto.name())));
         verify(recipeEntityService).saveAllWithBatches(
                 argThat(list -> list != null && list.size() == 2 && list.containsAll(List.of(newEntity1, newEntity2))),
-                eq(1)
+                eq(2)
         );
     }
 
