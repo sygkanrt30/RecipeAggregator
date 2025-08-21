@@ -15,9 +15,9 @@ import java.util.List;
 public class SearchContainer {
     final String name;
     final List<String> ingredientsName;
-    int maxMins4Cook;
-    int maxTotalMins;
-    int maxMins4Prep;
-    final int minServings;
-    int maxServings;
+    Integer maxMins4Cook;
+    Integer maxTotalMins;
+    Integer maxMins4Prep;
+    Integer minServings;
+    Integer maxServings;
 }

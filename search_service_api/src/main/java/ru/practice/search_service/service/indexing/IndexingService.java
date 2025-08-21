@@ -9,6 +9,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,9 +23,10 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@EnableScheduling
 @RequiredArgsConstructor
 public class IndexingService {
-    private final static int BATCH_SIZE = 2000;
+    private final static int BATCH_SIZE = 1000;
     private final RecipePostgresRepository recipeRepository;
     private final ElasticsearchOperations elasticsearchOperations;
     private final EntityManager entityManager;
@@ -36,7 +38,7 @@ public class IndexingService {
         long count = recipeRepository.count();
         int pages = (int) Math.ceil((double) count / BATCH_SIZE);
         for (int i = 0; i < pages; i++) {
-            List<RecipeEntity> batch = recipeRepository.findAll(
+            var batch = recipeRepository.findAll(
                     PageRequest.of(i, BATCH_SIZE, Sort.by("id"))
             ).getContent();
 

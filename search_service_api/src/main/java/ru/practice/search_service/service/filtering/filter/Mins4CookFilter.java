@@ -9,14 +9,14 @@ import java.util.List;
 public class Mins4CookFilter implements Filter {
     @Override
     public void filter(List<RecipeResponseDto> recipes, SearchContainer searchContainer) {
-        if (searchContainer.maxMins4Cook() <= 0) {
-            searchContainer.maxMins4Cook(Integer.MAX_VALUE);
+        if (searchContainer.maxMins4Cook() == null || searchContainer.maxMins4Cook() < 1) {
+            searchContainer.maxMins4Cook(0);
+            return;
         }
         if (!isValidCondition(searchContainer)) {
             throw new InvalidConditionException("""
                     Invalid condition:
-                    total mins must be greater than upper limit of mins for cooking,
-                    upper limit of mins for cooking must be greater than 0""");
+                    total mins must be greater than upper limit of mins for cooking""");
         }
         recipes.removeIf(recipe ->
                 recipe.mins4Cook() > searchContainer.maxMins4Cook());

@@ -9,9 +9,7 @@ import java.util.List;
 public class TotalMinsFilter implements Filter {
     @Override
     public void filter(List<RecipeResponseDto> recipes, SearchContainer searchContainer) {
-        if (searchContainer.maxTotalMins() <= 0) {
-            searchContainer.maxTotalMins(Integer.MAX_VALUE);
-        }
+        if (searchContainer.maxTotalMins() == null || searchContainer.maxTotalMins() < 1) return;
         if (!isValidCondition(searchContainer)) {
             throw new InvalidConditionException("""
                     Invalid condition:

@@ -24,17 +24,11 @@ public class FilterServiceImpl implements FilterService {
 
     @Override
     public List<RecipeResponseDto> processWithFilterChain(List<RecipeResponseDto> recipes, SearchContainer searchContainer) {
-        throwIfIngredientsEmptyOrNull(searchContainer);
         for (var filter : filterChain) {
             filter.filter(recipes, searchContainer);
+            log.info("list current size: {}", recipes.size());
         }
         log.info("Recipes filtration was successful");
         return recipes;
-    }
-
-    private void throwIfIngredientsEmptyOrNull(SearchContainer container) {
-        if (container.name() == null || container.ingredientsName().isEmpty()) {
-            throw new IllegalArgumentException("Ingredients cannot be empty or null");
-        }
     }
 }

@@ -9,8 +9,11 @@ import java.util.List;
 public class ServingsFilter implements Filter {
     @Override
     public void filter(List<RecipeResponseDto> recipes, SearchContainer searchContainer) {
-        if (searchContainer.maxServings() <= 0) {
+        if (searchContainer.maxServings() == null || searchContainer.maxServings() < 0) {
             searchContainer.maxServings(Integer.MAX_VALUE);
+        }
+        if (searchContainer.minServings() == null) {
+            searchContainer.minServings(0);
         }
         if (!isValidCondition(searchContainer)) {
             throw new InvalidConditionException("""
@@ -26,6 +29,6 @@ public class ServingsFilter implements Filter {
     private boolean isValidCondition(SearchContainer searchContainer) {
         int minServings = searchContainer.minServings();
         int maxServings = searchContainer.maxServings();
-        return minServings < maxServings && minServings >= 0;
+        return minServings <= maxServings && minServings >= 0;
     }
 }

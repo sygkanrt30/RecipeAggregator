@@ -35,11 +35,11 @@ public class SearchController {
     @GetMapping("/filter")
     public List<RecipeResponseDto> filter(
             @RequestBody List<RecipeResponseDto> recipes,
-            @RequestParam(required = false) int maxMins4Cook,
-            @RequestParam(required = false) int maxTotalMins,
-            @RequestParam(required = false) int maxMins4Prep,
-            @RequestParam(required = false) int minServings,
-            @RequestParam(required = false) int maxServings) {
+            @RequestParam(required = false) Integer maxMins4Cook,
+            @RequestParam(required = false) Integer maxTotalMins,
+            @RequestParam(required = false) Integer maxMins4Prep,
+            @RequestParam(required = false) Integer minServings,
+            @RequestParam(required = false) Integer maxServings) {
         var container = SearchContainer.builder()
                 .maxMins4Cook(maxMins4Cook)
                 .maxTotalMins(maxTotalMins)
@@ -53,11 +53,11 @@ public class SearchController {
     @GetMapping("/search-by-ingredients-with-filtering")
     public List<RecipeResponseDto> searchByIngredientsWithFiltering(
             @RequestParam List<String> ingredientsName,
-            @RequestParam(required = false) int maxMins4Cook,
-            @RequestParam(required = false) int maxTotalMins,
-            @RequestParam(required = false) int maxMins4Prep,
-            @RequestParam(required = false) int minServings,
-            @RequestParam(required = false) int maxServings
+            @RequestParam(required = false) Integer maxMins4Cook,
+            @RequestParam(required = false) Integer maxTotalMins,
+            @RequestParam(required = false) Integer maxMins4Prep,
+            @RequestParam(required = false) Integer minServings,
+            @RequestParam(required = false) Integer maxServings
     ) {
         var container = SearchContainer.builder()
                 .ingredientsName(ingredientsName)
@@ -73,11 +73,11 @@ public class SearchController {
     @GetMapping("/search-by-name-with-filtering")
     public List<RecipeResponseDto> searchByNameWithFiltering(
             @RequestParam String name,
-            @RequestParam(required = false) int maxMins4Cook,
-            @RequestParam(required = false) int maxTotalMins,
-            @RequestParam(required = false) int maxMins4Prep,
-            @RequestParam(required = false) int minServings,
-            @RequestParam(required = false) int maxServings
+            @RequestParam(required = false) Integer maxMins4Cook,
+            @RequestParam(required = false) Integer maxTotalMins,
+            @RequestParam(required = false) Integer maxMins4Prep,
+            @RequestParam(required = false) Integer minServings,
+            @RequestParam(required = false) Integer maxServings
     ) {
         var container = SearchContainer.builder()
                 .name(name)

@@ -51,5 +51,6 @@ public class RecipeEntityServiceImpl implements RecipeEntityService {
                 throw new RuntimeException(e.getMessage(), e.getCause());
             }
         }
+        log.info("All {} recipes saved", recipes.size());
     }
 }
