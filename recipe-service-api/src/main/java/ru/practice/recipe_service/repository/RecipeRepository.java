@@ -9,6 +9,4 @@ import java.util.Optional;
 @Repository
 public interface RecipeRepository extends JpaRepository<RecipeEntity, Long> {
     Optional<RecipeEntity> findRecipeByName(String name);
-
-    int deleteRecipeEntityByName(String name);
 }

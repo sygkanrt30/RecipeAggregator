@@ -2,10 +2,11 @@ package ru.practice.recipe_service.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import ru.practice.recipe_service.model.dto.factory.ResponseDtoFactory;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ru.practice.recipe_service.model.dto.response.RecipeResponseDto;
-import ru.practice.recipe_service.model.dto.response.ResponseDto;
 import ru.practice.recipe_service.service.RecipeService;
 
 @RestController
@@ -19,11 +20,5 @@ public class RecipeController {
     public ResponseEntity<RecipeResponseDto> findByName(@PathVariable String name) {
         RecipeResponseDto recipe =  recipeService.findRecipeByName(name);
         return ResponseEntity.ok(recipe);
-    }
-
-    @DeleteMapping("/delete/{username}")
-    public ResponseDto delete(@PathVariable String username) {
-        recipeService.deleteRecipeByName(username);
-        return ResponseDtoFactory.getResponseOK();
     }
 }

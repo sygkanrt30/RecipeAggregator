@@ -30,17 +30,6 @@ public class RecipeEntityServiceImpl implements RecipeEntityService {
 
     @Override
     @Transactional
-    public void deleteByName(String name) {
-        int isDeleted = recipeRepository.deleteRecipeEntityByName(name);
-        if (isDeleted > 0) {
-            log.info("Recipe with name: {} deleted", name);
-        } else {
-            log.info("Recipe not deleted: {}", name);
-        }
-    }
-
-    @Override
-    @Transactional
     public void saveAllWithBatches(List<RecipeEntity> recipes, int batchSize) {
         for (int i = 0; i < recipes.size(); i += batchSize) {
             var batch = recipes.subList(i, Math.min(i + batchSize, recipes.size()));

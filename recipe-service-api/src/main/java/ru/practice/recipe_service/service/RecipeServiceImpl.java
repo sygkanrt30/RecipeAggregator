@@ -31,11 +31,6 @@ public class RecipeServiceImpl implements RecipeService, ConsumerProcessor {
     }
 
     @Override
-    public void deleteRecipeByName(String username) {
-        recipeEntityService.deleteByName(username.trim());
-    }
-
-    @Override
     @Transactional
     public void saveFromKafka(List<RecipeKafkaDto> recipesKafkaDto) {
         if (recipesKafkaDto.isEmpty()) {

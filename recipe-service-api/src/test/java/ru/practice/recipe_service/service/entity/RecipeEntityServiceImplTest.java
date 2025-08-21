@@ -55,17 +55,6 @@ class RecipeEntityServiceImplTest {
     }
 
     @Test
-    void deleteRecipeByName_shouldLogWhenDeleted() {
-        when(recipeRepository.deleteRecipeEntityByName("Existing")).thenReturn(1);
-        when(recipeRepository.deleteRecipeEntityByName("Missing")).thenReturn(0);
-
-        recipeService.deleteByName("Existing");
-        recipeService.deleteByName("Missing");
-
-        verify(recipeRepository, times(2)).deleteRecipeEntityByName(anyString());
-    }
-
-    @Test
     void saveAllWithBatches_shouldProcessInBatches() {
         List<RecipeEntity> recipes = IntStream.range(0, 105)
                 .mapToObj(i -> Instancio.create(RecipeEntity.class))
@@ -96,14 +85,6 @@ class RecipeEntityServiceImplTest {
         Optional<RecipeEntity> result = recipeService.findByName("Unknown");
 
         assertThat(result).isEmpty();
-    }
-
-    @Test
-    void deleteRecipeByName_shouldNotFail_whenRecipeNotExists() {
-        when(recipeRepository.deleteRecipeEntityByName("Unknown")).thenReturn(0);
-
-        assertThatNoException()
-                .isThrownBy(() -> recipeService.deleteByName("Unknown"));
     }
 
     @Test

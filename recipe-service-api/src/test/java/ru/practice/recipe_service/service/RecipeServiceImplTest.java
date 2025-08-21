@@ -71,24 +71,6 @@ class RecipeServiceImplTest {
     }
 
     @Test
-    void deleteRecipe_shouldDelegateToEntityService() {
-        var recipeName = "Recipe to delete";
-
-        recipeService.deleteRecipeByName(recipeName);
-
-        verify(recipeEntityService).deleteByName(recipeName.trim());
-    }
-
-    @Test
-    void deleteRecipe_shouldTrimInput() {
-        var recipeName = "  Recipe with spaces  ";
-
-        recipeService.deleteRecipeByName(recipeName);
-
-        verify(recipeEntityService).deleteByName("Recipe with spaces");
-    }
-
-    @Test
     void saveFromKafka_shouldHandleEmptyList() {
         recipeService.saveFromKafka(Collections.emptyList());
 

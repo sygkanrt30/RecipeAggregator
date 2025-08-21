@@ -6,11 +6,6 @@ import ru.practice.recipe_service.model.dto.response.ResponseDto;
 
 @UtilityClass
 public class ResponseDtoFactory {
-    public ResponseDto getResponseOK() {
-        var status = HttpStatus.OK;
-        return new ResponseDto(status, status.getReasonPhrase());
-    }
-
     public ResponseDto getResponseError(HttpStatus status, String reason) {
         return new ResponseDto(status, reason);
     }
