@@ -13,7 +13,7 @@ import java.time.Duration;
 @Configuration
 @EnableElasticsearchRepositories(basePackages
         = "ru.practice.search_service.repository")
-@ComponentScan(basePackages = { "ru.practice.search_service" })
+@ComponentScan(basePackages = {"ru.practice.search_service"})
 public class ElasticClientConfig extends ElasticsearchConfiguration {
     @Value("${elasticsearch.host-and-port}")
     private String hostAndPort;
