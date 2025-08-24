@@ -33,7 +33,7 @@ public class IndexingService {
     private final DocMapper mapper;
 
     @Transactional(readOnly = true)
-    @Scheduled(fixedRate = 10, timeUnit = TimeUnit.HOURS)
+    @Scheduled(fixedDelay = 600, initialDelay = 10, timeUnit = TimeUnit.MINUTES)
     public void indexAllProducts() {
         long count = recipeRepository.count();
         int pages = (int) Math.ceil((double) count / BATCH_SIZE);

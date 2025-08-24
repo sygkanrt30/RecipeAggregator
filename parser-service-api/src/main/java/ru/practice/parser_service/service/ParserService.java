@@ -21,7 +21,7 @@ public class ParserService {
     private final ProducerService producer;
     private final WebsiteParser parser;
 
-    @Scheduled(fixedRate = 2, timeUnit = TimeUnit.DAYS)
+    @Scheduled(fixedDelay = 2, timeUnit = TimeUnit.DAYS, initialDelay = 0)
     public void parceRecipesAndSend2Kafka() {
         List<Recipe> recipes = parser.parse(rootUrl);
         producer.sendMessage(recipes);

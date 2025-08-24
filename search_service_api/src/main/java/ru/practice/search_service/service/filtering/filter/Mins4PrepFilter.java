@@ -23,6 +23,7 @@ public class Mins4PrepFilter implements Filter {
     }
 
     private boolean isValidCondition(SearchContainer searchContainer) {
+        if (searchContainer.maxTotalMins() == null) return true;
         return searchContainer.maxMins4Prep() <= searchContainer.maxTotalMins();
     }
 }

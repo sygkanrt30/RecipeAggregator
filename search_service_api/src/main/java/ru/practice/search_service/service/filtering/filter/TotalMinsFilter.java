@@ -21,6 +21,7 @@ public class TotalMinsFilter implements Filter {
     }
 
     private boolean isValidCondition(SearchContainer searchContainer) {
+        if (searchContainer.maxMins4Prep() == null || searchContainer.maxMins4Cook() == null) return true;
         int totalMins = searchContainer.maxTotalMins();
         return totalMins >= (searchContainer.maxMins4Cook() + searchContainer.maxMins4Prep());
     }

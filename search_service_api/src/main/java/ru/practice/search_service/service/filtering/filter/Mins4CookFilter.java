@@ -23,6 +23,7 @@ public class Mins4CookFilter implements Filter {
     }
 
     private boolean isValidCondition(SearchContainer searchContainer) {
+        if (searchContainer.maxTotalMins() == null) return true;
         return searchContainer.maxMins4Cook() <= searchContainer.maxTotalMins();
     }
 }
