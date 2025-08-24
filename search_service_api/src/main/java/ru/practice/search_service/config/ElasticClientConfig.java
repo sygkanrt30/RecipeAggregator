@@ -11,19 +11,25 @@ import org.springframework.lang.NonNull;
 import java.time.Duration;
 
 @Configuration
-@EnableElasticsearchRepositories(basePackages
-        = "ru.practice.search_service.repository")
+@EnableElasticsearchRepositories(basePackages = "ru.practice.search_service.repository")
 @ComponentScan(basePackages = {"ru.practice.search_service"})
 public class ElasticClientConfig extends ElasticsearchConfiguration {
     @Value("${elasticsearch.host-and-port}")
     private String hostAndPort;
 
+    @Value("${spring.elasticsearch.connection-timeout:30000}")
+    private long connectionTimeout;
+
+    @Value("${spring.elasticsearch.socket-timeout:60000}")
+    private long socketTimeout;
+
     @Override
     public @NonNull ClientConfiguration clientConfiguration() {
         return ClientConfiguration.builder()
                 .connectedTo(hostAndPort)
-                .withConnectTimeout(Duration.ofSeconds(5))
-                .withSocketTimeout(Duration.ofSeconds(30))
+                .withConnectTimeout(Duration.ofMillis(connectionTimeout))
+                .withSocketTimeout(Duration.ofMillis(socketTimeout))
+                .withBasicAuth("", "")
                 .build();
     }
 }

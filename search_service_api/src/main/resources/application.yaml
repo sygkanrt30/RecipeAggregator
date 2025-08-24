@@ -6,6 +6,14 @@ spring:
     username: postgres
     password: 5435
     driver-class-name: org.postgresql.Driver
+  elasticsearch:
+    connection-timeout: 30000
+    socket-timeout: 60000
+    uris: http://elasticsearch:9200
+  data:
+    elasticsearch:
+      repositories:
+        enabled: true
   jpa:
     show-sql: true
     hibernate:

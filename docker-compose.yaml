@@ -13,7 +13,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - kafka-network
+      - general-network
 
   kafka:
     image: bitnami/kafka:3.6
@@ -35,7 +35,7 @@ services:
       timeout: 5s
       retries: 10
     networks:
-      - kafka-network
+      - general-network
 
   db:
     image: postgres:17.5
@@ -49,8 +49,15 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 5435
       POSTGRES_DB: recipe_service
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     networks:
       - db-network
+      - general-network
 
   elasticsearch:
     image: elasticsearch:8.9.0
@@ -58,7 +65,9 @@ services:
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - bootstrap.memory_lock=true
     ulimits:
       memlock:
         soft: -1
@@ -70,8 +79,14 @@ services:
       - elasticsearch_data:/usr/share/elasticsearch/data
     ports:
       - "9200:9200"
-#    networks:
-#      - odfe-net
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -s -f http://localhost:9200/_cluster/health | grep -q '\"status\":\"\\(green\\|yellow\\)\"' || exit 1" ]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 90s
+    networks:
+      - general-network
 
   recipe-service-api:
     image: recipe-service_api:latest
@@ -81,8 +96,10 @@ services:
       context: .
       dockerfile: recipe-service-api/Dockerfile
     depends_on:
-      - db
-      - kafka
+      db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     ports:
       - "8088:8088"
     environment:
@@ -92,7 +109,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     networks:
       - db-network
-      - kafka-network
+      - general-network
 
   parser-service-api:
     image: parser-service_api:latest
@@ -102,22 +119,48 @@ services:
       context: .
       dockerfile: parser-service-api/Dockerfile
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     ports:
       - "8081:8081"
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     networks:
-      - kafka-network
+      - general-network
+
+  search-service-api:
+    image: search-service-api:latest
+    container_name: search-service
+    restart: always
+    build:
+      context: .
+      dockerfile: search_service_api/Dockerfile
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    ports:
+      - "8087:8087"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/recipe_service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 5435
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      SPRING_ELASTICSEARCH_CONNECTION_TIMEOUT: 30000
+      SPRING_ELASTICSEARCH_SOCKET_TIMEOUT: 60000
+      ELASTICSEARCH_HOST_AND_PORT: elasticsearch:9200
+      SPRING_DATA_ELASTICSEARCH_AUTO_CREATE_INDEX: "false"
+      SPRING_DATA_ELASTICSEARCH_REPOSITORIES_ENABLED: "true"
+    networks:
+      - db-network
+      - general-network
 
 networks:
   db-network:
     driver: bridge
-  kafka-network:
+  general-network:
     driver: bridge
-    name: kafka-network
-#  odfe-net:
-#    driver: bridge
 
 volumes:
   postgres_data:
