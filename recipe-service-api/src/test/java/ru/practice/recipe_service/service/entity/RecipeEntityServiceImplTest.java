@@ -59,7 +59,6 @@ class RecipeEntityServiceImplTest {
         List<RecipeEntity> recipes = IntStream.range(0, 105)
                 .mapToObj(i -> Instancio.create(RecipeEntity.class))
                 .toList();
-
         when(recipeRepository.saveAllAndFlush(anyList())).thenAnswer(inv -> inv.getArgument(0));
 
         recipeService.saveAllWithBatches(recipes, 50);

@@ -33,6 +33,9 @@ public class RecipeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name").value(recipeDto.name()))
-                .andExpect(jsonPath("$.description").value(recipeDto.description()));
+                .andExpect(jsonPath("$.description").value(recipeDto.description()))
+                .andExpect(jsonPath("$.direction").value(recipeDto.direction()))
+                .andExpect(jsonPath("$.mins4Cook").value(recipeDto.mins4Cook()));
+
     }
 }

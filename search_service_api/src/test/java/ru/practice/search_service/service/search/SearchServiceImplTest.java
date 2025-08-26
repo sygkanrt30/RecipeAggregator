@@ -23,27 +23,20 @@ import static org.mockito.Mockito.verify;
 class SearchServiceImplTest {
     @Mock
     private FilterService filterService;
-
     @Mock
     private DtoMapper mapper;
-
     @Mock
     @Qualifier("nameSearcher")
     private Searcher nameSearcher;
-
     @Mock
     @Qualifier("ingredientsSearcher")
     private Searcher ingredientsSearcher;
-
     @InjectMocks
     private SearchServiceImpl searchService;
 
     @Test
     void searchByName_WhenNameIsNull_ShouldThrowException() {
-        // Arrange
         var container = SearchContainer.builder().name(null).build();
-
-        // Act & Assert
         var exception = assertThrows(IllegalArgumentException.class,
                 () -> searchService.searchByName(container));
         assertEquals("Search name cannot be empty or null", exception.getMessage());
@@ -51,10 +44,7 @@ class SearchServiceImplTest {
 
     @Test
     void searchByName_WhenNameIsEmpty_ShouldThrowException() {
-        // Arrange
         var container = SearchContainer.builder().name("").build();
-
-        // Act & Assert
         var exception = assertThrows(IllegalArgumentException.class,
                 () -> searchService.searchByName(container));
         assertEquals("Search name cannot be empty or null", exception.getMessage());
@@ -62,10 +52,7 @@ class SearchServiceImplTest {
 
     @Test
     void searchByIngredients_WhenIngredientsIsNull_ShouldThrowException() {
-        // Arrange
         var container = SearchContainer.builder().ingredientsName(null).build();
-
-        // Act & Assert
         var exception = assertThrows(IllegalArgumentException.class,
                 () -> searchService.searchByIngredients(container));
         assertEquals("Ingredients name cannot be empty or null", exception.getMessage());
@@ -73,66 +60,38 @@ class SearchServiceImplTest {
 
     @Test
     void searchByIngredients_WhenIngredientsIsEmpty_ShouldThrowException() {
-        // Arrange
         var container = SearchContainer.builder().ingredientsName(List.of()).build();
-
-        // Act & Assert
         var exception = assertThrows(IllegalArgumentException.class,
                 () -> searchService.searchByIngredients(container));
         assertEquals("Ingredients name cannot be empty or null", exception.getMessage());
     }
 
     @Test
-    void searchByIngredientsWithFiltering_WhenNoResults_ShouldReturnEmptyListWithoutFiltering() {
-        // Arrange
-        var ingredients = List.of("chicken", "rice");
-        var container = SearchContainer.builder().ingredientsName(ingredients).build();
+    void searchByNameWithFiltering_WhenNoResults_ShouldReturnEmptyListWithoutFiltering() {
+        var container = SearchContainer.builder().name("nonexistent").build();
 
-        // Act
-        var result = searchService.searchByIngredientsWithFiltering(container);
+        var result = searchService.searchByNameWithFiltering(container);
 
-        // Assert
         assertTrue(result.isEmpty());
+        verify(filterService, never()).processWithFilterChain(anyList(), any());
+        verify(mapper, never()).toRecipeResponseDto(any());
+    }
+
+    @Test
+    void searchByNameWithFiltering_WhenNameIsInvalid_ShouldThrowException() {
+        var container = SearchContainer.builder().name("").build();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> searchService.searchByNameWithFiltering(container));
         verify(filterService, never()).processWithFilterChain(anyList(), any());
     }
 
     @Test
-    void searchByName_WhenSearcherReturnsEmptyList_ShouldReturnEmptyList() {
-        // Arrange
-        var container = SearchContainer.builder().name("test").build();
+    void searchByIngredientsWithFiltering_WhenIngredientsIsInvalid_ShouldThrowException() {
+        var container = SearchContainer.builder().ingredientsName(null).build();
 
-        // Act
-        var result = searchService.searchByName(container);
-
-        // Assert
-        assertTrue(result.isEmpty());
-        verify(mapper, never()).toRecipeResponseDto(any());
-    }
-
-    @Test
-    void searchByIngredients_WhenSearcherReturnsEmptyList_ShouldReturnEmptyList() {
-        // Arrange
-        var ingredients = List.of("test");
-        var container = SearchContainer.builder().ingredientsName(ingredients).build();
-
-        // Act
-        var result = searchService.searchByIngredients(container);
-
-        // Assert
-        assertTrue(result.isEmpty());
-        verify(mapper, never()).toRecipeResponseDto(any());
-    }
-
-    @Test
-    void searchByNameWithFiltering_ShouldNotCallFilterServiceWhenResultsEmpty() {
-        // Arrange
-        var container = SearchContainer.builder().name("nonexistent").build();
-
-        // Act
-        var result = searchService.searchByNameWithFiltering(container);
-
-        // Assert
-        assertTrue(result.isEmpty());
+        assertThrows(IllegalArgumentException.class,
+                () -> searchService.searchByIngredientsWithFiltering(container));
         verify(filterService, never()).processWithFilterChain(anyList(), any());
     }
 }

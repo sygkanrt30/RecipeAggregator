@@ -100,7 +100,6 @@ class RecipeServiceImplTest {
     void saveFromKafka_shouldHandleSingleItemBatch() {
         var dto = Instancio.create(RecipeKafkaDto.class);
         var entity = Instancio.create(RecipeEntity.class);
-
         when(recipeEntityService.findAll()).thenReturn(Collections.emptyList());
         when(recipeMapper.fromRecipeKafkaDto(dto)).thenReturn(entity);
 
