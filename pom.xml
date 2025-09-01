@@ -13,6 +13,8 @@
         <module>parser-service-api</module>
         <module>recipe-service-api</module>
         <module>search_service_api</module>
+        <module>user-service-api</module>
+        <module>gateway-api</module>
     </modules>
 
     <properties>

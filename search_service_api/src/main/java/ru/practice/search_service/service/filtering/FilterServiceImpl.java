@@ -24,6 +24,7 @@ public class FilterServiceImpl implements FilterService {
 
     @Override
     public List<RecipeResponseDto> processWithFilterChain(List<RecipeResponseDto> recipes, SearchContainer searchContainer) {
+        log.info("list start size: {}", recipes.size());
         for (var filter : filterChain) {
             filter.filter(recipes, searchContainer);
             log.info("list current size: {}", recipes.size());
