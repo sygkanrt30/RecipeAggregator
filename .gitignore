@@ -5,10 +5,10 @@ target/
 .idea
 
 ### IntelliJ IDEA ###
-.idea
 *.iws
 *.iml
 *.ipr
+.idea/*.xml
 
 ### Mac OS ###
 .DS_Store

@@ -88,6 +88,19 @@ services:
     networks:
       - general-network
 
+  eureka-server:
+    image: eureka-server:latest
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - general-network
+
   recipe-service-api:
     image: recipe-service_api:latest
     container_name: recipe-service
@@ -99,6 +112,8 @@ services:
       db:
         condition: service_healthy
       kafka:
+        condition: service_healthy
+      eureka-server:
         condition: service_healthy
     ports:
       - "8088:8088"
@@ -119,6 +134,8 @@ services:
       context: .
       dockerfile: parser-service-api/Dockerfile
     depends_on:
+      eureka-server:
+        condition: service_healthy
       kafka:
         condition: service_healthy
     ports:
@@ -136,6 +153,8 @@ services:
       context: .
       dockerfile: search_service_api/Dockerfile
     depends_on:
+      eureka-server:
+        condition: service_healthy
       elasticsearch:
         condition: service_healthy
       db:
@@ -154,6 +173,25 @@ services:
       SPRING_DATA_ELASTICSEARCH_REPOSITORIES_ENABLED: "true"
     networks:
       - db-network
+      - general-network
+
+  gateway-service:
+    image: gateway-service:latest
+    container_name: gateway-service
+    restart: always
+    build:
+      context: .
+      dockerfile: gateway-service/Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - GATEWAY_SECRET=myGatewaySecret4145132412
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
       - general-network
 
 networks:
