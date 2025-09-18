@@ -43,3 +43,6 @@ custom:
     group-id: recipe-group
     trusted:
       package: ru.practice.*
+
+elasticsearch:
+  host-and-port: localhost:9200

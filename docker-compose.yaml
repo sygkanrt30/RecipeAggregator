@@ -88,18 +88,6 @@ services:
     networks:
       - general-network
 
-#  eureka-server:
-#    image: eureka-server:latest
-#    container_name: eureka-server
-#    ports:
-#      - "8761:8761"
-#    healthcheck:
-#      test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
-#      interval: 30s
-#      timeout: 10s
-#      retries: 5
-#    networks:
-#      - general-network
 
   recipe-service-api:
     image: recipe-service_api:latest
@@ -111,10 +99,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
       kafka:
         condition: service_healthy
-#      eureka-server:
-#        condition: service_healthy
     ports:
       - "8088:8088"
     environment:
@@ -122,6 +110,12 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 5435
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      SPRING_ELASTICSEARCH_CONNECTION_TIMEOUT: 30000
+      SPRING_ELASTICSEARCH_SOCKET_TIMEOUT: 60000
+      ELASTICSEARCH_HOST_AND_PORT: elasticsearch:9200
+      SPRING_DATA_ELASTICSEARCH_AUTO_CREATE_INDEX: "false"
+      SPRING_DATA_ELASTICSEARCH_REPOSITORIES_ENABLED: "true"
     networks:
       - db-network
       - general-network
@@ -134,8 +128,6 @@ services:
       context: .
       dockerfile: parser-service-api/Dockerfile
     depends_on:
-#      eureka-server:
-#        condition: service_healthy
       kafka:
         condition: service_healthy
     ports:
@@ -144,55 +136,6 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     networks:
       - general-network
-
-  search-service-api:
-    image: search-service-api:latest
-    container_name: search-service
-    restart: always
-    build:
-      context: .
-      dockerfile: search_service_api/Dockerfile
-    depends_on:
-#      eureka-server:
-#        condition: service_healthy
-      elasticsearch:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-    ports:
-      - "8087:8087"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/recipe_service
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 5435
-      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
-      SPRING_ELASTICSEARCH_CONNECTION_TIMEOUT: 30000
-      SPRING_ELASTICSEARCH_SOCKET_TIMEOUT: 60000
-      ELASTICSEARCH_HOST_AND_PORT: elasticsearch:9200
-      SPRING_DATA_ELASTICSEARCH_AUTO_CREATE_INDEX: "false"
-      SPRING_DATA_ELASTICSEARCH_REPOSITORIES_ENABLED: "true"
-    networks:
-      - db-network
-      - general-network
-
-#  gateway-service:
-#    image: gateway-service:latest
-#    container_name: gateway-service
-#    restart: always
-#    build:
-#      context: .
-#      dockerfile: gateway-service/Dockerfile
-#    ports:
-#      - "8082:8082"
-#    environment:
-#      - SPRING_PROFILES_ACTIVE=docker
-#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
-#      - GATEWAY_SECRET=myGatewaySecret4145132412
-#    depends_on:
-#      eureka-server:
-#        condition: service_healthy
-#    networks:
-#      - general-network
 
 networks:
   db-network:
