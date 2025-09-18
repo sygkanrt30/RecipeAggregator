@@ -8,54 +8,54 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-import ru.practice.gateway.util.JwtUtil;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
 @Component
 public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAuthenticationFilter.Config> {
-    private final int BEGIN_INDEX = 7;
-    private final JwtUtil jwtUtil;
+    private static final int BEGIN_INDEX = 7;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+    public JwtAuthenticationFilter() {
         super(Config.class);
-        this.jwtUtil = jwtUtil;
     }
 
     @Override
     public GatewayFilter apply(Config config) {
-        return (exchange, chain) -> {
-            var request = exchange.getRequest();
-            var requestPath = request.getPath().value();
-
-            if (requestPath.startsWith("/auth")) {
-                return chain.filter(exchange);
-            }
-
-            if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
-                return onError(exchange, "Authorization header is missing");
-            }
-
-            String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return onError(exchange, "Invalid authorization header");
-            }
-
-            String token = authHeader.substring(BEGIN_INDEX);
-            if (!jwtUtil.validateToken(token)) {
-                return onError(exchange, "Invalid or expired token");
-            }
-
-            var username = jwtUtil.extractUsername(token);
-            var roles = jwtUtil.extractRoles(token);
-            var modifiedRequest = exchange.getRequest().mutate()
-                    .header("X-User-Id", username)
-                    .header("X-User-Roles", roles)
-                    .build();
-
-            return chain.filter(exchange.mutate().request(modifiedRequest).build());
-        };
+        return null;
+//        return (exchange, chain) -> {
+//            var request = exchange.getRequest();
+//            var requestPath = request.getPath().value();
+//
+//            if (requestPath.startsWith("/auth")) {
+//                return chain.filter(exchange);
+//            }
+//
+//            if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
+//                return onError(exchange, "Authorization header is missing");
+//            }
+//
+//            String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+//            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+//                return onError(exchange, "Invalid authorization header");
+//            }
+//
+//            String token = authHeader.substring(BEGIN_INDEX);
+////            if (!jwtUtil.validateToken(token)) {
+////                return onError(exchange, "Invalid or expired token");
+////            }
+////
+////            var username = jwtUtil.extractUsername(token);
+////            var roles = jwtUtil.extractRoles(token);
+////            var modifiedRequest = exchange.getRequest().mutate()
+////                    .header("X-User-Id", username)
+////                    .header("X-User-Roles", roles)
+////                    .build();
+//
+//            return chain.filter(exchange.mutate()
+//                    .request(modifiedRequest)
+//                    .build());
+//        };
     }
 
     private Mono<Void> onError(ServerWebExchange exchange, String err) {

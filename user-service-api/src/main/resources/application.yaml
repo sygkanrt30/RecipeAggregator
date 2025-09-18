@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: user-service-api
+  datasource:
+    url: jdbc:postgresql://localhost:5435/recipe_service
+    username: postgres
+    password: 5435
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    locations: classpath:db/migration
+    encoding: UTF-8
+    validate-on-migrate: false
+    baseline-version: 1
+    baseline-on-migrate: true
+
+server:
+  port: 8083
+
+springdoc:
+  swagger-ui:
+    path: "/swagger-recipe-aggregator"
+
+application:
+  rest:
+    api:
+      prefix: /api
+
+jwt:
+  cookie-token-key: '{"kty":"oct","k":"956PBFst1FguLr5irJD-aQ"}'

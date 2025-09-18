@@ -14,7 +14,6 @@ spring:
               predicates:
                 - Path=/auth/**
               filters:
-                - JwtAuthenticationFilter
                 - StripPrefix=1
 
             - id: search-service
@@ -35,7 +34,7 @@ spring:
                 - AddRequestHeader=X-Internal-Request, true
                 - AddRequestHeader=X-Gateway-Secret, ${GATEWAY_SECRET}
 
-  security:
+security:
     jwt:
       secret: ${GATEWAY_SECRET}
 
