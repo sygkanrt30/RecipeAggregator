@@ -39,7 +39,7 @@ services:
 
   db:
     image: postgres:17.5
-    container_name: RecipeAggregatorDb
+    container_name: postgres
     restart: always
     ports:
       - "5435:5432"
@@ -89,36 +89,36 @@ services:
       - general-network
 
 
-  recipe-service-api:
-    image: recipe-service_api:latest
-    container_name: recipe-service
-    restart: always
-    build:
-      context: .
-      dockerfile: recipe-service-api/Dockerfile
-    depends_on:
-      db:
-        condition: service_healthy
-      elasticsearch:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
-    ports:
-      - "8088:8088"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/recipe_service
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 5435
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
-      SPRING_ELASTICSEARCH_CONNECTION_TIMEOUT: 30000
-      SPRING_ELASTICSEARCH_SOCKET_TIMEOUT: 60000
-      ELASTICSEARCH_HOST_AND_PORT: elasticsearch:9200
-      SPRING_DATA_ELASTICSEARCH_AUTO_CREATE_INDEX: "false"
-      SPRING_DATA_ELASTICSEARCH_REPOSITORIES_ENABLED: "true"
-    networks:
-      - db-network
-      - general-network
+#  recipe-service-api:
+#    image: recipe-service_api:latest
+#    container_name: recipe-service
+#    restart: always
+#    build:
+#      context: .
+#      dockerfile: recipe-service-api/Dockerfile
+#    depends_on:
+#      db:
+#        condition: service_healthy
+#      elasticsearch:
+#        condition: service_healthy
+#      kafka:
+#        condition: service_healthy
+#    ports:
+#      - "8088:8088"
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/recipe_service
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: 5435
+#      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+#      SPRING_ELASTICSEARCH_CONNECTION_TIMEOUT: 30000
+#      SPRING_ELASTICSEARCH_SOCKET_TIMEOUT: 60000
+#      ELASTICSEARCH_HOST_AND_PORT: elasticsearch:9200
+#      SPRING_DATA_ELASTICSEARCH_AUTO_CREATE_INDEX: "false"
+#      SPRING_DATA_ELASTICSEARCH_REPOSITORIES_ENABLED: "true"
+#    networks:
+#      - db-network
+#      - general-network
 
   parser-service-api:
     image: parser-service_api:latest

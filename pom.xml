@@ -12,7 +12,6 @@
     <modules>
         <module>parser-service-api</module>
         <module>recipe-service-api</module>
-        <module>user-service-api</module>
     </modules>
 
     <properties>

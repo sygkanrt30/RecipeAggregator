@@ -11,8 +11,8 @@ import org.springframework.lang.NonNull;
 import java.time.Duration;
 
 @Configuration
-@EnableElasticsearchRepositories(basePackages = "ru.practice.recipe_aggregator.repository")
-@ComponentScan(basePackages = {"ru.practice.recipe_aggregator"})
+@EnableElasticsearchRepositories(basePackages = "ru.practice.recipe_aggregator.recipe_management.repository")
+@ComponentScan(basePackages = {"ru.practice"})
 public class ElasticClientConfig extends ElasticsearchConfiguration {
     @Value("${elasticsearch.host-and-port}")
     private String hostAndPort;
