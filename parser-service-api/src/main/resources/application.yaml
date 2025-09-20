@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: parser-service-api
+  kafka:
+    bootstrap-servers: kafka:9092
+
+server:
+  port: 8081
+
+custom-kafka:
+  topic: recipes
+
+parser:
+  website-with-recipe:
+    url:
+      main-page: https://www.allrecipes.com/recipes-a-z-6735880#alphabetical-list-a
+    browser-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36
+    referrer: https://www:google:com
+    recipe-tag: html[id=recipeScTemplate_1-0]
+
+  max:
+    depth: 3
+    recipes: 100
+  container:
+    selectors: >
+      div.mntl-alphabetical-list__group, 
+      div.comp.mntl-universal-card-list,
+      div.comp.mntl-taxonomysc-content,
+      div.comp.mntl-taxonomy-nodes,
+      div.comp.mntl-taxonomysc-article-list-group,
+      div.comp.related-category-search__category-tags,
+      div.comp.mntl-sc-block,
+      div.comp.mntl-three-post__inner

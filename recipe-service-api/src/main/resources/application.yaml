@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: recipe-service-api
+  kafka:
+    bootstrap-servers: kafka:9092
+  datasource:
+    url: jdbc:postgresql://localhost:5435/recipe_service
+    username: postgres
+    password: 5435
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    locations: classpath:db/migration
+    encoding: UTF-8
+    validate-on-migrate: false
+    baseline-version: 1
+    baseline-on-migrate: true
+  jpa:
+    show-sql: true
+#    hibernate:
+#      ddl-auto: update
+    properties:
+      hibernate:
+        transaction:
+          jta:
+            platform: none
+    database: postgresql
+
+springdoc:
+  swagger-ui:
+    path: "/swagger-recipe-aggregator"
+
+application:
+  rest:
+    api:
+      prefix: /api
+
+server:
+  port: 8088
+
+custom:
+  kafka:
+    topic: recipes
+    group-id: recipe-group
+    trusted:
+      package: ru.practice.*
+    offset-reset: latest
+
+elasticsearch:
+  host-and-port: localhost:9200
+
+jwt:
+  cookie-token-key: '{"kty":"oct","k":"956PBFst1FguLr5irJD-aQ"}'

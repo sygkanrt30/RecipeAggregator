@@ -11,6 +11,7 @@
 
     <modules>
         <module>parser-service-api</module>
+        <module>recipe-service-api</module>
     </modules>
 
     <properties>
