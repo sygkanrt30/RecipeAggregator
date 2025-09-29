@@ -10,13 +10,14 @@ import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearc
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Mapper(componentModel = "spring")
 @Component
 public interface RecipeMapper {
     RecipeResponseDto toRecipeResponseDto(RecipeDoc recipe);
 
-    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "id", expression = "java(generateRecipeId())")
     @Mapping(target = "ingredients", expression = "java(getListOfRecipesFromMap(kafkaDto.ingredients()))")
     RecipeDoc fromRecipeKafkaDto(RecipeKafkaDto kafkaDto);
 
@@ -37,5 +38,9 @@ public interface RecipeMapper {
                             .build();
                 })
                 .toList();
+    }
+
+    default UUID generateRecipeId() {
+        return UUID.randomUUID();
     }
 }

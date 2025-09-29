@@ -9,6 +9,7 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -16,7 +17,8 @@ import java.util.List;
 @Document(indexName = "recipe")
 public class RecipeDoc {
     @Id
-    private Long id;
+    @Field(type = FieldType.Text)
+    private UUID id;
 
     @Field(type = FieldType.Text)
     private String name;

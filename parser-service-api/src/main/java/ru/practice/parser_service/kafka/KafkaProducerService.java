@@ -21,6 +21,6 @@ public class KafkaProducerService implements ProducerService {
     @Override
     public void sendMessage(List<Recipe> recipes) {
         kafkaTemplate.send(kafkaTopic, recipes);
-        log.info("Сообщение отправлено: {}", recipes);
+        log.info("Сообщение отправлено: {}", recipes.size());
     }
 }
