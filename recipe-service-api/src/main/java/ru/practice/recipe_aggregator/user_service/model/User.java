@@ -19,7 +19,6 @@ import java.util.Objects;
 @AllArgsConstructor
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @Entity
 @Builder
@@ -42,9 +41,8 @@ public class User implements UserDetails {
     @Column(nullable = false, name = "role")
     private Role role;
 
-    @Timestamp
     @Column(name = "created_at")
-    private Instant createdAt;
+    private Instant createdAt = Instant.now();
 
     @ElementCollection
     @CollectionTable(
@@ -87,5 +85,12 @@ public class User implements UserDetails {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                '}';
     }
 }
