@@ -39,9 +39,10 @@ public class SecurityConfig {
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                         .sessionAuthenticationStrategy((authentication, request, response) -> {
                         }))
-                .formLogin(formLogin ->
-                        //для ручных тестов
-                        formLogin.defaultSuccessUrl("/api/v1/search/search-by-name/chicken", false))
+//                .formLogin(formLogin ->
+//                        //для ручных тестов
+//                        formLogin.defaultSuccessUrl("/api/v1/search/search-by-name/chicken", false))
+                .formLogin(Customizer.withDefaults())
                 .addFilterAfter(new GetCsrfTokenFilter(), ExceptionTranslationFilter.class)
                 .authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests

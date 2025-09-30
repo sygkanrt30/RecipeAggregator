@@ -9,7 +9,7 @@ CREATE TABLE app_user (
 
 CREATE TABLE favorite_recipe (
      user_id BIGINT NOT NULL,
-     recipe_id BIGINT NOT NULL,
+     recipe_id VARCHAR NOT NULL,
      PRIMARY KEY (user_id, recipe_id),
      CONSTRAINT fk_favorite_recipe_user
          FOREIGN KEY (user_id)

@@ -10,10 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import ru.practice.recipe_aggregator.user_service.token.Token;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 
 @AllArgsConstructor
@@ -50,7 +47,7 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id")
     )
     @Column(name = "recipe_id")
-    private List<Long> favoriteRecipeIds = new ArrayList<>();
+    private List<UUID> favoriteRecipeIds = new ArrayList<>();
 
     @Transient
     private Token token;
