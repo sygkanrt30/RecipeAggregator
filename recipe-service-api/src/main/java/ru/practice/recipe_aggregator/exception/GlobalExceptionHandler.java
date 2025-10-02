@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.factory.ResponseDtoFactory;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.response.ResponseDto;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.exception.InvalidConditionException;
+import ru.practice.recipe_aggregator.user_service.service.RecipeNotContainsException;
 
 @ControllerAdvice
 @Slf4j
@@ -37,6 +38,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public ResponseDto catchIllegalArgumentException(IllegalArgumentException e) {
         return getAppErrorHandlerResponseDto(e, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler
+    public ResponseDto catchRecipeNotContainsException(RecipeNotContainsException e) {
+        return getAppErrorHandlerResponseDto(e, HttpStatus.NOT_FOUND);
     }
 
     private ResponseDto getAppErrorHandlerResponseDto(Exception e, HttpStatus status) {

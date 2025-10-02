@@ -23,6 +23,8 @@ import java.util.List;
 public class KafkaConfig {
     @Value("${custom.kafka.offset-reset}")
     private String autoOffsetReset;
+    @Value("${custom.kafka.auto-commit}")
+    private String autoCommitConfig;
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
     @Value("${custom.kafka.trusted.package}")
@@ -38,6 +40,7 @@ public class KafkaConfig {
         configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         configProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
+        configProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, autoCommitConfig);
 
         var objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());

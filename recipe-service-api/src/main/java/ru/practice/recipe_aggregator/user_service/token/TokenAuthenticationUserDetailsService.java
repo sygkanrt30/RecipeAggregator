@@ -20,6 +20,6 @@ public class TokenAuthenticationUserDetailsService implements
                     () ->  new UsernameNotFoundException("Username " + token.subject() + " not found")
             );
         }
-        throw new UsernameNotFoundException("Principal must me of type Token");
+        throw new UsernameNotFoundException("Principal must be of type Token");
     }
 }

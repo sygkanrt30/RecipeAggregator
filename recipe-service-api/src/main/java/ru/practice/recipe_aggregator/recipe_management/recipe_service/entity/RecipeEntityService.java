@@ -4,6 +4,7 @@ import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearc
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface RecipeEntityService {
     Optional<RecipeDoc> findByName(String name);
@@ -11,4 +12,6 @@ public interface RecipeEntityService {
     List<RecipeDoc> findAll();
 
     void saveAllWithBatches(List<RecipeDoc> recipes, int batchSize);
+
+    List<RecipeDoc> findAllByIds(List<UUID> recipeIds);
 }

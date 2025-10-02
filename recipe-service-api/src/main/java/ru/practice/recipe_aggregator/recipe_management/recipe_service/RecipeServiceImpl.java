@@ -14,6 +14,7 @@ import ru.practice.recipe_aggregator.recipe_management.recipe_service.entity.Rec
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,6 +29,20 @@ public class RecipeServiceImpl implements RecipeService, ConsumerProcessor {
     public RecipeResponseDto findRecipeByName(String name) {
         var recipe = recipeEntityService.findByName(name).orElseThrow(EntityNotFoundException::new);
         return recipeMapper.toRecipeResponseDto(recipe);
+    }
+
+    @Override
+    public List<RecipeResponseDto> findAllByIds(List<UUID> recipeIds) {
+        return recipeEntityService.findAllByIds(recipeIds).stream()
+                .map(recipeMapper::toRecipeResponseDto)
+                .toList();
+    }
+
+    @Override
+    public UUID getIdByName(String recipeName) {
+        return recipeEntityService.findByName(recipeName)
+                .orElseThrow(() -> new EntityNotFoundException("There is no recipe with that name"))
+                .getId();
     }
 
     @Override

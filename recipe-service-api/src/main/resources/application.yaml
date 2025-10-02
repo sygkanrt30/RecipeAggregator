@@ -2,7 +2,7 @@ spring:
   application:
     name: recipe-service-api
   kafka:
-    bootstrap-servers: kafka:9092
+    bootstrap-servers: localhost:9092
   datasource:
     url: jdbc:postgresql://localhost:5435/recipe_service
     username: postgres
@@ -16,8 +16,8 @@ spring:
     baseline-on-migrate: true
   jpa:
     show-sql: true
-#    hibernate:
-#      ddl-auto: update
+    hibernate:
+      ddl-auto: update
     properties:
       hibernate:
         transaction:
@@ -35,7 +35,7 @@ application:
       prefix: /api
 
 server:
-  port: 8088
+  port: 8082
 
 custom:
   kafka:
@@ -43,10 +43,15 @@ custom:
     group-id: recipe-group
     trusted:
       package: ru.practice.*
-    offset-reset: latest
+    offset-reset: earliest
+    auto-commit: true
 
 elasticsearch:
   host-and-port: localhost:9200
 
 jwt:
   cookie-token-key: '{"kty":"oct","k":"956PBFst1FguLr5irJD-aQ"}'
+
+logging:
+  level:
+    org.springframework.security: DEBUG

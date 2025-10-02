@@ -8,6 +8,7 @@ import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearc
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface RecipeElasticRepository extends ElasticsearchRepository<RecipeDoc, Long> {
@@ -17,6 +18,9 @@ public interface RecipeElasticRepository extends ElasticsearchRepository<RecipeD
 
     @NonNull
     List<RecipeDoc> findAll();
+
+    @NonNull
+    List<RecipeDoc> findAllById(@NonNull List<UUID> ids);
 
     @Query("""
             {

@@ -32,6 +32,10 @@ public class TokenCookieJweStringSerializer implements Function<Token, String> {
                 .expirationTime(Date.from(token.expiresAt()))
                 .claim(ClaimName.AUTHORITIES.name(), token.authorities())
                 .build();
+        return try2GetEncryptedJWT(jwsHeader, claimsSet);
+    }
+
+    private String try2GetEncryptedJWT(JWEHeader jwsHeader, JWTClaimsSet claimsSet) {
         var encryptedJWT = new EncryptedJWT(jwsHeader, claimsSet);
         try {
             encryptedJWT.encrypt(jweEncrypter);

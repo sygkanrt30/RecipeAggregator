@@ -13,6 +13,7 @@ import ru.practice.recipe_aggregator.recipe_management.repository.RecipeElasticR
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,6 +27,11 @@ public class RecipeEntityServiceImpl implements RecipeEntityService {
     @Override
     public Optional<RecipeDoc> findByName(String name) {
         return recipeRepository.findByName(name);
+    }
+
+    @Override
+    public List<RecipeDoc> findAllByIds(List<UUID> recipeIds) {
+        return recipeRepository.findAllById(recipeIds);
     }
 
     @Override

@@ -20,8 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SearchServiceImpl implements SearchService {
     private final FilterService filterService;
-    @Qualifier("recipeMapper")
-    private final RecipeMapper mapper;
+    private final RecipeMapper recipeMapper;
     @Qualifier("nameSearcher")
     private final Searcher nameSearcher;
     @Qualifier("ingredientsSearcher")
@@ -43,7 +42,7 @@ public class SearchServiceImpl implements SearchService {
 
     private List<RecipeResponseDto> convertToRecipeResponseDtoList(List<RecipeDoc> recipeDocs) {
         return recipeDocs.stream()
-                .map(mapper::toRecipeResponseDto)
+                .map(recipeMapper::toRecipeResponseDto)
                 .collect(Collectors.toList());
     }
 

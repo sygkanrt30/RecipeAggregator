@@ -1,7 +1,6 @@
 package ru.practice.recipe_aggregator.user_service.model;
 
 import jakarta.persistence.*;
-import jdk.jfr.Timestamp;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
@@ -10,20 +9,16 @@ import org.springframework.security.core.userdetails.UserDetails;
 import ru.practice.recipe_aggregator.user_service.token.Token;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 
 @AllArgsConstructor
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @Entity
 @Builder
-@Table(name = "user")
+@Table(name = "app_user")
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,7 +37,6 @@ public class User implements UserDetails {
     @Column(nullable = false, name = "role")
     private Role role;
 
-    @Timestamp
     @Column(name = "created_at")
     private Instant createdAt;
 
@@ -52,7 +46,7 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id")
     )
     @Column(name = "recipe_id")
-    private List<Long> favoriteRecipeIds = new ArrayList<>();
+    private List<UUID> favoriteRecipeIds = new ArrayList<>();
 
     @Transient
     private Token token;
@@ -87,5 +81,12 @@ public class User implements UserDetails {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                '}';
     }
 }
