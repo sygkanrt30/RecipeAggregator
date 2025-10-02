@@ -1,7 +1,6 @@
 package ru.practice.recipe_aggregator.user_service.model;
 
 import jakarta.persistence.*;
-import jdk.jfr.Timestamp;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
