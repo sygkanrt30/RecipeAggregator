@@ -8,7 +8,6 @@ import ru.practice.recipe_aggregator.recipe_management.model.dto.response.Recipe
 import ru.practice.recipe_aggregator.user_service.service.FavoriteRecipeService;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,14 +17,14 @@ class PersonalAccountController {
 
     @PostMapping("/add-to-favorites")
     public void add2Favorites(@AuthenticationPrincipal UserDetails user,
-                              @RequestParam(name = "recipe_id") UUID recipeId) {
+                              @RequestParam(name = "recipe_name") String recipeId) {
         favoriteRecipeService.add2Favorites(user.getUsername(), recipeId);
     }
 
     @DeleteMapping("/remove-from-favorites")
     public void removeFromFavorites(@AuthenticationPrincipal UserDetails user,
-                                    @RequestParam(name = "recipe_id") UUID recipeId) {
-        favoriteRecipeService.removeFromFavorites(user.getUsername(), recipeId);
+                                    @RequestParam(name = "recipe_name") String recipeName) {
+        favoriteRecipeService.removeFromFavorites(user.getUsername(), recipeName);
     }
 
     @GetMapping("/add-to-favorites")

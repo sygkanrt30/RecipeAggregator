@@ -39,7 +39,7 @@ public class User implements UserDetails {
     private Role role;
 
     @Column(name = "created_at")
-    private Instant createdAt = Instant.now();
+    private Instant createdAt;
 
     @ElementCollection
     @CollectionTable(
