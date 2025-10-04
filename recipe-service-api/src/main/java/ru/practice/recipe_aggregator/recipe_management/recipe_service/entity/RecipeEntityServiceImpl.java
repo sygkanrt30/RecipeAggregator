@@ -31,7 +31,10 @@ public class RecipeEntityServiceImpl implements RecipeEntityService {
 
     @Override
     public List<RecipeDoc> findAllByIds(List<UUID> recipeIds) {
-        return recipeRepository.findAllById(recipeIds);
+        var stringIds = recipeIds.stream()
+                .map(UUID::toString)
+                .toList();
+        return recipeRepository.findByIdsWithQuery(stringIds);
     }
 
     @Override

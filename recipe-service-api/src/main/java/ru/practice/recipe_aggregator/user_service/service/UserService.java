@@ -57,8 +57,8 @@ public class UserService implements SaveUserService, FavoriteRecipeService, User
             return;
         }
         user.getFavoriteRecipeIds().add(recipeId);
+        userRepository.save(user);
         log.info("Add recipe {} to favorite recipes {}", username, recipeId);
-
     }
 
     @Override
@@ -69,6 +69,7 @@ public class UserService implements SaveUserService, FavoriteRecipeService, User
         if (!isRemoved) {
             throw new RecipeNotContainsException("Recipe not contains in favorite recipes " + recipeId);
         }
+        userRepository.save(user);
     }
 
     @Override

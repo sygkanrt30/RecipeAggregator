@@ -17,7 +17,7 @@ import java.util.UUID;
 @Document(indexName = "recipe")
 public class RecipeDoc {
     @Id
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Keyword)
     private UUID id;
 
     @Field(type = FieldType.Text)

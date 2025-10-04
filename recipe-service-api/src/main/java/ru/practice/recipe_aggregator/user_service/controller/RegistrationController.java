@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practice.recipe_aggregator.user_service.service.SaveUserService;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("api/v1/auth")
 @RequiredArgsConstructor
 @Validated
 class RegistrationController {

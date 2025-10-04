@@ -11,14 +11,14 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/account")
+@RequestMapping("api/v1//account")
 class PersonalAccountController {
     private final FavoriteRecipeService favoriteRecipeService;
 
     @PostMapping("/add-to-favorites")
     public void add2Favorites(@AuthenticationPrincipal UserDetails user,
-                              @RequestParam(name = "recipe_name") String recipeId) {
-        favoriteRecipeService.add2Favorites(user.getUsername(), recipeId);
+                              @RequestParam(name = "recipe_name") String recipeName) {
+        favoriteRecipeService.add2Favorites(user.getUsername(), recipeName);
     }
 
     @DeleteMapping("/remove-from-favorites")
@@ -27,7 +27,7 @@ class PersonalAccountController {
         favoriteRecipeService.removeFromFavorites(user.getUsername(), recipeName);
     }
 
-    @GetMapping("/add-to-favorites")
+    @GetMapping("/get-favorites")
     public List<RecipeResponseDto> getFavorites(@AuthenticationPrincipal UserDetails user) {
         return favoriteRecipeService.getFavorites(user.getUsername());
     }
