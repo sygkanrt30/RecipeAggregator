@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface WebsiteParser {
     List<Recipe> parse(String url);
+
+    void reset();
 }
