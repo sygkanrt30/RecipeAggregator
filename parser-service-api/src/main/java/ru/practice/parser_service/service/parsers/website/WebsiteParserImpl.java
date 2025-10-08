@@ -49,7 +49,7 @@ public class WebsiteParserImpl implements WebsiteParser {
         long startTime = System.currentTimeMillis();
         parseWebsiteRecursive(url, 0, newRecipes);
         long duration = System.currentTimeMillis() - startTime;
-        log.info("Парсинг завершен за {} мс. Найдено {} новых рецептов", duration, newRecipes.size());
+        log.info("Parsing completed in {} ms. {} new recipes found", duration, newRecipes.size());
         allRecipes.addAll(newRecipes);
         return newRecipes;
     }
@@ -61,7 +61,7 @@ public class WebsiteParserImpl implements WebsiteParser {
         visitedUrls.add(url);
         try {
             var doc = getDocument(url);
-            log.debug("Обработка URL (глубина {}): {}", depth, url);
+            log.debug("URL processing (depth {}): {}", depth, url);
             if (isRecipePage(doc)) {
                 processRecipePage(url, doc, newRecipes);
             }
@@ -69,7 +69,7 @@ public class WebsiteParserImpl implements WebsiteParser {
                 findAndProcessLinks(doc, depth, newRecipes);
             }
         } catch (Exception e) {
-            log.error("Ошибка при обработке URL {}: {}", url, e.getMessage());
+            log.error("Error processing URL {}: {}", url, e.getMessage());
         }
     }
 
@@ -78,11 +78,11 @@ public class WebsiteParserImpl implements WebsiteParser {
             return true;
         }
         if (depth > maxDepth) {
-            log.debug("Превышена максимальная глубина {} для URL: {}", maxDepth, url);
+            log.debug("Maximum depth {} for URL exceeded: {}", maxDepth, url);
             return true;
         }
         if (visitedUrls.contains(url)) {
-            log.debug("URL уже посещен: {}", url);
+            log.debug("URL is already visited: {}", url);
             return true;
         }
         return false;
@@ -91,7 +91,7 @@ public class WebsiteParserImpl implements WebsiteParser {
     private void processRecipePage(String url, Document doc, List<Recipe> newRecipes) {
         String normalizedUrl = normalizeUrl(url);
         if (parsedRecipeUrls.contains(normalizedUrl)) {
-            log.debug("Рецепт уже был распарсен ранее: {}", url);
+            log.debug("Recipe has already been parsed before: {}", url);
             return;
         }
         try {
@@ -101,17 +101,17 @@ public class WebsiteParserImpl implements WebsiteParser {
                     newRecipes.add(recipe);
                     parsedRecipeUrls.add(normalizedUrl);
                     if (newRecipes.size() % 5 == 0) {
-                        log.info("Прогресс: найдено {} новых рецептов из {}", newRecipes.size(), maxRecipes);
+                        log.info("Progress: {} new recipes found from {}", newRecipes.size(), maxRecipes);
                     }
                     if (newRecipes.size() >= maxRecipes) {
-                        log.info("Достигнут лимит в {} новых рецептов", maxRecipes);
+                        log.info("Reached limit in {} new recipes", maxRecipes);
                     }
                 }
             } else {
-                log.debug("Рецепт '{}' уже был распарсен", recipe.name());
+                log.debug("Recipe '{}' was already parsed", recipe.name());
             }
         } catch (Exception e) {
-            log.error("Ошибка при парсинге рецепта с URL {}: {}", url, e.getMessage());
+            log.error("Error when parsing recipe with URL {}: {}", url, e.getMessage());
         }
     }
 
@@ -136,7 +136,7 @@ public class WebsiteParserImpl implements WebsiteParser {
                     .toString();
             return normalized.endsWith("/") ? normalized.substring(0, normalized.length() - 1) : normalized;
         } catch (Exception e) {
-            log.warn("Не удалось нормализовать URL: {}, используем оригинал", url);
+            log.warn("Failed to normalize URL: {}, use the original", url);
             return url;
         }
     }
@@ -153,10 +153,10 @@ public class WebsiteParserImpl implements WebsiteParser {
                     .maxBodySize(0)
                     .get();
         } catch (IOException e) {
-            throw new ParserException("Ошибка загрузки URL: " + url, e);
+            throw new ParserException("URL loading error:" + url, e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new ParserException("Парсинг прерван", e);
+            throw new ParserException("Parsing interrupted", e);
         }
     }
 
@@ -187,7 +187,7 @@ public class WebsiteParserImpl implements WebsiteParser {
                 }
             }
         }
-        log.debug("Обработано {} ссылок со страницы", processedLinks);
+        log.debug("Processed {} link with pages", processedLinks);
     }
 
     private boolean isValidUrl(String url) {
@@ -207,6 +207,6 @@ public class WebsiteParserImpl implements WebsiteParser {
         visitedUrls.clear();
         parsedRecipeUrls.clear();
         allRecipes.clear();
-        log.info("Состояние парсера сброшено");
+        log.info("Parser state reset");
     }
 }

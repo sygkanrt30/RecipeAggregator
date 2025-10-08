@@ -13,7 +13,7 @@ import ru.practice.recipe_aggregator.security.TokenCookieSessionAuthenticationSt
 
 @RequiredArgsConstructor
 @Component
-class Authenticator {
+final class Authenticator {
     private final TokenCookieSessionAuthenticationStrategy tokenCookieSessionAuthenticationStrategy;
     private final AuthenticationManager authenticationManager;
 

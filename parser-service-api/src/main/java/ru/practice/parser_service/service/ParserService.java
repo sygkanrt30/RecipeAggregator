@@ -25,22 +25,21 @@ public class ParserService {
 
     @Scheduled(fixedDelay = 30, timeUnit = TimeUnit.MINUTES, initialDelay = 0)
     public void parceRecipesAndSend2Kafka() {
-        log.info("Начало планового парсинга всех рецептов");
+        log.info("The beginning of the planned parsing of all recipes");
         try {
-            log.info("Парсинг с корневого URL: {}", rootUrl);
+            log.info("Parsing with root url: {}", rootUrl);
             List<Recipe> recipes = parser.parse(rootUrl);
             if (!recipes.isEmpty()) {
                 producer.sendMessage(recipes);
-                log.info("Плановый парсинг завершен. Всего отправлено рецептов: {}", recipes.size());
+                log.info("The scheduled parsing is completed. Total recipes sent: {}", recipes.size());
             }
         } catch (Exception e) {
-            log.error("Ошибка при парсинге URL {}: {}", rootUrl, e.getMessage());
+            log.error("Parsing error url {}: {}", rootUrl, e.getMessage());
         }
     }
 
     @Scheduled(initialDelay = 60, timeUnit = TimeUnit.DAYS)
     public void resetParcerContext(){
         parser.reset();
-        log.info("Контекст парсера сброшен");
     }
 }
