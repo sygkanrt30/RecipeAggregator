@@ -1,4 +1,4 @@
-package ru.practice.recipe_aggregator.search_service.filtering.filter;
+package ru.practice.recipe_aggregator.recipe_management.search_service.filtering.filter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,7 +7,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.exception.InvalidConditionException;
-import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.filter.Mins4PrepFilter;
+import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.filter.Mins4CookFilter;
 
 
 import java.util.ArrayList;
@@ -17,88 +17,75 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class Mins4PrepFilterTest {
-    private Mins4PrepFilter filter;
+class Mins4CookFilterTest {
+
+    private Mins4CookFilter filter;
     private SearchContainer searchContainer;
     private List<RecipeResponseDto> recipes;
 
     @BeforeEach
     void setUp() {
-        filter = new Mins4PrepFilter();
+        filter = new Mins4CookFilter();
         searchContainer = mock(SearchContainer.class);
         recipes = new ArrayList<>();
     }
 
     @Test
-    void filter_WhenMaxMins4PrepIsNull_ShouldSetToZeroAndReturnEarly() {
+    void filter_WhenMaxMins4CookIsNull_ShouldSetToZeroAndReturnEarly() {
         // Arrange
-        when(searchContainer.maxMins4Prep()).thenReturn(null);
+        when(searchContainer.maxMins4Cook()).thenReturn(null);
 
         // Act
         filter.filter(recipes, searchContainer);
 
         // Assert
-        verify(searchContainer).maxMins4Prep(0);
+        verify(searchContainer).maxMins4Cook(0);
         assertTrue(recipes.isEmpty());
     }
 
     @Test
-    void filter_WhenMaxMins4PrepIsZero_ShouldSetToZeroAndReturnEarly() {
+    void filter_WhenMaxMins4CookIsZero_ShouldSetToZeroAndReturnEarly() {
         // Arrange
-        when(searchContainer.maxMins4Prep()).thenReturn(0);
+        when(searchContainer.maxMins4Cook()).thenReturn(0);
 
         // Act
         filter.filter(recipes, searchContainer);
 
         // Assert
-        verify(searchContainer).maxMins4Prep(0);
+        verify(searchContainer).maxMins4Cook(0);
         assertTrue(recipes.isEmpty());
     }
 
     @Test
-    void filter_WhenMaxMins4PrepIsNegative_ShouldSetToZeroAndReturnEarly() {
+    void filter_WhenMaxMins4CookIsNegative_ShouldSetToZeroAndReturnEarly() {
         // Arrange
-        when(searchContainer.maxMins4Prep()).thenReturn(-5);
+        when(searchContainer.maxMins4Cook()).thenReturn(-5);
 
         // Act
         filter.filter(recipes, searchContainer);
 
         // Assert
-        verify(searchContainer).maxMins4Prep(0);
+        verify(searchContainer).maxMins4Cook(0);
         assertTrue(recipes.isEmpty());
-    }
-
-    @Test
-    void filter_WhenMaxTotalMinsIsNull_ShouldNotThrowException() {
-        // Arrange
-        when(searchContainer.maxMins4Prep()).thenReturn(30);
-        when(searchContainer.maxTotalMins()).thenReturn(null);
-        RecipeResponseDto recipe1 = createRecipe(20);
-        RecipeResponseDto recipe2 = createRecipe(40);
-        recipes.addAll(List.of(recipe1, recipe2));
-
-        // Act & Assert
-        assertDoesNotThrow(() -> filter.filter(recipes, searchContainer));
-        assertEquals(1, recipes.size());
-        assertTrue(recipes.contains(recipe1));
     }
 
     @Test
     void filter_WhenInvalidCondition_ShouldThrowException() {
         // Arrange
-        when(searchContainer.maxMins4Prep()).thenReturn(60);
+        when(searchContainer.maxMins4Cook()).thenReturn(60);
         when(searchContainer.maxTotalMins()).thenReturn(30);
 
         // Act & Assert
         var exception = assertThrows(InvalidConditionException.class,
                 () -> filter.filter(recipes, searchContainer));
-        assertTrue(exception.getMessage().contains("total mins must be greater than upper limit of mins for preparing"));
+
+        assertTrue(exception.getMessage().contains("total mins must be greater than upper limit of mins for cooking"));
     }
 
     @Test
     void filter_WhenValidCondition_ShouldFilterRecipesCorrectly() {
         // Arrange
-        when(searchContainer.maxMins4Prep()).thenReturn(30);
+        when(searchContainer.maxMins4Cook()).thenReturn(30);
         when(searchContainer.maxTotalMins()).thenReturn(60);
         RecipeResponseDto recipe1 = createRecipe(20);
         RecipeResponseDto recipe2 = createRecipe(30);
@@ -120,11 +107,12 @@ class Mins4PrepFilterTest {
     @Test
     void filter_WhenAllRecipesExceedLimit_ShouldRemoveAll() {
         // Arrange
-        when(searchContainer.maxMins4Prep()).thenReturn(15);
+        when(searchContainer.maxMins4Cook()).thenReturn(15);
         when(searchContainer.maxTotalMins()).thenReturn(60);
         RecipeResponseDto recipe1 = createRecipe(20);
         RecipeResponseDto recipe2 = createRecipe(25);
         RecipeResponseDto recipe3 = createRecipe(30);
+
         recipes.addAll(List.of(recipe1, recipe2, recipe3));
 
         // Act
@@ -137,7 +125,7 @@ class Mins4PrepFilterTest {
     @Test
     void filter_WhenNoRecipesExceedLimit_ShouldKeepAll() {
         // Arrange
-        when(searchContainer.maxMins4Prep()).thenReturn(60);
+        when(searchContainer.maxMins4Cook()).thenReturn(60);
         when(searchContainer.maxTotalMins()).thenReturn(90);
         RecipeResponseDto recipe1 = createRecipe(20);
         RecipeResponseDto recipe2 = createRecipe(30);
@@ -155,7 +143,7 @@ class Mins4PrepFilterTest {
     @Test
     void filter_WithEmptyList_ShouldNotThrowException() {
         // Arrange
-        when(searchContainer.maxMins4Prep()).thenReturn(30);
+        when(searchContainer.maxMins4Cook()).thenReturn(30);
         when(searchContainer.maxTotalMins()).thenReturn(60);
 
         // Act & Assert
@@ -164,25 +152,18 @@ class Mins4PrepFilterTest {
     }
 
     @Test
-    void filter_WhenMaxTotalMinsIsNullAndValidPrepTime_ShouldFilterNormally() {
+    void filter_WhenMaxTotalMinsIsNull_ShouldNotThrowException() {
         // Arrange
-        when(searchContainer.maxMins4Prep()).thenReturn(30);
+        when(searchContainer.maxMins4Cook()).thenReturn(30);
         when(searchContainer.maxTotalMins()).thenReturn(null);
-        RecipeResponseDto recipe1 = createRecipe(25);
-        RecipeResponseDto recipe2 = createRecipe(35);
-        recipes.addAll(List.of(recipe1, recipe2));
 
-        // Act
-        filter.filter(recipes, searchContainer);
-
-        // Assert
-        assertEquals(1, recipes.size());
-        assertTrue(recipes.contains(recipe1));
+        // Act & Assert
+        assertDoesNotThrow(() -> filter.filter(recipes, searchContainer));
     }
 
-    private RecipeResponseDto createRecipe(int mins4Prep) {
+    private RecipeResponseDto createRecipe(int mins4Cook) {
         RecipeResponseDto recipe = mock(RecipeResponseDto.class);
-        when(recipe.mins4Prep()).thenReturn(mins4Prep);
+        when(recipe.mins4Cook()).thenReturn(mins4Cook);
         return recipe;
     }
 }

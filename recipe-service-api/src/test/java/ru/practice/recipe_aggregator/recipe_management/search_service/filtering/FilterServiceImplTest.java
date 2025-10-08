@@ -1,4 +1,4 @@
-package ru.practice.recipe_aggregator.search_service.filtering;
+package ru.practice.recipe_aggregator.recipe_management.search_service.filtering;
 
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
@@ -9,7 +9,6 @@ import ru.practice.recipe_aggregator.recipe_management.model.dto.response.Recipe
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.FilterServiceImpl;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.filter.*;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,9 +20,8 @@ import static org.mockito.Mockito.when;
 class FilterServiceImplTest {
     @Test
     void processWithFilterChain_WithRealFilters_ShouldWorkCorrectly() {
-        // Arrange
-        FilterServiceImpl filterService = new FilterServiceImpl();
-        List<RecipeResponseDto> recipes = new ArrayList<>();
+        var filterService = new FilterServiceImpl();
+        var recipes = new ArrayList<RecipeResponseDto>();
         var searchContainer = Instancio.create(SearchContainer.class);
         searchContainer.maxMins4Cook(0);
         searchContainer.maxMins4Cook(Integer.MAX_VALUE);
@@ -33,23 +31,19 @@ class FilterServiceImplTest {
         recipes.add(createRecipe(30, 15, 45, 4));
         recipes.add(createRecipe(20, 10, 30, 2));
 
-        // Act
         List<RecipeResponseDto> result = filterService.processWithFilterChain(recipes, searchContainer);
 
-        // Assert
         assertNotNull(result);
         assertEquals(2, result.size());
     }
 
     @Test
     void filterChain_ShouldContainCorrectFilters() throws Exception {
-        // Arrange
         var filterService = new FilterServiceImpl();
-        Field filterChainField = FilterServiceImpl.class.getDeclaredField("filterChain");
+        var filterChainField = FilterServiceImpl.class.getDeclaredField("filterChain");
         filterChainField.setAccessible(true);
         List<Filter> filterChain = (List<Filter>) filterChainField.get(filterService);
 
-        // Assert
         assertNotNull(filterChain);
         assertEquals(4, filterChain.size());
         assertInstanceOf(Mins4CookFilter.class, filterChain.get(0));
