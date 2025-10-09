@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static ru.practice.parser_service.service.parsers.enums.CssQueryOfRecipesParts.*;
+import static ru.practice.parser_service.service.parsers.enums.TimeLabel.*;
 
 @UtilityClass
 public class RecipeParser {
@@ -23,10 +24,10 @@ public class RecipeParser {
         String description = getSimplePartsOfRecipe(doc, DESCRIPTION);
 
         var detailsMap = fillParamsMap(doc);
-        int mins4Cook = parseTimeParam("cook time", detailsMap);
-        int additionalMins = parseTimeParam("additional time", detailsMap);
-        int totalMins = parseTimeParam("total time", detailsMap);
-        int mins4Prep = parseTimeParam("prep time", detailsMap);
+        int mins4Cook = parseTimeParam(COOK_TIME.label(), detailsMap);
+        int additionalMins = parseTimeParam(ADDITIONAL_TIME.label(), detailsMap);
+        int totalMins = parseTimeParam(TOTAL_TIME.label(), detailsMap);
+        int mins4Prep = parseTimeParam(PREP_TIME.label(), detailsMap);
 
         int servings = Integer.parseInt(detailsMap.get("servings"));
 

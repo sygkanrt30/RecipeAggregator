@@ -1,4 +1,4 @@
-package ru.practice.recipe_aggregator.search_service.search;
+package ru.practice.recipe_aggregator.recipe_management.search_service.search;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,7 +8,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Qualifier;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.mapper.RecipeMapper;
-import ru.practice.recipe_aggregator.recipe_management.search_service.search.SearchServiceImpl;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.FilterService;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.searcher.Searcher;
 
@@ -29,9 +28,6 @@ class SearchServiceImplTest {
     @Mock
     @Qualifier("nameSearcher")
     private Searcher nameSearcher;
-    @Mock
-    @Qualifier("ingredientsSearcher")
-    private Searcher ingredientsSearcher;
     @InjectMocks
     private SearchServiceImpl searchService;
 

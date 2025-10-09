@@ -1,4 +1,4 @@
-package ru.practice.recipe_aggregator.search_service.filtering.filter;
+package ru.practice.recipe_aggregator.recipe_management.search_service.filtering.filter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
