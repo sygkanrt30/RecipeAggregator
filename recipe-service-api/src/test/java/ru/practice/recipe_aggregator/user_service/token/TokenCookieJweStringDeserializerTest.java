@@ -45,7 +45,8 @@ class TokenCookieJweStringDeserializerTest {
         when(encryptedJWT.getJWTClaimsSet()).thenReturn(claimsSet);
 
         try (var encryptedJWTMock = mockStatic(EncryptedJWT.class)) {
-            encryptedJWTMock.when(() -> EncryptedJWT.parse(jweString)).thenReturn(encryptedJWT);
+            encryptedJWTMock.when(() -> EncryptedJWT.parse(jweString))
+                    .thenReturn(encryptedJWT);
 
             var result = deserializer.apply(jweString);
 
