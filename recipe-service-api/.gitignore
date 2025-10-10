@@ -33,3 +33,4 @@ build/
 mvnw
 mvnw.cmd
 .gitattributes
+/elastic_data.http

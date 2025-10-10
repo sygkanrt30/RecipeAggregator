@@ -18,8 +18,8 @@ parser:
     referrer: https://www:google:com
     recipe-tag: html[id=recipeScTemplate_1-0]
   max:
-    depth: 3
-    recipes: 100
+    depth: 5
+    recipes: 25
   container:
     selectors: >
       div.mntl-alphabetical-list__group, 

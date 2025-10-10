@@ -2,6 +2,7 @@ package ru.practice.recipe_aggregator.recipe_management.repository;
 
 import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearch.RecipeDoc;
@@ -11,7 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface RecipeElasticRepository extends ElasticsearchRepository<RecipeDoc, Long> {
+public interface RecipeElasticRepository extends ElasticsearchRepository<RecipeDoc, UUID> {
     List<RecipeDoc> findByNameContaining(String namePart);
 
     Optional<RecipeDoc> findByName(String name);
@@ -19,8 +20,14 @@ public interface RecipeElasticRepository extends ElasticsearchRepository<RecipeD
     @NonNull
     List<RecipeDoc> findAll();
 
-    @NonNull
-    List<RecipeDoc> findAllById(@NonNull List<UUID> ids);
+    @Query("""
+            {
+              "terms": {
+                "_id": ?0
+              }
+            }
+            """)
+    List<RecipeDoc> findByIdsWithQuery(@Param("ids") List<String> ids);
 
     @Query("""
             {

@@ -1,4 +1,4 @@
-package ru.practice.recipe_aggregator.recipe_service;
+package ru.practice.recipe_aggregator.recipe_management.recipe_service;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.instancio.Instancio;
@@ -13,17 +13,14 @@ import ru.practice.recipe_aggregator.recipe_management.model.dto.kafka.RecipeKaf
 import ru.practice.recipe_aggregator.recipe_management.model.dto.mapper.RecipeMapper;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearch.RecipeDoc;
-import ru.practice.recipe_aggregator.recipe_management.recipe_service.RecipeServiceImpl;
 import ru.practice.recipe_aggregator.recipe_management.recipe_service.entity.RecipeEntityService;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.instancio.Select.field;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
@@ -69,6 +66,69 @@ class RecipeServiceImplTest {
 
         assertThatThrownBy(() -> recipeService.findRecipeByName(recipeName))
                 .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    void findAllByIds_ShouldReturnDtoList_WhenValidIdsProvided() {
+        var recipeIds = Instancio.ofList(UUID.class).size(3).create();
+        var recipeDocs = Instancio.ofList(RecipeDoc.class).size(3).create();
+        var expectedDtos = Instancio.ofList(RecipeResponseDto.class).size(3).create();
+        when(recipeEntityService.findAllByIds(recipeIds)).thenReturn(recipeDocs);
+        for (var i = 0; i < recipeDocs.size(); i++) {
+            when(recipeMapper.toRecipeResponseDto(recipeDocs.get(i))).thenReturn(expectedDtos.get(i));
+        }
+
+        var result = recipeService.findAllByIds(recipeIds);
+
+        assertNotNull(result);
+        assertEquals(3, result.size());
+        assertEquals(expectedDtos, result);
+        verify(recipeEntityService).findAllByIds(recipeIds);
+        verify(recipeMapper, times(3)).toRecipeResponseDto(any(RecipeDoc.class));
+    }
+
+    @Test
+    void findAllByIds_ShouldReturnEmptyList_WhenNoRecipesFound() {
+        var recipeIds = Instancio.ofList(UUID.class).size(2).create();
+        when(recipeEntityService.findAllByIds(recipeIds)).thenReturn(List.of());
+
+        var result = recipeService.findAllByIds(recipeIds);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(recipeEntityService).findAllByIds(recipeIds);
+        verify(recipeMapper, never()).toRecipeResponseDto(any());
+    }
+
+    @Test
+    void getIdByName_ShouldReturnRecipeId_WhenRecipeExists() {
+        var id = UUID.randomUUID();
+        var recipeName = Instancio.create(String.class);
+        var expectedRecipe = Instancio.of(RecipeDoc.class)
+                .set(field(RecipeDoc::getName), recipeName)
+                .set(field(RecipeDoc::getId), id)
+                .create();
+        var expectedId = expectedRecipe.getId();
+        when(recipeEntityService.findByName(recipeName)).thenReturn(java.util.Optional.of(expectedRecipe));
+
+        var result = recipeService.getIdByName(recipeName);
+
+        assertNotNull(result);
+        assertEquals(expectedId, result);
+        verify(recipeEntityService).findByName(recipeName);
+    }
+
+    @Test
+    void getIdByName_ShouldThrowException_WhenRecipeNotFound() {
+        var recipeName = Instancio.create(String.class);
+        when(recipeEntityService.findByName(recipeName)).thenReturn(java.util.Optional.empty());
+
+        var exception = assertThrows(EntityNotFoundException.class, () ->
+                recipeService.getIdByName(recipeName)
+        );
+
+        assertEquals("There is no recipe with that name", exception.getMessage());
+        verify(recipeEntityService).findByName(recipeName);
     }
 
     @Test

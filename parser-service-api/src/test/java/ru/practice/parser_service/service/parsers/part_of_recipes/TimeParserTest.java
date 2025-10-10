@@ -6,7 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import ru.practice.parser_service.service.parsers.recipe.recipes_parts.TimeParser;
 
-public class TimeParserTest {
+class TimeParserTest {
 
     @ParameterizedTest
     @ValueSource(strings = {

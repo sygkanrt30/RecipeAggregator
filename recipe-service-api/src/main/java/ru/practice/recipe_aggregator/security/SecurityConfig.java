@@ -35,10 +35,10 @@ public class SecurityConfig {
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                         .sessionAuthenticationStrategy((authentication, request, response) -> {
                         }))
-                .formLogin(Customizer.withDefaults())
                 .addFilterAfter(new GetCsrfTokenFilter(), ExceptionTranslationFilter.class)
                 .authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests
+                                .requestMatchers("/login").permitAll()
                                 .requestMatchers("/auth/reg").not().fullyAuthenticated()
                                 .anyRequest().authenticated())
                 .sessionManagement(sessionManagement -> sessionManagement

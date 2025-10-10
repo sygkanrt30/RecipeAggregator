@@ -27,11 +27,6 @@ public class KafkaConfig {
     private String bootstrapServers;
 
     @Bean
-    public NewTopic topic() {
-        return new NewTopic(topic, 1, (short) 1);
-    }
-
-    @Bean
     public ProducerFactory<String, List<Recipe>> producerFactory() {
         var configProps = new HashMap<String, Object>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -53,5 +48,10 @@ public class KafkaConfig {
     @Bean
     public KafkaTemplate<String, List<Recipe>> kafkaTemplate(ProducerFactory<String, List<Recipe>> producerFactory) {
         return new KafkaTemplate<>(producerFactory);
+    }
+
+    @Bean
+    public NewTopic topic() {
+        return new NewTopic(topic, 1, (short) 1);
     }
 }

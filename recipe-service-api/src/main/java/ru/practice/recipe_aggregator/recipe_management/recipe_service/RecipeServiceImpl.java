@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class RecipeServiceImpl implements RecipeService, ConsumerProcessor {
-    private static final int BATCHES_SIZE = 1000;
+    private static final int BATCHES_SIZE = 10;
     private final RecipeMapper recipeMapper;
     private final RecipeEntityService recipeEntityService;
 

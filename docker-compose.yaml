@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   zookeeper:
-    image: bitnami/zookeeper:3.9
+    image: zookeeper:3.9.4
     ports:
       - "2181:2181"
     environment:
@@ -16,7 +16,7 @@ services:
       - general-network
 
   kafka:
-    image: bitnami/kafka:3.4
+    image: apache/kafka:4.1.0
     ports:
       - "9092:29092"
     environment:
@@ -90,53 +90,61 @@ services:
       - general-network
 
 
-#  recipe-service-api:
-#    image: recipe-service_api:latest
-#    container_name: recipe-service
-#    restart: always
-#    build:
-#      context: .
-#      dockerfile: recipe-service-api/Dockerfile
-#    depends_on:
-#      db:
-#        condition: service_healthy
-#      elasticsearch:
-#        condition: service_healthy
-#      kafka:
-#        condition: service_healthy
-#    ports:
-#      - "8082:8082"
-#    environment:
-#      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/recipe_service
-#      POSTGRES_USER: postgres
-#      POSTGRES_PASSWORD: 5435
-#      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-#      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
-#      SPRING_ELASTICSEARCH_CONNECTION_TIMEOUT: 30000
-#      SPRING_ELASTICSEARCH_SOCKET_TIMEOUT: 60000
-#      ELASTICSEARCH_HOST_AND_PORT: elasticsearch:9200
-#      SPRING_DATA_ELASTICSEARCH_AUTO_CREATE_INDEX: "false"
-#      SPRING_DATA_ELASTICSEARCH_REPOSITORIES_ENABLED: "true"
-#    networks:
-#      - db-network
-#      - general-network
+  recipe-service:
+    image: recipe-service:latest
+    container_name: recipe-service
+    restart: always
+    build:
+      context: .
+      dockerfile: recipe-service-api/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      parser-service-api:
+        condition: service_healthy
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/recipe_service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 5435
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      SPRING_ELASTICSEARCH_CONNECTION_TIMEOUT: 30000
+      SPRING_ELASTICSEARCH_SOCKET_TIMEOUT: 60000
+      ELASTICSEARCH_HOST_AND_PORT: elasticsearch:9200
+      SPRING_DATA_ELASTICSEARCH_AUTO_CREATE_INDEX: "false"
+      SPRING_DATA_ELASTICSEARCH_REPOSITORIES_ENABLED: "true"
+    networks:
+      - db-network
+      - general-network
 
-#  parser-service-api:
-#    image: parser-service_api:latest
-#    container_name: parser-service
-#    restart: always
-#    build:
-#      context: .
-#      dockerfile: parser-service-api/Dockerfile
-#    depends_on:
-#      kafka:
-#        condition: service_healthy
-#    ports:
-#      - "8081:8081"
-#    environment:
-#      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-#    networks:
-#      - general-network
+  parser-service-api:
+    image: parser-service_api:latest
+    container_name: parser-service
+    restart: always
+    build:
+      context: .
+      dockerfile: parser-service-api/Dockerfile
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - general-network
 
 networks:
   db-network:
