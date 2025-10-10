@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1//account")
+@RequestMapping("api/v1/account")
 class PersonalAccountController {
     private final FavoriteRecipeService favoriteRecipeService;
 

@@ -28,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(SearchController.class)
 class SearchControllerTest {
+    private static final String TEST_USER = "testuser";
     @Autowired
     private MockMvc mockMvc;
 
@@ -41,7 +42,7 @@ class SearchControllerTest {
     private FilterService filterService;
 
     @Test
-    @WithMockUser(username = "testuser")
+    @WithMockUser(username = TEST_USER)
     void searchByName_ShouldReturnResults() throws Exception {
         var expectedResults = List.of(
                 mock(RecipeResponseDto.class),
@@ -63,7 +64,7 @@ class SearchControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser")
+    @WithMockUser(username = TEST_USER)
     void searchByName_WithNoResults_ShouldReturnEmptyList() throws Exception {
         when(searchService.searchByName(any(SearchContainer.class))).thenReturn(Collections.emptyList());
 
@@ -75,7 +76,7 @@ class SearchControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser")
+    @WithMockUser(username = TEST_USER)
     void searchByIngredients_ShouldReturnResults() throws Exception {
         var ingredients = List.of("chicken", "rice");
         var expectedResults = List.of(mock(RecipeResponseDto.class), mock(RecipeResponseDto.class));
@@ -98,7 +99,7 @@ class SearchControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser")
+    @WithMockUser(username = TEST_USER)
     void searchByIngredients_WithNullBody_ShouldReturnBadRequest() throws Exception {
         mockMvc.perform(get("/api/v1/search/search-by-ingredients")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -107,7 +108,7 @@ class SearchControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser")
+    @WithMockUser(username = TEST_USER)
     void searchByIngredientsWithFiltering_ShouldReturnFilteredResults() throws Exception {
         var expectedResults = List.of(mock(RecipeResponseDto.class));
         when(searchService.searchByIngredientsWithFiltering(any(SearchContainer.class))).thenReturn(expectedResults);
@@ -135,7 +136,7 @@ class SearchControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser")
+    @WithMockUser(username = TEST_USER)
     void searchByIngredientsWithFiltering_WithNullFilterParameters_ShouldHandleNulls() throws Exception {
         var expectedResults = List.of(mock(RecipeResponseDto.class));
         when(searchService.searchByIngredientsWithFiltering(any(SearchContainer.class))).thenReturn(expectedResults);
@@ -158,7 +159,7 @@ class SearchControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser")
+    @WithMockUser(username = TEST_USER)
     void searchByNameWithFiltering_ShouldReturnFilteredResults() throws Exception {
         var expectedResults = List.of(mock(RecipeResponseDto.class));
         when(searchService.searchByNameWithFiltering(any(SearchContainer.class))).thenReturn(expectedResults);
@@ -186,7 +187,7 @@ class SearchControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser")
+    @WithMockUser(username = TEST_USER)
     void searchByNameWithFiltering_WithNullFilterParameters_ShouldHandleNulls() throws Exception {
         var expectedResults = List.of(mock(RecipeResponseDto.class));
         when(searchService.searchByNameWithFiltering(any(SearchContainer.class))).thenReturn(expectedResults);
