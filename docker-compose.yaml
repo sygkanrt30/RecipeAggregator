@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   zookeeper:
-    image: zookeeper:3.9.4
+    image: bitnami/zookeeper:3.9
     ports:
       - "2181:2181"
     environment:
@@ -16,7 +16,7 @@ services:
       - general-network
 
   kafka:
-    image: apache/kafka:4.1.0
+    image: bitnami/kafka:3.6
     ports:
       - "9092:29092"
     environment:
@@ -115,10 +115,13 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
       SPRING_ELASTICSEARCH_CONNECTION_TIMEOUT: 30000
-      SPRING_ELASTICSEARCH_SOCKET_TIMEOUT: 60000
+      SPRING_ELASTICSEARCH_SOCKET_TIMEOUT: 40000
       ELASTICSEARCH_HOST_AND_PORT: elasticsearch:9200
       SPRING_DATA_ELASTICSEARCH_AUTO_CREATE_INDEX: "false"
       SPRING_DATA_ELASTICSEARCH_REPOSITORIES_ENABLED: "true"
+      LOG_PATH: /app/logs
+    volumes:
+      - ./logs:/app/logs
     networks:
       - db-network
       - general-network
@@ -137,6 +140,9 @@ services:
       - "8081:8081"
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_PATH: /app/logs
+    volumes:
+      - ./logs:/app/logs
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1" ]
       interval: 10s
