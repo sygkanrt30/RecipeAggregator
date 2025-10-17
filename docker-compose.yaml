@@ -119,9 +119,6 @@ services:
       ELASTICSEARCH_HOST_AND_PORT: elasticsearch:9200
       SPRING_DATA_ELASTICSEARCH_AUTO_CREATE_INDEX: "false"
       SPRING_DATA_ELASTICSEARCH_REPOSITORIES_ENABLED: "true"
-      LOG_PATH: /app/logs
-    volumes:
-      - ./logs:/app/logs
     networks:
       - db-network
       - general-network
@@ -140,9 +137,6 @@ services:
       - "8081:8081"
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      LOG_PATH: /app/logs
-    volumes:
-      - ./logs:/app/logs
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1" ]
       interval: 10s

@@ -1,6 +1,7 @@
 package ru.practice.parser_service.service.parsers.recipe;
 
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -18,8 +19,10 @@ import static ru.practice.parser_service.service.parsers.enums.CssQueryOfRecipes
 import static ru.practice.parser_service.service.parsers.enums.TimeLabel.*;
 
 @UtilityClass
+@Slf4j
 public class RecipeParser {
     public Recipe parseRecipePage(Document doc) {
+        log.debug("parseRecipePage(doc): Start parsing recipe from document {}", doc.toString());
         String name = getSimplePartsOfRecipe(doc, NAME);
         String description = getSimplePartsOfRecipe(doc, DESCRIPTION);
 
@@ -33,7 +36,7 @@ public class RecipeParser {
 
         Map<String, String> ingredients = IngredientsParser.parse(doc);
         String directions = DirectionParser.parse(doc);
-        return Recipe.builder()
+        var recipe = Recipe.builder()
                 .name(name.trim().toLowerCase())
                 .description(description)
                 .direction(directions)
@@ -44,6 +47,8 @@ public class RecipeParser {
                 .mins4Prep(mins4Prep)
                 .servings(servings)
                 .build();
+        log.debug("parseRecipePage(doc): Recipe {}", recipe.toString());
+        return recipe;
     }
 
     private static String getSimplePartsOfRecipe(Document doc, CssQueryOfRecipesParts cssQuery) {

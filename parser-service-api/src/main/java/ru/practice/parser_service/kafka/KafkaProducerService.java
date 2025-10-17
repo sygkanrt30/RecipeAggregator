@@ -1,6 +1,5 @@
 package ru.practice.parser_service.kafka;
 
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,5 +21,15 @@ public class KafkaProducerService implements ProducerService {
     public void sendMessage(List<Recipe> recipes) {
         kafkaTemplate.send(kafkaTopic, recipes);
         log.info("Message is sent: {}", recipes.size());
+        logEveryRecipeIfDebugLevel(recipes);
+    }
+
+    private void logEveryRecipeIfDebugLevel(List<Recipe> recipes) {
+        if (log.isDebugEnabled()) {
+            for (int i = 0; i < recipes.size(); i++) {
+                var recipe = recipes.get(i);
+                log.debug("Recipe #{}: {}", i, recipe.toString());
+            }
+        }
     }
 }

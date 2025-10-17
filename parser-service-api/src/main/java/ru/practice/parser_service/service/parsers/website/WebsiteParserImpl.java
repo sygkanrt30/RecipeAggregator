@@ -45,6 +45,7 @@ public class WebsiteParserImpl implements WebsiteParser {
 
     @Override
     public List<Recipe> parse(String url) {
+        log.debug("parse(url) Start parsing website from url: {}", url);
         var newRecipes = new ArrayList<Recipe>();
         long startTime = System.currentTimeMillis();
         parseWebsiteRecursive(url, 0, newRecipes);
