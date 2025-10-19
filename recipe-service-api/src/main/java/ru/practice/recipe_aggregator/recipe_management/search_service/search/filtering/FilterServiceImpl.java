@@ -24,10 +24,14 @@ public class FilterServiceImpl implements FilterService {
 
     @Override
     public List<RecipeResponseDto> processWithFilterChain(List<RecipeResponseDto> recipes, SearchContainer searchContainer) {
-        log.info("list start size: {}", recipes.size());
+        int size = recipes.size();
+        log.trace("list start size: {}", size);
         for (var filter : filterChain) {
             filter.filter(recipes, searchContainer);
-            log.info("list current size: {}", recipes.size());
+            int currentSize = recipes.size();
+            log.trace("list current size: {}", currentSize);
+            size -= currentSize;
+            log.debug("filter {} removed {} recipes from list", filter.getFilterName(), size);
         }
         log.info("Recipes filtration was successful");
         return recipes;

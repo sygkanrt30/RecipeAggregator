@@ -70,6 +70,7 @@ public class UserService implements SaveUserService, FavoriteRecipeService, User
             throw new RecipeNotContainsException("Recipe not contains in favorite recipes " + recipeId);
         }
         userRepository.save(user);
+        log.info("Remove recipe {} from favorite recipes {}", username, recipeId);
     }
 
     @Override

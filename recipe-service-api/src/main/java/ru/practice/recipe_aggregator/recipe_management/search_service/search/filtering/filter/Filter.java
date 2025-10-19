@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface Filter {
     void filter(List<RecipeResponseDto> recipes, SearchContainer searchContainer);
+
+    String getFilterName();
 }

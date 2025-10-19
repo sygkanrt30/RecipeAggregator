@@ -22,7 +22,7 @@ import static ru.practice.parser_service.service.parsers.enums.TimeLabel.*;
 @Slf4j
 public class RecipeParser {
     public Recipe parseRecipePage(Document doc) {
-        log.debug("parseRecipePage(doc): Start parsing recipe from document {}", doc.toString());
+        log.debug("Start parsing recipe from document {}", doc.toString());
         String name = getSimplePartsOfRecipe(doc, NAME);
         String description = getSimplePartsOfRecipe(doc, DESCRIPTION);
 
@@ -47,7 +47,7 @@ public class RecipeParser {
                 .mins4Prep(mins4Prep)
                 .servings(servings)
                 .build();
-        log.debug("parseRecipePage(doc): Recipe {}", recipe.toString());
+        log.debug("Recipe {}", recipe.toString());
         return recipe;
     }
 

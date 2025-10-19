@@ -32,4 +32,9 @@ public class ServingsFilter implements Filter {
         int maxServings = searchContainer.maxServings();
         return minServings <= maxServings && minServings >= 0;
     }
+
+    @Override
+    public String getFilterName() {
+        return this.getClass().getSimpleName();
+    }
 }

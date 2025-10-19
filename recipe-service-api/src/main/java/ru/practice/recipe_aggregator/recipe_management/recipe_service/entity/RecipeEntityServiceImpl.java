@@ -26,11 +26,13 @@ public class RecipeEntityServiceImpl implements RecipeEntityService {
 
     @Override
     public Optional<RecipeDoc> findByName(String name) {
+        log.debug("search recipes with name : {}", name);
         return recipeRepository.findByName(name);
     }
 
     @Override
     public List<RecipeDoc> findAllByIds(List<UUID> recipeIds) {
+        log.debug("search all recipes which id in {} ", recipeIds.toString());
         var stringIds = recipeIds.stream()
                 .map(UUID::toString)
                 .toList();
@@ -45,12 +47,14 @@ public class RecipeEntityServiceImpl implements RecipeEntityService {
     @Override
     @Transactional
     public void saveAllWithBatches(List<RecipeDoc> recipes, int batchSize) {
+        log.debug("start saving {} recipes; batch size:{}", recipes.size(), batchSize);
         for (int i = 0; i < recipes.size(); i += batchSize) {
             var batch = recipes.subList(i, Math.min(i + batchSize, recipes.size()));
             try {
                 indexBatch(batch);
-                log.info("Indexed {} of {} recipes", i, batch.size());
+                log.trace("Indexed {} of {} recipes", i, batch.size());
             } catch (Exception e) {
+                log.error(e.getMessage(), e);
                 throw new RuntimeException(e.getMessage(), e.getCause());
             }
         }

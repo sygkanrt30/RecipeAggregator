@@ -26,4 +26,9 @@ public class TotalMinsFilter implements Filter {
         int totalMins = searchContainer.maxTotalMins();
         return totalMins >= (searchContainer.maxMins4Cook() + searchContainer.maxMins4Prep());
     }
+
+    @Override
+    public String getFilterName() {
+        return this.getClass().getSimpleName();
+    }
 }

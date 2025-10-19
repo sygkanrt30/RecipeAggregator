@@ -27,4 +27,9 @@ public class Mins4CookFilter implements Filter {
         if (searchContainer.maxTotalMins() == null) return true;
         return searchContainer.maxMins4Cook() <= searchContainer.maxTotalMins();
     }
+
+    @Override
+    public String getFilterName() {
+        return this.getClass().getSimpleName();
+    }
 }

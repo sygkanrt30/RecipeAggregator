@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.mapper.RecipeMapper;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
@@ -43,6 +42,7 @@ public class SearchServiceImpl implements SearchService {
     private List<RecipeResponseDto> convertToRecipeResponseDtoList(List<RecipeDoc> recipeDocs) {
         return recipeDocs.stream()
                 .map(recipeMapper::toRecipeResponseDto)
+                .peek(recipeResponseDto -> log.trace(recipeResponseDto.toString()))
                 .collect(Collectors.toList());
     }
 
@@ -50,7 +50,7 @@ public class SearchServiceImpl implements SearchService {
     public List<RecipeResponseDto> searchByNameWithFiltering(SearchContainer container) {
         List<RecipeResponseDto> recipes = searchByName(container);
         if (recipes.isEmpty()) {
-            log.info("No recipes found for name {}", container.name());
+            log.debug("No recipes found for name {}", container.name());
             return recipes;
         }
         filterService.processWithFilterChain(recipes, container);
@@ -61,7 +61,7 @@ public class SearchServiceImpl implements SearchService {
     public List<RecipeResponseDto> searchByIngredientsWithFiltering(SearchContainer container) {
         List<RecipeResponseDto> recipes = searchByIngredients(container);
         if (recipes.isEmpty()) {
-            log.info("No recipes found for ingredients {}", container.ingredientsName());
+            log.debug("No recipes found for ingredients {}", container.ingredientsName());
             return recipes;
         }
         filterService.processWithFilterChain(recipes, container);

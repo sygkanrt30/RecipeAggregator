@@ -11,7 +11,7 @@ public class TimeParser {
     private static final Pattern TIME_PATTERN = Pattern.compile("(?:((\\d+) hrs?)\\s*)?((\\d+) mins?)?");
 
     public int parseMinsFromString(String timeStr) {
-        log.debug("parse(doc): Start parsing direction from string {}", timeStr);
+        log.debug("Start parsing direction from string {}", timeStr);
         var matcher = TIME_PATTERN.matcher(timeStr);
         int hours = 0;
         int minutes = 0;
@@ -24,7 +24,7 @@ public class TimeParser {
             }
         }
         int time =  hours * 60 + minutes;
-        log.debug("parse(doc): Parsed minutes: {}", time);
+        log.debug("Parsed minutes: {}", time);
         return time;
     }
 }
