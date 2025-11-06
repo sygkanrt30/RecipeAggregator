@@ -1,15 +1,14 @@
 package ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.filter;
 
-
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.exception.InvalidConditionException;
+import ru.practice.shared.dto.RecipeDto;
 
 import java.util.List;
 
 public class ServingsFilter implements Filter {
     @Override
-    public void filter(List<RecipeResponseDto> recipes, SearchContainer searchContainer) {
+    public void filter(List<RecipeDto> recipes, SearchContainer searchContainer) {
         if (searchContainer.maxServings() == null || searchContainer.maxServings() < 0) {
             searchContainer.maxServings(Integer.MAX_VALUE);
         }

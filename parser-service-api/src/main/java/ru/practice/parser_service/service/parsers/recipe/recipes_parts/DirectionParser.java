@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DirectionParser {
     public String parse(Document doc) {
-        log.debug("Start parsing direction from document {}", doc.toString());
+        log.trace("Start parsing direction from document {}", doc.baseUri());
         Elements steps = doc.select(CssQueryOfRecipesParts.DIRECTIONS.cssQuery());
         return steps.stream()
                 .map(Element::text)

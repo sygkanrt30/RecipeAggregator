@@ -8,8 +8,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_aggregator.user_service.service.FavoriteRecipeService;
+import ru.practice.shared.dto.RecipeDto;
 
 import java.util.List;
 
@@ -100,7 +100,7 @@ class PersonalAccountControllerTest {
     @Test
     @WithMockUser(username = TEST_USERNAME)
     void getFavorites_ShouldReturnFavoritesList() throws Exception {
-        var favorites = Instancio.ofList(RecipeResponseDto.class).size(2).create();
+        var favorites = Instancio.ofList(RecipeDto.class).size(2).create();
 
         when(favoriteRecipeService.getFavorites(TEST_USERNAME)).thenReturn(favorites);
 

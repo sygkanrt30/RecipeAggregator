@@ -53,5 +53,8 @@ jwt:
   cookie-token-key: '{"kty":"oct","k":"956PBFst1FguLr5irJD-aQ"}'
 
 logging:
+  file:
+    path: ./logs
   level:
     org.springframework.security: DEBUG
+    root: DEBUG

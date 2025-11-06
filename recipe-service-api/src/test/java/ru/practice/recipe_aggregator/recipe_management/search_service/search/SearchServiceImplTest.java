@@ -71,7 +71,7 @@ class SearchServiceImplTest {
 
         assertTrue(result.isEmpty());
         verify(filterService, never()).processWithFilterChain(anyList(), any());
-        verify(mapper, never()).toRecipeResponseDto(any());
+        verify(mapper, never()).toRecipeDto(any());
     }
 
     @Test

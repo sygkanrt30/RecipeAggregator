@@ -6,6 +6,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import ru.practice.parser_service.service.parsers.recipe.recipes_parts.TimeParser;
 
+import java.time.Duration;
+
 class TimeParserTest {
 
     @ParameterizedTest
@@ -18,14 +20,14 @@ class TimeParserTest {
     void parseTimeToDuration_shouldReturnDurationWithMinutes(String time) {
         var duration = parseMinutes(time);
 
-        int result = TimeParser.parseMinsFromString(time);
+        var result = TimeParser.parseMinsFromString(time);
 
         Assertions.assertEquals(duration, result);
         Assertions.assertDoesNotThrow(() -> TimeParser.parseMinsFromString(time));
     }
 
-    private int parseMinutes(String time) {
-        return Integer.parseInt(time.substring(0, time.indexOf("m")).trim());
+    private Duration parseMinutes(String time) {
+        return Duration.ofMinutes(Integer.parseInt(time.substring(0, time.indexOf("m")).trim()));
     }
 
     @ParameterizedTest
@@ -36,9 +38,9 @@ class TimeParserTest {
     })
     @DisplayName("Проверяем как спарситься строка в которой есть только часы")
     void parseTimeToDuration_shouldReturnDurationWithHours(String time) {
-        var duration = parseHours(time);
+        var duration = Duration.ofMinutes(parseHours(time));
 
-        int result = TimeParser.parseMinsFromString(time);
+        var result = TimeParser.parseMinsFromString(time);
 
         Assertions.assertEquals(duration, result);
         Assertions.assertDoesNotThrow(() -> TimeParser.parseMinsFromString(time));
@@ -56,9 +58,9 @@ class TimeParserTest {
     })
     @DisplayName("Проверяем как спарситься строка в которой есть и часы, и минуты")
     void parseTimeToDuration_shouldReturnDurationWithMinutesAndHours(String time) {
-        var duration = parseHours(time) + parseMinutesInFullString(time);
+        var duration = Duration.ofMinutes(parseHours(time) + parseMinutesInFullString(time));
 
-        int result = TimeParser.parseMinsFromString(time);
+        var result = TimeParser.parseMinsFromString(time);
 
         Assertions.assertEquals(duration, result);
         Assertions.assertDoesNotThrow(() -> TimeParser.parseMinsFromString(time));
@@ -76,9 +78,9 @@ class TimeParserTest {
     })
     @DisplayName("Проверяем корректно ли спарситься некорректные строки строка")
     void parseTimeToDuration_shouldReturnEmptyString(String s) {
-        var duration = 0;
+        var duration = Duration.ofMinutes(0);
 
-        int result = TimeParser.parseMinsFromString(s);
+        var result = TimeParser.parseMinsFromString(s);
 
         Assertions.assertEquals(duration, result);
         Assertions.assertDoesNotThrow(() -> TimeParser.parseMinsFromString(""));

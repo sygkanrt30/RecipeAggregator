@@ -24,10 +24,10 @@ public class RecipeDoc {
     private String name;
 
     @Field(type = FieldType.Integer)
-    private int mins4Prep;
+    private int minsForPreparing;
 
     @Field(type = FieldType.Integer)
-    private int mins4Cook;
+    private int minsForCooking;
 
     @Field(type = FieldType.Integer)
     private int additionalMins;

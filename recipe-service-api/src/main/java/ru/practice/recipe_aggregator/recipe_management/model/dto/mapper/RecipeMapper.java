@@ -3,44 +3,38 @@ package ru.practice.recipe_aggregator.recipe_management.model.dto.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.stereotype.Component;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.kafka.RecipeKafkaDto;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
-import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearch.IngredientDoc;
 import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearch.RecipeDoc;
+import ru.practice.shared.dto.RecipeDto;
 
-import java.util.List;
-import java.util.Map;
+import java.time.Duration;
 import java.util.UUID;
 
+@Component("mapper")
 @Mapper(componentModel = "spring")
-@Component
 public interface RecipeMapper {
-    RecipeResponseDto toRecipeResponseDto(RecipeDoc recipe);
+
+    @Mapping(target = "minsForPreparing", expression = "java(minutesToDuration(recipe.getMinsForPreparing()))")
+    @Mapping(target = "minsForCooking", expression = "java(minutesToDuration(recipe.getMinsForCooking()))")
+    @Mapping(target = "additionalMins", expression = "java(minutesToDuration(recipe.getAdditionalMins()))")
+    @Mapping(target = "totalMins", expression = "java(minutesToDuration(recipe.getTotalMins()))")
+    RecipeDto toRecipeDto(RecipeDoc recipe);
 
     @Mapping(target = "id", expression = "java(generateRecipeId())")
-    @Mapping(target = "ingredients", expression = "java(getListOfRecipesFromMap(kafkaDto.ingredients()))")
-    RecipeDoc fromRecipeKafkaDto(RecipeKafkaDto kafkaDto);
-
-    default List<IngredientDoc> getListOfRecipesFromMap(Map<String, String> map) {
-        return map.entrySet().stream()
-                .map(entry -> {
-                    var parts = entry.getValue().split(" ");
-                    if (parts.length == 2) {
-                        return IngredientDoc.builder()
-                                .name(entry.getKey())
-                                .quantity(parts[0])
-                                .unit(parts[1])
-                                .build();
-                    }
-                    return IngredientDoc.builder()
-                            .name(entry.getKey())
-                            .quantity(parts[0])
-                            .build();
-                })
-                .toList();
-    }
+    @Mapping(target = "minsForPreparing", expression = "java(durationToMinutes(kafkaDto.minsForPreparing()))")
+    @Mapping(target = "minsForCooking", expression = "java(durationToMinutes(kafkaDto.minsForCooking()))")
+    @Mapping(target = "additionalMins", expression = "java(durationToMinutes(kafkaDto.additionalMins()))")
+    @Mapping(target = "totalMins", expression = "java(durationToMinutes(kafkaDto.totalMins()))")
+    RecipeDoc fromRecipeKafkaDto(RecipeDto kafkaDto);
 
     default UUID generateRecipeId() {
         return UUID.randomUUID();
+    }
+
+    default int durationToMinutes(Duration duration) {
+        return duration != null ? (int) duration.toMinutes() : 0;
+    }
+
+    default Duration minutesToDuration(int minutes) {
+        return Duration.ofMinutes(minutes);
     }
 }

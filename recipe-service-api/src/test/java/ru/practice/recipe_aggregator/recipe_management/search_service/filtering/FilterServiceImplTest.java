@@ -5,10 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.FilterServiceImpl;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.filter.*;
+import ru.practice.shared.dto.RecipeDto;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,17 +22,17 @@ class FilterServiceImplTest {
     @Test
     void processWithFilterChain_WithRealFilters_ShouldWorkCorrectly() {
         var filterService = new FilterServiceImpl();
-        var recipes = new ArrayList<RecipeResponseDto>();
+        var recipes = new ArrayList<RecipeDto>();
         var searchContainer = Instancio.create(SearchContainer.class);
-        searchContainer.maxMins4Cook(0);
-        searchContainer.maxMins4Cook(Integer.MAX_VALUE);
-        searchContainer.maxTotalMins(Integer.MAX_VALUE);
+        searchContainer.maxMinsForCooking(0);
+        searchContainer.maxMinsForCooking(Integer.MAX_VALUE);
+        searchContainer.maxTotalMinutes(Integer.MAX_VALUE);
         searchContainer.minServings(0);
         searchContainer.maxServings(Integer.MAX_VALUE);
         recipes.add(createRecipe(30, 15, 45, 4));
         recipes.add(createRecipe(20, 10, 30, 2));
 
-        List<RecipeResponseDto> result = filterService.processWithFilterChain(recipes, searchContainer);
+        List<RecipeDto> result = filterService.processWithFilterChain(recipes, searchContainer);
 
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -52,11 +53,11 @@ class FilterServiceImplTest {
         assertInstanceOf(ServingsFilter.class, filterChain.get(3));
     }
 
-    private RecipeResponseDto createRecipe(int cookMins, int prepMins, int totalMins, int servings) {
-        RecipeResponseDto recipe = mock(RecipeResponseDto.class);
-        when(recipe.mins4Cook()).thenReturn(cookMins);
-        when(recipe.mins4Prep()).thenReturn(prepMins);
-        when(recipe.totalMins()).thenReturn(totalMins);
+    private RecipeDto createRecipe(int cookMins, int prepMins, int totalMins, int servings) {
+        RecipeDto recipe = mock(RecipeDto.class);
+        when(recipe.minsForCooking()).thenReturn(Duration.ofMinutes(cookMins));
+        when(recipe.minsForPreparing()).thenReturn(Duration.ofMinutes(prepMins));
+        when(recipe.totalMins()).thenReturn(Duration.ofMinutes(totalMins));
         when(recipe.servings()).thenReturn(servings);
         return recipe;
     }

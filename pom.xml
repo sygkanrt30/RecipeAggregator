@@ -12,6 +12,7 @@
     <modules>
         <module>parser-service-api</module>
         <module>recipe-service-api</module>
+        <module>shared</module>
     </modules>
 
     <properties>

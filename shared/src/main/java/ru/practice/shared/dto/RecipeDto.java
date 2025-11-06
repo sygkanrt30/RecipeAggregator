@@ -1,27 +1,28 @@
-package ru.practice.parser_service.model;
+package ru.practice.shared.dto;
 
 import lombok.Builder;
 
-import java.util.Map;
+import java.time.Duration;
+import java.util.List;
 
 @Builder
-public record Recipe(
+public record RecipeDto(
         String name,
-        int mins4Prep,
-        int mins4Cook,
-        int additionalMins,
-        int totalMins,
+        Duration minsForPreparing,
+        Duration minsForCooking,
+        Duration additionalMins,
+        Duration totalMins,
         int servings,
-        Map<String, String> ingredients,
+        List<IngredientDto> ingredients,
         String direction,
         String description
 ) {
     @Override
     public String toString() {
         return String.format(
-                "Recipe{name=%s; mins4Prep=%s; mins4Cook=%s; additionalMins=%s;" +
+                "Recipe{name=%s; minsForPreparing=%s; minsForCooking=%s; additionalMins=%s;" +
                         " totalMins=%s; servings=%s; ingredients=%s; direction=%s; description=%s}",
-                name, mins4Prep, mins4Cook, additionalMins, totalMins, servings, ingredients,
+                name, minsForPreparing, minsForCooking, additionalMins, totalMins, servings, ingredients,
                 direction.substring(0, Math.min(50, direction.length())),
                 description.substring(0, Math.min(50, description.length()))
         );

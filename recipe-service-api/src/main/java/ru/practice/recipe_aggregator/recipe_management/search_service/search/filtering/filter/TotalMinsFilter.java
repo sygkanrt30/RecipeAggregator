@@ -1,16 +1,15 @@
 package ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.filter;
 
-
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.exception.InvalidConditionException;
+import ru.practice.shared.dto.RecipeDto;
 
 import java.util.List;
 
 public class TotalMinsFilter implements Filter {
     @Override
-    public void filter(List<RecipeResponseDto> recipes, SearchContainer searchContainer) {
-        if (searchContainer.maxTotalMins() == null || searchContainer.maxTotalMins() < 1) return;
+    public void filter(List<RecipeDto> recipes, SearchContainer searchContainer) {
+        if (searchContainer.maxTotalMinutes() == null || searchContainer.maxTotalMinutes() < 1) return;
         if (!isValidCondition(searchContainer)) {
             throw new InvalidConditionException("""
                     Invalid condition:
@@ -18,13 +17,13 @@ public class TotalMinsFilter implements Filter {
                     """);
         }
         recipes.removeIf(recipe ->
-                recipe.totalMins() > searchContainer.maxTotalMins());
+                (int) recipe.totalMins().toMinutes() > searchContainer.maxTotalMinutes());
     }
 
     private boolean isValidCondition(SearchContainer searchContainer) {
-        if (searchContainer.maxMins4Prep() == null || searchContainer.maxMins4Cook() == null) return true;
-        int totalMins = searchContainer.maxTotalMins();
-        return totalMins >= (searchContainer.maxMins4Cook() + searchContainer.maxMins4Prep());
+        if (searchContainer.maxMinsForPreparing() == null || searchContainer.maxMinsForCooking() == null) return true;
+        int totalMins = searchContainer.maxTotalMinutes();
+        return totalMins >= (searchContainer.maxMinsForCooking() + searchContainer.maxMinsForPreparing());
     }
 
     @Override

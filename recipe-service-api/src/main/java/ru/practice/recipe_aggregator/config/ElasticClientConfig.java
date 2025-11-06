@@ -1,6 +1,7 @@
 package ru.practice.recipe_aggregator.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
@@ -23,7 +24,7 @@ public class ElasticClientConfig extends ElasticsearchConfiguration {
     @Value("${spring.elasticsearch.socket-timeout:60000}")
     private long socketTimeout;
 
-    @Override
+    @Bean
     public @NonNull ClientConfiguration clientConfiguration() {
         return ClientConfiguration.builder()
                 .connectedTo(hostAndPort)

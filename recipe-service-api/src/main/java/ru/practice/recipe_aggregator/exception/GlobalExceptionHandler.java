@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.factory.ResponseDtoFactory;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.response.ResponseDto;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.exception.InvalidConditionException;
 import ru.practice.recipe_aggregator.user_service.service.RecipeNotContainsException;
@@ -48,6 +47,6 @@ public class GlobalExceptionHandler {
     private ResponseDto getAppErrorHandlerResponseDto(Exception e, HttpStatus status) {
         String error = e.getMessage();
         log.error(error, e);
-        return ResponseDtoFactory.getResponseError(status, error);
+        return ResponseDto.getResponseError(status, error);
     }
 }

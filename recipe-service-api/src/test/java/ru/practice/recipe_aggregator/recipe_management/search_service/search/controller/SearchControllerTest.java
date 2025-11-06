@@ -11,10 +11,10 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_aggregator.recipe_management.search_service.controller.SearchController;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.SearchService;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.FilterService;
+import ru.practice.shared.dto.RecipeDto;
 
 import java.util.Collections;
 import java.util.List;
@@ -45,8 +45,8 @@ class SearchControllerTest {
     @WithMockUser(username = TEST_USER)
     void searchByName_ShouldReturnResults() throws Exception {
         var expectedResults = List.of(
-                mock(RecipeResponseDto.class),
-                mock(RecipeResponseDto.class)
+                mock(RecipeDto.class),
+                mock(RecipeDto.class)
         );
         when(searchService.searchByName(any(SearchContainer.class))).thenReturn(expectedResults);
 
@@ -79,7 +79,7 @@ class SearchControllerTest {
     @WithMockUser(username = TEST_USER)
     void searchByIngredients_ShouldReturnResults() throws Exception {
         var ingredients = List.of("chicken", "rice");
-        var expectedResults = List.of(mock(RecipeResponseDto.class), mock(RecipeResponseDto.class));
+        var expectedResults = List.of(mock(RecipeDto.class), mock(RecipeDto.class));
         when(searchService.searchByIngredients(any(SearchContainer.class))).thenReturn(expectedResults);
 
         mockMvc.perform(get("/api/v1/search/search-by-ingredients")
@@ -110,7 +110,7 @@ class SearchControllerTest {
     @Test
     @WithMockUser(username = TEST_USER)
     void searchByIngredientsWithFiltering_ShouldReturnFilteredResults() throws Exception {
-        var expectedResults = List.of(mock(RecipeResponseDto.class));
+        var expectedResults = List.of(mock(RecipeDto.class));
         when(searchService.searchByIngredientsWithFiltering(any(SearchContainer.class))).thenReturn(expectedResults);
 
         mockMvc.perform(get("/api/v1/search/search-by-ingredients-with-filtering")
@@ -127,9 +127,9 @@ class SearchControllerTest {
                 .andExpect(jsonPath("$.length()").value(expectedResults.size()));
         verify(searchService).searchByIngredientsWithFiltering(argThat(container ->
                 container.ingredientsName().equals(List.of("chicken", "rice")) &&
-                        container.maxMins4Cook() == 30 &&
-                        container.maxTotalMins() == 60 &&
-                        container.maxMins4Prep() == 15 &&
+                        container.maxMinsForCooking() == 30 &&
+                        container.maxTotalMinutes() == 60 &&
+                        container.maxMinsForPreparing() == 15 &&
                         container.minServings() == 2 &&
                         container.maxServings() == 4
         ));
@@ -138,7 +138,7 @@ class SearchControllerTest {
     @Test
     @WithMockUser(username = TEST_USER)
     void searchByIngredientsWithFiltering_WithNullFilterParameters_ShouldHandleNulls() throws Exception {
-        var expectedResults = List.of(mock(RecipeResponseDto.class));
+        var expectedResults = List.of(mock(RecipeDto.class));
         when(searchService.searchByIngredientsWithFiltering(any(SearchContainer.class))).thenReturn(expectedResults);
 
         mockMvc.perform(get("/api/v1/search/search-by-ingredients-with-filtering")
@@ -150,9 +150,9 @@ class SearchControllerTest {
                 .andExpect(jsonPath("$.length()").value(expectedResults.size()));
         verify(searchService).searchByIngredientsWithFiltering(argThat(container ->
                 container.ingredientsName().equals(List.of("chicken", "rice")) &&
-                        container.maxMins4Cook() == null &&
-                        container.maxTotalMins() == null &&
-                        container.maxMins4Prep() == null &&
+                        container.maxMinsForCooking() == null &&
+                        container.maxTotalMinutes() == null &&
+                        container.maxMinsForPreparing() == null &&
                         container.minServings() == null &&
                         container.maxServings() == null
         ));
@@ -161,7 +161,7 @@ class SearchControllerTest {
     @Test
     @WithMockUser(username = TEST_USER)
     void searchByNameWithFiltering_ShouldReturnFilteredResults() throws Exception {
-        var expectedResults = List.of(mock(RecipeResponseDto.class));
+        var expectedResults = List.of(mock(RecipeDto.class));
         when(searchService.searchByNameWithFiltering(any(SearchContainer.class))).thenReturn(expectedResults);
 
         mockMvc.perform(get("/api/v1/search/search-by-name-with-filtering")
@@ -178,9 +178,9 @@ class SearchControllerTest {
                 .andExpect(jsonPath("$.length()").value(expectedResults.size()));
         verify(searchService).searchByNameWithFiltering(argThat(container ->
                 "pasta".equals(container.name()) &&
-                        container.maxMins4Cook() == 30 &&
-                        container.maxTotalMins() == 60 &&
-                        container.maxMins4Prep() == 15 &&
+                        container.maxMinsForCooking() == 30 &&
+                        container.maxTotalMinutes() == 60 &&
+                        container.maxMinsForPreparing() == 15 &&
                         container.minServings() == 2 &&
                         container.maxServings() == 4
         ));
@@ -189,7 +189,7 @@ class SearchControllerTest {
     @Test
     @WithMockUser(username = TEST_USER)
     void searchByNameWithFiltering_WithNullFilterParameters_ShouldHandleNulls() throws Exception {
-        var expectedResults = List.of(mock(RecipeResponseDto.class));
+        var expectedResults = List.of(mock(RecipeDto.class));
         when(searchService.searchByNameWithFiltering(any(SearchContainer.class))).thenReturn(expectedResults);
 
         mockMvc.perform(get("/api/v1/search/search-by-name-with-filtering")
@@ -201,9 +201,9 @@ class SearchControllerTest {
                 .andExpect(jsonPath("$.length()").value(expectedResults.size()));
         verify(searchService).searchByNameWithFiltering(argThat(container ->
                 "pasta".equals(container.name()) &&
-                        container.maxMins4Cook() == null &&
-                        container.maxTotalMins() == null &&
-                        container.maxMins4Prep() == null &&
+                        container.maxMinsForCooking() == null &&
+                        container.maxTotalMinutes() == null &&
+                        container.maxMinsForPreparing() == null &&
                         container.minServings() == null &&
                         container.maxServings() == null
         ));

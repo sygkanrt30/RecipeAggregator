@@ -4,45 +4,34 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import ru.practice.shared.dto.IngredientDto;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import static ru.practice.parser_service.service.parsers.enums.CssQueryOfRecipesParts.*;
 
 @Slf4j
 @UtilityClass
 public class IngredientsParser {
-    private final String DEFAULT_VALUE = "1";
-
-    public Map<String, String> parse(Document doc) {
-        log.debug("Start parsing ingredients from document {}", doc.toString());
-        Map<String, String> ingredientsMap = new HashMap<>();
+    public List<IngredientDto> parse(Document doc) {
+        log.trace("Start parsing ingredients from document {}", doc.baseUri());
+        var ingredients = new ArrayList<IngredientDto>();
         Elements ingredientItems = doc.select(INGREDIENTS_NODE.cssQuery());
-        for (var item : ingredientItems) {
+        ingredientItems.forEach(item -> {
             String quantity = item.select(INGREDIENT_QUANTITY.cssQuery()).text();
             String unit = item.select(INGREDIENTS_UNIT.cssQuery()).text();
             String name = item.select(INGREDIENTS_NAME.cssQuery()).text();
-            String amount = quantity + " " + unit;
-            put(ingredientsMap, name, amount, quantity);
-        }
-        logMapIfLevelDebug(ingredientsMap);
-        return ingredientsMap;
+            ingredients.add(IngredientDto.of(name, quantity, unit));
+        });
+        logMapIfLevelDebug(ingredients);
+        return ingredients;
     }
 
-    private void put(Map<String, String> ingredientsMap, String name, String amount, String quantity) {
-        if (quantity.isEmpty()) {
-            ingredientsMap.put(name, DEFAULT_VALUE);
-            return;
-        }
-        ingredientsMap.put(name, amount);
-    }
-
-    private static void logMapIfLevelDebug(Map<String, String> ingredientsMap) {
-        if (log.isDebugEnabled()) {
-            for (var entry : ingredientsMap.entrySet()) {
-                log.debug("Ingredient {}: {}", entry.getKey(), entry.getValue());
-            }
+    private static void logMapIfLevelDebug(List<IngredientDto> ingredients) {
+        if (log.isTraceEnabled()) {
+            ingredients.forEach(ingredient ->
+                    log.trace("Ingredient {}: {} {}", ingredient.name(), ingredient.quantity(), ingredient.unit()));
         }
     }
 }

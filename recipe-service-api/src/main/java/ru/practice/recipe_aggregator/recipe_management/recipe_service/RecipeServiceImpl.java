@@ -3,71 +3,89 @@ package ru.practice.recipe_aggregator.recipe_management.recipe_service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
+import org.springframework.data.elasticsearch.core.query.IndexQuery;
+import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.kafka.RecipeKafkaDto;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.mapper.RecipeMapper;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearch.RecipeDoc;
-import ru.practice.recipe_aggregator.recipe_management.recipe_service.entity.RecipeEntityService;
+import ru.practice.recipe_aggregator.recipe_management.repository.RecipeElasticRepository;
+import ru.practice.shared.dto.RecipeDto;
 
-import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Slf4j
-@RequiredArgsConstructor
 @Service
-public class RecipeServiceImpl implements RecipeService, ConsumerProcessor {
+@RequiredArgsConstructor
+@Slf4j
+public class RecipeServiceImpl implements RecipeService {
+    private static final String INDEX_NAME = "recipe";
     private static final int BATCHES_SIZE = 10;
-    private final RecipeMapper recipeMapper;
-    private final RecipeEntityService recipeEntityService;
+    private final RecipeElasticRepository recipeRepository;
+    private final ElasticsearchOperations elasticsearchOperations;
+    private final RecipeMapper mapper;
 
     @Override
-    public RecipeResponseDto findRecipeByName(String name) {
-        var recipe = recipeEntityService.findByName(name).orElseThrow(EntityNotFoundException::new);
-        return recipeMapper.toRecipeResponseDto(recipe);
+    public List<RecipeDto> findAllByIds(List<UUID> recipeIds) {
+        log.debug("search all recipes which id in {} ", recipeIds.toString());
+        var stringIds = recipeIds.stream()
+                .map(UUID::toString)
+                .toList();
+        return recipeRepository.findByIdsWithQuery(stringIds).stream()
+                .map(mapper::toRecipeDto)
+                .toList();
     }
 
     @Override
-    public List<RecipeResponseDto> findAllByIds(List<UUID> recipeIds) {
-        return recipeEntityService.findAllByIds(recipeIds).stream()
-                .map(recipeMapper::toRecipeResponseDto)
-                .toList();
+    public List<RecipeDoc> findAll() {
+        return recipeRepository.findAll();
     }
 
     @Override
     public UUID getIdByName(String recipeName) {
-        return recipeEntityService.findByName(recipeName)
+        return findByName(recipeName)
                 .orElseThrow(() -> new EntityNotFoundException("There is no recipe with that name"))
                 .getId();
     }
 
+    private Optional<RecipeDoc> findByName(String name) {
+        log.debug("search recipes with name : {}", name);
+        return recipeRepository.findByName(name);
+    }
+
     @Override
     @Transactional
-    public void saveFromKafka(List<RecipeKafkaDto> recipesKafkaDto) {
-        log.debug("Numbers of recipes from kafka: {}", recipesKafkaDto.size());
-        if (recipesKafkaDto.isEmpty()) {
-            log.warn("No recipes read from kafka");
-            return;
+    public void saveAllWithBatches(List<RecipeDoc> recipes) {
+        int batchSize = Math.min(recipes.size(), BATCHES_SIZE);
+        log.debug("start saving {} recipes; batch size:{}", recipes.size(), batchSize);
+        for (int i = 0; i < recipes.size(); i += batchSize) {
+            var batch = recipes.subList(i, Math.min(i + batchSize, recipes.size()));
+            try {
+                indexBatch(batch);
+                log.trace("Indexed {} of {} recipes", i, batch.size());
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+                throw new RuntimeException(e.getMessage(), e.getCause());
+            }
         }
+        log.info("All {} recipes saved", recipes.size());
+    }
 
-        var nameOfEntitiesFromDb = recipeEntityService.findAll().stream()
-                .map(RecipeDoc::getName)
-                .collect(Collectors.toCollection(HashSet::new));
+    private void indexBatch(List<RecipeDoc> batch) {
+        var queries = batch.stream()
+                .map(this::createIndexQuery)
+                .collect(Collectors.toList());
+        elasticsearchOperations.bulkIndex(queries, IndexCoordinates.of(INDEX_NAME));
+    }
 
-        var newRecipes = recipesKafkaDto.stream()
-                .filter(dto -> !nameOfEntitiesFromDb.contains(dto.name()))
-                .map(recipeMapper::fromRecipeKafkaDto)
-                .toList();
-        log.debug("Number of recipes from kafka if not contains in elasticsearch: {}", newRecipes.size());
-
-        if (!newRecipes.isEmpty()) {
-            int batchSize = Math.min(newRecipes.size(), BATCHES_SIZE);
-            recipeEntityService.saveAllWithBatches(newRecipes, batchSize);
-            return;
-        }
-        log.warn("All recipes already exist in elasticsearch");
+    private IndexQuery createIndexQuery(RecipeDoc recipe) {
+        return new IndexQueryBuilder()
+                .withId(String.valueOf(recipe.getId()))
+                .withObject(recipe)
+                .build();
     }
 }

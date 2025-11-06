@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -12,8 +13,11 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.kafka.RecipeKafkaDto;
+import org.springframework.util.backoff.FixedBackOff;
+import ru.practice.shared.dto.RecipeDto;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,20 +37,19 @@ public class KafkaConfig {
     private String groupId;
 
     @Bean
-    public ConsumerFactory<String, List<RecipeKafkaDto>> consumerFactory() {
+    public ConsumerFactory<String, List<RecipeDto>> consumerFactory() {
         var configProps = new HashMap<String, Object>();
         configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         configProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
         configProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, autoCommitConfig);
+        configProps.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class);
 
-        var objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        var deserializer = new JsonDeserializer<List<RecipeKafkaDto>>(
+        var deserializer = new JsonDeserializer<List<RecipeDto>>(
                 new TypeReference<>() {},
-                objectMapper
+                objectMapper()
         );
         deserializer.addTrustedPackages(trustedPackage);
         deserializer.setUseTypeHeaders(false);
@@ -54,14 +57,30 @@ public class KafkaConfig {
         return new DefaultKafkaConsumerFactory<>(
                 configProps,
                 new StringDeserializer(),
-                deserializer
+                new ErrorHandlingDeserializer<>(deserializer)
         );
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, List<RecipeKafkaDto>> kafkaListenerContainerFactory() {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, List<RecipeKafkaDto>>();
+    public ObjectMapper objectMapper() {
+        var objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        return objectMapper;
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, List<RecipeDto>> kafkaListenerContainerFactory() {
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, List<RecipeDto>>();
         factory.setConsumerFactory(consumerFactory());
+
+        var errorHandler = new DefaultErrorHandler(
+                new FixedBackOff(1000L, 2L)
+        );
+        errorHandler.addNotRetryableExceptions(SerializationException.class);
+        factory.setCommonErrorHandler(errorHandler);
+
         return factory;
     }
+
+
 }

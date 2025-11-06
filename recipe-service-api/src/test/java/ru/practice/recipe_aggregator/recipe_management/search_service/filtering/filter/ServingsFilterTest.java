@@ -6,20 +6,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.exception.InvalidConditionException;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.filter.ServingsFilter;
+import ru.practice.shared.dto.RecipeDto;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ServingsFilterTest {
     private ServingsFilter servingsFilter;
-    private List<RecipeResponseDto> recipes;
+    private List<RecipeDto> recipes;
     private SearchContainer searchContainer;
 
     @BeforeEach
@@ -189,8 +190,8 @@ class ServingsFilterTest {
         assertTrue(recipes.stream().allMatch(r -> r.servings() == 3));
     }
 
-    private RecipeResponseDto createRecipe(int servings) {
-        RecipeResponseDto recipe = mock(RecipeResponseDto.class);
+    private RecipeDto createRecipe(int servings) {
+        RecipeDto recipe = mock(RecipeDto.class);
         when(recipe.servings()).thenReturn(servings);
         return recipe;
     }

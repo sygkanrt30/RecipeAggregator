@@ -4,10 +4,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Test;
 import ru.practice.parser_service.service.parsers.recipe.recipes_parts.IngredientsParser;
+import ru.practice.shared.dto.IngredientDto;
 
-import java.util.Map;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class IngredientsParserTest {
 
@@ -18,7 +20,7 @@ class IngredientsParserTest {
         Document doc = Jsoup.parse(html);
 
         // Act
-        Map<String, String> result = IngredientsParser.parse(doc);
+        List<IngredientDto> result = IngredientsParser.parse(doc);
 
         // Assert
         assertTrue(result.isEmpty());
@@ -37,11 +39,14 @@ class IngredientsParserTest {
         Document doc = Jsoup.parse(html);
 
         // Act
-        Map<String, String> result = IngredientsParser.parse(doc);
+        List<IngredientDto> result = IngredientsParser.parse(doc);
 
         // Assert
         assertEquals(1, result.size());
-        assertEquals("2 cups", result.get("flour"));
+        IngredientDto ingredient = result.getFirst();
+        assertEquals("flour", ingredient.name());
+        assertEquals("2", ingredient.quantity());
+        assertEquals("cups", ingredient.unit());
     }
 
     @Test
@@ -57,11 +62,14 @@ class IngredientsParserTest {
         Document doc = Jsoup.parse(html);
 
         // Act
-        Map<String, String> result = IngredientsParser.parse(doc);
+        List<IngredientDto> result = IngredientsParser.parse(doc);
 
         // Assert
         assertEquals(1, result.size());
-        assertEquals("1", result.get("salt"));
+        IngredientDto ingredient = result.getFirst();
+        assertEquals("salt", ingredient.name());
+        assertEquals("1", ingredient.quantity());
+        assertEquals("to taste", ingredient.unit());
     }
 
     @Test
@@ -77,11 +85,14 @@ class IngredientsParserTest {
         Document doc = Jsoup.parse(html);
 
         // Act
-        Map<String, String> result = IngredientsParser.parse(doc);
+        List<IngredientDto> result = IngredientsParser.parse(doc);
 
         // Assert
         assertEquals(1, result.size());
-        assertEquals("1/2 teaspoon", result.get("vanilla extract"));
+        IngredientDto ingredient = result.getFirst();
+        assertEquals("vanilla extract", ingredient.name());
+        assertEquals("1/2", ingredient.quantity());
+        assertEquals("teaspoon", ingredient.unit());
     }
 
     @Test
@@ -102,12 +113,20 @@ class IngredientsParserTest {
         Document doc = Jsoup.parse(html);
 
         // Act
-        Map<String, String> result = IngredientsParser.parse(doc);
+        List<IngredientDto> result = IngredientsParser.parse(doc);
 
         // Assert
         assertEquals(2, result.size());
-        assertEquals("2 cups", result.get("flour"));
-        assertEquals("1 cup", result.get("sugar"));
+
+        IngredientDto flour = result.getFirst();
+        assertEquals("flour", flour.name());
+        assertEquals("2", flour.quantity());
+        assertEquals("cups", flour.unit());
+
+        IngredientDto sugar = result.get(1);
+        assertEquals("sugar", sugar.name());
+        assertEquals("1", sugar.quantity());
+        assertEquals("cup", sugar.unit());
     }
 
     @Test
@@ -123,10 +142,13 @@ class IngredientsParserTest {
         Document doc = Jsoup.parse(html);
 
         // Act
-        Map<String, String> result = IngredientsParser.parse(doc);
+        List<IngredientDto> result = IngredientsParser.parse(doc);
 
         // Assert
         assertEquals(1, result.size());
-        assertEquals("3 tablespoons", result.get("extra-virgin olive oil, divided"));
+        IngredientDto ingredient = result.getFirst();
+        assertEquals("extra-virgin olive oil, divided", ingredient.name());
+        assertEquals("3", ingredient.quantity());
+        assertEquals("tablespoons", ingredient.unit());
     }
 }

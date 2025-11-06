@@ -7,26 +7,46 @@ spring:
 server:
   port: 8081
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      enabled: true
+      show-details: always
+    info:
+      enabled: true
+
 custom-kafka:
   topic: recipes
 
 parser:
-  website-with-recipe:
-    url:
-      main-page: https://www.allrecipes.com/recipes-a-z-6735880#alphabetical-list-a
-    browser-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36
+  browser:
+    main-url: https://www.allrecipes.com/recipes-a-z-6735880#alphabetical-list-a
+    user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36
     referrer: https://www:google:com
-    recipe-tag: html[id=recipeScTemplate_1-0]
-  max:
-    depth: 5
-    recipes: 25
-  container:
-    selectors: >
-      div.mntl-alphabetical-list__group, 
-      div.comp.mntl-universal-card-list,
-      div.comp.mntl-taxonomysc-content,
-      div.comp.mntl-taxonomy-nodes,
-      div.comp.mntl-taxonomysc-article-list-group,
-      div.comp.related-category-search__category-tags,
-      div.comp.mntl-sc-block,
-      div.comp.mntl-three-post__inner
+  recipe-tag: "html[id=recipeScTemplate_1-0]"
+  timeout: 15000
+  min-delay-ms: 1000
+  max-delay-ms: 2000
+  max-links-per-page: 50
+  max-recipes: 25
+  max-depth: 5
+  container-selectors: >
+    div.mntl-alphabetical-list__group, 
+    div.comp.mntl-universal-card-list,
+    div.comp.mntl-taxonomysc-content,
+    div.comp.mntl-taxonomy-nodes,
+    div.comp.mntl-taxonomysc-article-list-group,
+    div.comp.related-category-search__category-tags,
+    div.comp.mntl-sc-block,
+    div.comp.mntl-three-post__inner
+
+logging:
+  file:
+    path: ./logs
+  level:
+    root: INFO

@@ -7,13 +7,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_aggregator.recipe_management.recipe_service.RecipeService;
 import ru.practice.recipe_aggregator.user_service.model.Role;
 import ru.practice.recipe_aggregator.user_service.model.User;
 import ru.practice.recipe_aggregator.user_service.repository.UserRepository;
+import ru.practice.shared.dto.RecipeDto;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,7 +41,6 @@ public class UserService implements SaveUserService, FavoriteRecipeService, User
                 .password(passwordEncoder.encode(password))
                 .email(email)
                 .role(Role.USER)
-                .createdAt(Instant.now())
                 .build();
         userRepository.saveAndFlush(user);
         log.info("Saved user: {}", user);
@@ -74,7 +72,7 @@ public class UserService implements SaveUserService, FavoriteRecipeService, User
     }
 
     @Override
-    public List<RecipeResponseDto> getFavorites(String username) {
+    public List<RecipeDto> getFavorites(String username) {
         var favoriteRecipeIds = getUserByName(username).getFavoriteRecipeIds();
         return recipeService.findAllByIds(favoriteRecipeIds);
     }

@@ -2,6 +2,7 @@ package ru.practice.recipe_aggregator.user_service.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,6 +19,7 @@ import java.util.*;
 @NoArgsConstructor
 @Entity
 @Builder
+@ToString
 @Table(name = "app_user")
 public class User implements UserDetails {
     @Id
@@ -28,9 +30,11 @@ public class User implements UserDetails {
     private String username;
 
     @Column(nullable = false, length = 100, name = "password")
+    @ToString.Exclude
     private String password;
 
     @Column(nullable = false, length = 100, unique = true, name = "email")
+    @ToString.Exclude
     private String email;
 
     @Enumerated(EnumType.STRING)
@@ -38,6 +42,8 @@ public class User implements UserDetails {
     private Role role;
 
     @Column(name = "created_at")
+    @CreationTimestamp
+    @ToString.Exclude
     private Instant createdAt;
 
     @ElementCollection
@@ -46,25 +52,16 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id")
     )
     @Column(name = "recipe_id")
+    @ToString.Exclude
     private List<UUID> favoriteRecipeIds = new ArrayList<>();
 
     @Transient
+    @ToString.Exclude
     private Token token;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
     }
 
     @Override
@@ -81,12 +78,5 @@ public class User implements UserDetails {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                '}';
     }
 }

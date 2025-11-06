@@ -3,8 +3,8 @@ package ru.practice.recipe_aggregator.recipe_management.search_service.search.fi
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.filter.*;
+import ru.practice.shared.dto.RecipeDto;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class FilterServiceImpl implements FilterService {
     }
 
     @Override
-    public List<RecipeResponseDto> processWithFilterChain(List<RecipeResponseDto> recipes, SearchContainer searchContainer) {
+    public List<RecipeDto> processWithFilterChain(List<RecipeDto> recipes, SearchContainer searchContainer) {
         int size = recipes.size();
         log.trace("list start size: {}", size);
         for (var filter : filterChain) {

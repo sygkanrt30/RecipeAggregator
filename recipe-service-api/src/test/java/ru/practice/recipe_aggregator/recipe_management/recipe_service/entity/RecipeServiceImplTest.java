@@ -9,12 +9,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
+import ru.practice.recipe_aggregator.recipe_management.model.dto.mapper.RecipeMapper;
 import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearch.RecipeDoc;
+import ru.practice.recipe_aggregator.recipe_management.recipe_service.RecipeServiceImpl;
 import ru.practice.recipe_aggregator.recipe_management.repository.RecipeElasticRepository;
+import ru.practice.shared.dto.RecipeDto;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -23,29 +25,20 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class RecipeEntityServiceImplTest {
+class RecipeServiceImplTest {
     @Mock
     private RecipeElasticRepository recipeRepository;
 
     @Mock
     private ElasticsearchOperations elasticsearchOperations;
 
+    @Mock
+    private RecipeMapper mapper;
+
     @InjectMocks
-    private RecipeEntityServiceImpl recipeService;
+    private RecipeServiceImpl recipeService;
 
     private static final String INDEX_NAME = "recipe";
-
-
-    @Test
-    void findRecipeByName_shouldDelegateToRepository() {
-        var recipe = Instancio.create(RecipeDoc.class);
-        when(recipeRepository.findByName(recipe.getName())).thenReturn(Optional.of(recipe));
-
-        Optional<RecipeDoc> result = recipeService.findByName(recipe.getName());
-
-        assertThat(result).contains(recipe);
-        verify(recipeRepository).findByName(recipe.getName());
-    }
 
     @Test
     void findAll_shouldDelegateToRepository() {
@@ -61,15 +54,6 @@ class RecipeEntityServiceImplTest {
     }
 
     @Test
-    void findRecipeByName_shouldReturnEmptyOptional_whenNotFound() {
-        when(recipeRepository.findByName("Unknown")).thenReturn(Optional.empty());
-
-        Optional<RecipeDoc> result = recipeService.findByName("Unknown");
-
-        assertThat(result).isEmpty();
-    }
-
-    @Test
     void findAllByIds_ShouldReturnRecipes_WhenValidIdsProvided() {
         var id1 = UUID.randomUUID();
         var id2 = UUID.randomUUID();
@@ -77,10 +61,15 @@ class RecipeEntityServiceImplTest {
         var stringIds = List.of(id1.toString(), id2.toString());
         var recipe1 = Instancio.create(RecipeDoc.class);
         var recipe2 = Instancio.create(RecipeDoc.class);
-        var expectedRecipes = List.of(recipe1, recipe2);
-        when(recipeRepository.findByIdsWithQuery(stringIds)).thenReturn(expectedRecipes);
+        var recipeDto1 = Instancio.create(RecipeDto.class);
+        var recipeDto2 = Instancio.create(RecipeDto.class);
+        var returnedRecipes = List.of(recipe1, recipe2);
+        var expectedRecipes = List.of(recipeDto1, recipeDto2);
+        when(recipeRepository.findByIdsWithQuery(stringIds)).thenReturn(returnedRecipes);
+        when(mapper.toRecipeDto(recipe1)).thenReturn(recipeDto1);
+        when(mapper.toRecipeDto(recipe2)).thenReturn(recipeDto2);
 
-        List<RecipeDoc> result = recipeService.findAllByIds(recipeIds);
+        var result = recipeService.findAllByIds(recipeIds);
 
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -93,7 +82,7 @@ class RecipeEntityServiceImplTest {
         List<UUID> emptyIds = List.of();
         when(recipeRepository.findByIdsWithQuery(List.of())).thenReturn(List.of());
 
-        List<RecipeDoc> result = recipeService.findAllByIds(emptyIds);
+        var result = recipeService.findAllByIds(emptyIds);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -119,9 +108,8 @@ class RecipeEntityServiceImplTest {
     @Test
     void saveAllWithBatches_ShouldProcessInBatches_WhenMultipleRecipes() {
         var recipes = Instancio.ofList(RecipeDoc.class).size(25).create();
-        int batchSize = 10;
 
-        recipeService.saveAllWithBatches(recipes, batchSize);
+        recipeService.saveAllWithBatches(recipes);
 
         verify(elasticsearchOperations, times(3)).bulkIndex(anyList(), eq(IndexCoordinates.of(INDEX_NAME)));
     }
@@ -129,9 +117,8 @@ class RecipeEntityServiceImplTest {
     @Test
     void saveAllWithBatches_ShouldProcessSingleBatch_WhenRecipesLessThanBatchSize() {
         var recipes = Instancio.ofList(RecipeDoc.class).size(5).create();
-        int batchSize = 10;
 
-        recipeService.saveAllWithBatches(recipes, batchSize);
+        recipeService.saveAllWithBatches(recipes);
 
         verify(elasticsearchOperations, times(1)).bulkIndex(anyList(), eq(IndexCoordinates.of(INDEX_NAME)));
     }
@@ -139,9 +126,8 @@ class RecipeEntityServiceImplTest {
     @Test
     void saveAllWithBatches_ShouldHandleExactBatchSize() {
         var recipes = Instancio.ofList(RecipeDoc.class).size(20).create();
-        int batchSize = 10;
 
-        recipeService.saveAllWithBatches(recipes, batchSize);
+        recipeService.saveAllWithBatches(recipes);
 
         verify(elasticsearchOperations, times(2)).bulkIndex(anyList(), eq(IndexCoordinates.of(INDEX_NAME)));
     }
@@ -153,9 +139,8 @@ class RecipeEntityServiceImplTest {
                 .set(field(RecipeDoc::getId), id)
                 .create();
         var recipes = List.of(recipe);
-        int batchSize = 1;
 
-        recipeService.saveAllWithBatches(recipes, batchSize);
+        recipeService.saveAllWithBatches(recipes);
 
         verify(elasticsearchOperations).bulkIndex(
                 argThat((List<IndexQuery> queries) ->
@@ -170,34 +155,22 @@ class RecipeEntityServiceImplTest {
     @Test
     void saveAllWithBatches_ShouldPropagateException_WhenElasticsearchFails() {
         var recipes = Instancio.ofList(RecipeDoc.class).size(5).create();
-        int batchSize = 3;
 
         var exception = new RuntimeException("Elasticsearch error");
         doThrow(exception).when(elasticsearchOperations).bulkIndex(anyList(), eq(IndexCoordinates.of(INDEX_NAME)));
 
         var thrownException = assertThrows(RuntimeException.class, () ->
-                recipeService.saveAllWithBatches(recipes, batchSize)
+                recipeService.saveAllWithBatches(recipes)
         );
         assertEquals("Elasticsearch error", thrownException.getMessage());
-    }
-
-    @Test
-    void saveAllWithBatches_ShouldProcessWithCustomBatchSize() {
-        var recipes = Instancio.ofList(RecipeDoc.class).size(17).create();
-        int batchSize = 7;
-
-        recipeService.saveAllWithBatches(recipes, batchSize);
-
-        verify(elasticsearchOperations, times(3)).bulkIndex(anyList(), eq(IndexCoordinates.of(INDEX_NAME)));
     }
 
     @Test
     void saveAllWithBatches_ShouldHandleSingleRecipe() {
         var recipe = Instancio.create(RecipeDoc.class);
         var recipes = List.of(recipe);
-        int batchSize = 5;
 
-        recipeService.saveAllWithBatches(recipes, batchSize);
+        recipeService.saveAllWithBatches(recipes);
 
         verify(elasticsearchOperations, times(1)).bulkIndex(
                 argThat((List<IndexQuery> queries) -> queries.size() == 1),
@@ -208,9 +181,8 @@ class RecipeEntityServiceImplTest {
     @Test
     void saveAllWithBatches_ShouldUseCorrectIndexName() {
         var recipes = Instancio.ofList(RecipeDoc.class).size(3).create();
-        int batchSize = 3;
 
-        recipeService.saveAllWithBatches(recipes, batchSize);
+        recipeService.saveAllWithBatches(recipes);
 
         verify(elasticsearchOperations).bulkIndex(anyList(), eq(IndexCoordinates.of(INDEX_NAME)));
     }

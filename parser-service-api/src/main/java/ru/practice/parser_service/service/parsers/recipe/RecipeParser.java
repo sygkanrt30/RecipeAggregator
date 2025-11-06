@@ -5,13 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import ru.practice.parser_service.model.Recipe;
 import ru.practice.parser_service.service.parsers.enums.CssQueryOfRecipesParts;
 import ru.practice.parser_service.service.parsers.recipe.recipes_parts.DirectionParser;
 import ru.practice.parser_service.service.parsers.recipe.recipes_parts.IngredientsParser;
 import ru.practice.parser_service.service.parsers.recipe.recipes_parts.TimeParser;
+import ru.practice.shared.dto.IngredientDto;
+import ru.practice.shared.dto.RecipeDto;
 
+import java.time.Duration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -21,37 +24,37 @@ import static ru.practice.parser_service.service.parsers.enums.TimeLabel.*;
 @UtilityClass
 @Slf4j
 public class RecipeParser {
-    public Recipe parseRecipePage(Document doc) {
-        log.debug("Start parsing recipe from document {}", doc.toString());
+    public RecipeDto parseRecipePage(Document doc) {
+        log.debug("Start parsing recipe from document {}", doc.baseUri());
         String name = getSimplePartsOfRecipe(doc, NAME);
         String description = getSimplePartsOfRecipe(doc, DESCRIPTION);
 
         var detailsMap = fillParamsMap(doc);
-        int mins4Cook = parseTimeParam(COOK_TIME.label(), detailsMap);
-        int additionalMins = parseTimeParam(ADDITIONAL_TIME.label(), detailsMap);
-        int totalMins = parseTimeParam(TOTAL_TIME.label(), detailsMap);
-        int mins4Prep = parseTimeParam(PREP_TIME.label(), detailsMap);
+        Duration mins4Cook = parseTimeParam(COOK_TIME.label(), detailsMap);
+        Duration additionalMins = parseTimeParam(ADDITIONAL_TIME.label(), detailsMap);
+        Duration totalMins = parseTimeParam(TOTAL_TIME.label(), detailsMap);
+        Duration mins4Prep = parseTimeParam(PREP_TIME.label(), detailsMap);
 
         int servings = Integer.parseInt(detailsMap.get("servings"));
 
-        Map<String, String> ingredients = IngredientsParser.parse(doc);
+        List<IngredientDto> ingredients = IngredientsParser.parse(doc);
         String directions = DirectionParser.parse(doc);
-        var recipe = Recipe.builder()
+        var recipe = RecipeDto.builder()
                 .name(name.trim().toLowerCase())
                 .description(description)
                 .direction(directions)
                 .ingredients(ingredients)
                 .totalMins(totalMins)
                 .additionalMins(additionalMins)
-                .mins4Cook(mins4Cook)
-                .mins4Prep(mins4Prep)
+                .minsForCooking(mins4Cook)
+                .minsForPreparing(mins4Prep)
                 .servings(servings)
                 .build();
         log.debug("Recipe {}", recipe.toString());
         return recipe;
     }
 
-    private static String getSimplePartsOfRecipe(Document doc, CssQueryOfRecipesParts cssQuery) {
+    private String getSimplePartsOfRecipe(Document doc, CssQueryOfRecipesParts cssQuery) {
         Element simpleElement = doc.selectFirst(cssQuery.cssQuery());
         return Objects.requireNonNull(simpleElement).text();
     }
@@ -68,10 +71,10 @@ public class RecipeParser {
         return detailsMap;
     }
 
-    private int parseTimeParam(String timeLabel, Map<String, String> detailsMap) {
+    private Duration parseTimeParam(String timeLabel, Map<String, String> detailsMap) {
         if (detailsMap.containsKey(timeLabel)) {
             return TimeParser.parseMinsFromString(detailsMap.get(timeLabel));
         }
-        return 0;
+        return Duration.ofMinutes(0);
     }
 }

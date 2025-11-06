@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.mapper.RecipeMapper;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearch.RecipeDoc;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.FilterService;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.searcher.Searcher;
+import ru.practice.shared.dto.RecipeDto;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +27,7 @@ public class SearchServiceImpl implements SearchService {
 
 
     @Override
-    public List<RecipeResponseDto> searchByName(SearchContainer container) {
+    public List<RecipeDto> searchByName(SearchContainer container) {
         throwIfNameEmptyOrNull(container);
         List<RecipeDoc> recipeDocs = nameSearcher.search(container);
         return convertToRecipeResponseDtoList(recipeDocs);
@@ -39,16 +39,16 @@ public class SearchServiceImpl implements SearchService {
         }
     }
 
-    private List<RecipeResponseDto> convertToRecipeResponseDtoList(List<RecipeDoc> recipeDocs) {
+    private List<RecipeDto> convertToRecipeResponseDtoList(List<RecipeDoc> recipeDocs) {
         return recipeDocs.stream()
-                .map(recipeMapper::toRecipeResponseDto)
-                .peek(recipeResponseDto -> log.trace(recipeResponseDto.toString()))
+                .map(recipeMapper::toRecipeDto)
+                .peek(recipeDto -> log.trace(recipeDto.toString()))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<RecipeResponseDto> searchByNameWithFiltering(SearchContainer container) {
-        List<RecipeResponseDto> recipes = searchByName(container);
+    public List<RecipeDto> searchByNameWithFiltering(SearchContainer container) {
+        List<RecipeDto> recipes = searchByName(container);
         if (recipes.isEmpty()) {
             log.debug("No recipes found for name {}", container.name());
             return recipes;
@@ -58,8 +58,8 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public List<RecipeResponseDto> searchByIngredientsWithFiltering(SearchContainer container) {
-        List<RecipeResponseDto> recipes = searchByIngredients(container);
+    public List<RecipeDto> searchByIngredientsWithFiltering(SearchContainer container) {
+        List<RecipeDto> recipes = searchByIngredients(container);
         if (recipes.isEmpty()) {
             log.debug("No recipes found for ingredients {}", container.ingredientsName());
             return recipes;
@@ -69,7 +69,7 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public List<RecipeResponseDto> searchByIngredients(SearchContainer container) {
+    public List<RecipeDto> searchByIngredients(SearchContainer container) {
         throwIfIngredientsEmptyOrNull(container);
         List<RecipeDoc> recipeDocs = ingredientsSearcher.search(container);
         return convertToRecipeResponseDtoList(recipeDocs);

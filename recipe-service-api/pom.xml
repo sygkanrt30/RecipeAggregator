@@ -59,7 +59,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>1.5.18</version>
+            <version>1.5.17</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -133,6 +133,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.practice</groupId>
+            <artifactId>shared</artifactId>
+            <version>1.0</version>
         </dependency>
     </dependencies>
 

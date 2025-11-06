@@ -7,10 +7,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_aggregator.recipe_management.recipe_service.RecipeService;
 import ru.practice.recipe_aggregator.user_service.model.User;
 import ru.practice.recipe_aggregator.user_service.repository.UserRepository;
+import ru.practice.shared.dto.RecipeDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,13 +35,13 @@ class UserServiceTest {
     void getFavorites_shouldReturnFavoriteRecipesForUser_whenUsernameCorrect() {
         var user = Instancio.create(User.class);
         var favoriteRecipes = user.getFavoriteRecipeIds();
-        var expectedRecipes = Instancio.ofList(RecipeResponseDto.class)
+        var expectedRecipes = Instancio.ofList(RecipeDto.class)
                 .size(favoriteRecipes.size())
                 .create();
         when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
         when(recipeService.findAllByIds(favoriteRecipes)).thenReturn(expectedRecipes);
 
-        List<RecipeResponseDto> result = userService.getFavorites("any");
+        List<RecipeDto> result = userService.getFavorites("any");
 
         assertDoesNotThrow(() -> userService.getFavorites("any"));
         assertNotNull(result);

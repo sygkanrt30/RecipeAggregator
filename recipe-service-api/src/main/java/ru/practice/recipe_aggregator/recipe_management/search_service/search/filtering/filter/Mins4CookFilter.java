@@ -2,16 +2,16 @@ package ru.practice.recipe_aggregator.recipe_management.search_service.search.fi
 
 
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.exception.InvalidConditionException;
+import ru.practice.shared.dto.RecipeDto;
 
 import java.util.List;
 
 public class Mins4CookFilter implements Filter {
     @Override
-    public void filter(List<RecipeResponseDto> recipes, SearchContainer searchContainer) {
-        if (searchContainer.maxMins4Cook() == null || searchContainer.maxMins4Cook() < 1) {
-            searchContainer.maxMins4Cook(0);
+    public void filter(List<RecipeDto> recipes, SearchContainer searchContainer) {
+        if (searchContainer.maxMinsForCooking() == null || searchContainer.maxMinsForCooking() < 1) {
+            searchContainer.maxMinsForCooking(0);
             return;
         }
         if (!isValidCondition(searchContainer)) {
@@ -20,12 +20,12 @@ public class Mins4CookFilter implements Filter {
                     total mins must be greater than upper limit of mins for cooking""");
         }
         recipes.removeIf(recipe ->
-                recipe.mins4Cook() > searchContainer.maxMins4Cook());
+                (int) recipe.minsForCooking().toMinutes() > searchContainer.maxMinsForCooking());
     }
 
     private boolean isValidCondition(SearchContainer searchContainer) {
-        if (searchContainer.maxTotalMins() == null) return true;
-        return searchContainer.maxMins4Cook() <= searchContainer.maxTotalMins();
+        if (searchContainer.maxTotalMinutes() == null) return true;
+        return searchContainer.maxMinsForCooking() <= searchContainer.maxTotalMinutes();
     }
 
     @Override
