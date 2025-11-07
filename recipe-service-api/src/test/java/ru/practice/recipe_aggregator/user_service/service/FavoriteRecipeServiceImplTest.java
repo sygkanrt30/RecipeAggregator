@@ -21,15 +21,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+class FavoriteRecipeServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
     @Mock
     private RecipeService recipeService;
 
+    @Mock
+    private GetUserInfoService userService;
+
     @InjectMocks
-    private UserService userService;
+    private FavoriteRecipeServiceImpl favoriteService;
 
     @Test
     void getFavorites_shouldReturnFavoriteRecipesForUser_whenUsernameCorrect() {
@@ -38,29 +41,22 @@ class UserServiceTest {
         var expectedRecipes = Instancio.ofList(RecipeDto.class)
                 .size(favoriteRecipes.size())
                 .create();
-        when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
+        when(userService.getUserByName(any())).thenReturn(user);
         when(recipeService.findAllByIds(favoriteRecipes)).thenReturn(expectedRecipes);
 
-        List<RecipeDto> result = userService.getFavorites("any");
+        List<RecipeDto> result = favoriteService.getFavorites("any");
 
-        assertDoesNotThrow(() -> userService.getFavorites("any"));
+        assertDoesNotThrow(() -> favoriteService.getFavorites("any"));
         assertNotNull(result);
         assertEquals(expectedRecipes.size(), result.size());
     }
 
     @Test
-    void getFavorites_shouldThrowException_whenUsernameNotCorrect() {
-        when(userRepository.findByUsername(any())).thenReturn(Optional.empty());
-
-        assertThrows(UsernameNotFoundException.class, () -> userService.getFavorites("any"));
-    }
-
-    @Test
     void add2Favorites_shouldAddRecipeIdToFavorites_RecipeNotAlreadyAdded() {
         var user = Instancio.create(User.class);
-        when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
+        when(userService.getUserByName(any())).thenReturn(user);
 
-        userService.add2Favorites("any", UUID.randomUUID().toString());
+        favoriteService.add2Favorites("any", UUID.randomUUID().toString());
 
         verify(userRepository).save(user);
     }
@@ -69,10 +65,10 @@ class UserServiceTest {
     void add2Favorites_shouldOnlyLog_RecipeAlreadyAdded() {
         var user = Instancio.create(User.class);
         var favoriteRecipes = user.getFavoriteRecipeIds();
-        when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
+        when(userService.getUserByName(any())).thenReturn(user);
         when(recipeService.getIdByName(any())).thenReturn(favoriteRecipes.getFirst());
 
-        userService.add2Favorites("any", "any");
+        favoriteService.add2Favorites("any", "any");
 
         verify(userRepository, never()).save(user);
     }
@@ -81,10 +77,10 @@ class UserServiceTest {
     void removeFromFavorites_shouldRemoveRecipeIdFromFavorites_RecipeExist() {
         var user = Instancio.create(User.class);
         var favoriteRecipes = user.getFavoriteRecipeIds();
-        when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
+        when(userService.getUserByName(any())).thenReturn(user);
         when(recipeService.getIdByName(any())).thenReturn(favoriteRecipes.getFirst());
 
-        userService.removeFromFavorites("any", "any");
+        favoriteService.removeFromFavorites("any", "any");
 
         verify(userRepository).save(user);
     }
@@ -92,12 +88,12 @@ class UserServiceTest {
     @Test
     void removeFromFavorites_shouldThrowException_RecipeNotExist() {
         var user = Instancio.create(User.class);
-        when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
+        when(userService.getUserByName(any())).thenReturn(user);
         var returnedRecipe = UUID.randomUUID();
         when(recipeService.getIdByName(any())).thenReturn(returnedRecipe);
 
         var exception = assertThrows(RecipeNotContainsException.class,
-                () -> userService.removeFromFavorites("any", "any"));
+                () -> favoriteService.removeFromFavorites("any", "any"));
         assertEquals("Recipe not contains in favorite recipes " + returnedRecipe, exception.getMessage());
     }
 }

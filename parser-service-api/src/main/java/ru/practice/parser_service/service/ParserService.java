@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.practice.parser_service.kafka.ProducerService;
-import ru.practice.parser_service.service.config.ParserConfig;
+import ru.practice.parser_service.config.ParserConfig;
 import ru.practice.parser_service.service.parsers.website.WebsiteParser;
 import ru.practice.shared.dto.RecipeDto;
 

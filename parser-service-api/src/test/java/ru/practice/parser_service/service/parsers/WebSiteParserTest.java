@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.practice.parser_service.service.config.ParserConfig;
+import ru.practice.parser_service.config.ParserConfig;
 import ru.practice.parser_service.service.parsers.website.WebsiteParserImpl;
 import ru.practice.shared.dto.RecipeDto;
 

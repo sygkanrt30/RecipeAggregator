@@ -1,4 +1,4 @@
-package ru.practice.recipe_aggregator.recipe_management.kafka.config;
+package ru.practice.recipe_aggregator.config;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

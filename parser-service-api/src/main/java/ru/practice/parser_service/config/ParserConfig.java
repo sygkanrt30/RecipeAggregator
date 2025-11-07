@@ -1,4 +1,4 @@
-package ru.practice.parser_service.service.config;
+package ru.practice.parser_service.config;
 
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
