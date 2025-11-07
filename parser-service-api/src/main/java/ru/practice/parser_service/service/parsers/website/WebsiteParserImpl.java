@@ -131,20 +131,36 @@ public class WebsiteParserImpl implements WebsiteParser {
         try {
             Thread.sleep(parserConfig.minDelayMs() +
                     (long) (Math.random() * (parserConfig.maxDelayMs() - parserConfig.minDelayMs())));
-            return Jsoup.connect(url)
+            var doc = Jsoup.connect(url)
                     .userAgent(parserConfig.userAgent())
                     .referrer(parserConfig.referrer())
                     .timeout(parserConfig.timeout())
+                    .header("Accept", parserConfig.accept())
+                    .header("Cookie", parserConfig.cookie())
                     .followRedirects(true)
                     .ignoreHttpErrors(true)
                     .maxBodySize(0)
                     .get();
+            if (isCloudflarePage(doc)) {
+                log.debug("Cloudflare found in url: {}", url);
+            }
+            return doc;
         } catch (IOException e) {
             throw new ParserException("URL loading error:" + url, e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new ParserException("Parsing interrupted", e);
         }
+    }
+
+
+    private boolean isCloudflarePage(Document doc) {
+        return doc.title().contains("Один момент") ||
+                doc.title().contains("Just a moment") ||
+                !doc.select("script[src*='cloudflare']").isEmpty() ||
+                !doc.select("script[src*='turnstile']").isEmpty() ||
+                doc.text().contains("Cloudflare") ||
+                doc.text().contains("Проверяем, человек ли вы");
     }
 
     private boolean isRecipePage(Document doc) {

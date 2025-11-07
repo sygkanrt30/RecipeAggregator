@@ -47,6 +47,12 @@ public class ParserConfig {
     @Value("${parser.browser.main-url:}")
     private String mainUrl;
 
+    @Value("${parser.browser.header-accept}")
+    private String accept;
+
+    @Value("${parser.browser.header-cookie}")
+    private String cookie;
+
     @PostConstruct
     public void init() {
         log.debug("PARSER CONFIG: timeout={}, recipeTag={}, containerSelectors={}",

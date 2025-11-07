@@ -36,13 +36,10 @@ public class KafkaConfig {
         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         configProps.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
 
-        var serializer = new JsonSerializer<List<RecipeDto>>(objectMapper());
-        serializer.setAddTypeInfo(false);
-
         return new DefaultKafkaProducerFactory<>(
                 configProps,
                 new StringSerializer(),
-                serializer
+                new JsonSerializer<>(objectMapper())
         );
     }
 

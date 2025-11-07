@@ -56,5 +56,5 @@ logging:
   file:
     path: ./logs
   level:
-    org.springframework.security: DEBUG
-    root: DEBUG
+    org.springframework.security: INFO
+    root: INFO
