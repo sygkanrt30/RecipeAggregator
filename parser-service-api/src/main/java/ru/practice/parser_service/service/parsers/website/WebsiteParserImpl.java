@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
-import ru.practice.parser_service.config.ParserConfig;
+import ru.practice.parser_service.config.RecipeParserConfig;
 import ru.practice.parser_service.service.exception.ParserException;
 import ru.practice.parser_service.service.parsers.enums.InvalidRequestPrefix;
 import ru.practice.parser_service.service.parsers.enums.ValidHtmlTag;
@@ -23,7 +23,7 @@ import java.util.Set;
 @Slf4j
 @RequiredArgsConstructor
 public class WebsiteParserImpl implements WebsiteParser {
-    private final ParserConfig parserConfig;
+    private final RecipeParserConfig parserConfig;
     private final Set<String> visitedUrls = new HashSet<>();
     private final Set<String> parsedRecipeUrls = new HashSet<>();
     private final List<RecipeDto> allRecipes = new ArrayList<>();

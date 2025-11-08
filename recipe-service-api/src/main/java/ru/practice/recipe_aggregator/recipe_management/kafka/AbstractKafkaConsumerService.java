@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
-import ru.practice.recipe_aggregator.recipe_management.recipe_service.ConsumerProcessor;
+import ru.practice.recipe_aggregator.recipe_management.processor.ConsumerProcessor;
 
 import java.util.Collection;
 import java.util.stream.IntStream;

@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.mapper.RecipeMapper;
 import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearch.RecipeDoc;
+import ru.practice.recipe_aggregator.recipe_management.processor.RecipeConsumerProcessor;
 import ru.practice.shared.dto.RecipeDto;
 
 import java.util.Collections;

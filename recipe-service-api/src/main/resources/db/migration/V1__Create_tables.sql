@@ -15,6 +15,7 @@ CREATE TABLE favorite_recipe (
          FOREIGN KEY (user_id)
              REFERENCES app_user(id)
              ON DELETE CASCADE
+             ON UPDATE CASCADE
 );
 
 CREATE TABLE deactivated_token (

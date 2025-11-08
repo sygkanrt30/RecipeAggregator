@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.practice.parser_service.config.ParserConfig;
+import ru.practice.parser_service.config.RecipeParserConfig;
 import ru.practice.parser_service.service.parsers.website.WebsiteParserImpl;
 import ru.practice.shared.dto.RecipeDto;
 
@@ -23,7 +23,7 @@ class WebSiteParserTest {
 
     @BeforeEach
     void setUp() {
-        var parserConfig = new ParserConfig()
+        var parserConfig = new RecipeParserConfig()
                 .timeout(15000)
                 .minDelayMs(1000)
                 .maxDelayMs(2000)

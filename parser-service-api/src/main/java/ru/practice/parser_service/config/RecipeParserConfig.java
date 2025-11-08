@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Setter
 @Slf4j
 @Accessors(chain = true, fluent = true)
-public class ParserConfig {
+public class RecipeParserConfig {
     @Value("${parser.timeout:15000}")
     private int timeout = 15000;
 
