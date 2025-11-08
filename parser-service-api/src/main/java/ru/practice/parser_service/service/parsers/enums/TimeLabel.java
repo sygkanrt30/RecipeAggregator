@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 @Getter
 @Accessors(fluent = true)
 public enum TimeLabel {
+
     COOK_TIME("cook time"),
     PREP_TIME("prep time"),
     TOTAL_TIME("total time"),

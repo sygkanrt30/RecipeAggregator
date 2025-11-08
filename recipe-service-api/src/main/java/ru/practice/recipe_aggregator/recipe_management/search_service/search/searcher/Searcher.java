@@ -7,5 +7,6 @@ import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearc
 import java.util.List;
 
 public interface Searcher {
+
     List<RecipeDoc> search(SearchContainer container);
 }

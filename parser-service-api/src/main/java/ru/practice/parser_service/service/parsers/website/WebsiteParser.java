@@ -6,5 +6,6 @@ import ru.practice.shared.dto.RecipeDto;
 import java.util.List;
 
 public interface WebsiteParser {
+
     List<RecipeDto> parse(String url);
 }

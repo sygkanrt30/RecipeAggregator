@@ -1,4 +1,4 @@
-package ru.practice.recipe_aggregator.recipe_management.recipe_service.entity;
+package ru.practice.recipe_aggregator.recipe_management.recipe_service;
 
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
@@ -11,7 +11,6 @@ import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.mapper.RecipeMapper;
 import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearch.RecipeDoc;
-import ru.practice.recipe_aggregator.recipe_management.recipe_service.RecipeServiceImpl;
 import ru.practice.recipe_aggregator.recipe_management.repository.RecipeElasticRepository;
 import ru.practice.shared.dto.RecipeDto;
 

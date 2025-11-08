@@ -21,6 +21,7 @@ import java.util.List;
 @EnableKafka
 @Configuration
 public class KafkaConfig {
+
     @Value("${custom-kafka.topic}")
     private String topic;
     @Value("${spring.kafka.bootstrap-servers}")

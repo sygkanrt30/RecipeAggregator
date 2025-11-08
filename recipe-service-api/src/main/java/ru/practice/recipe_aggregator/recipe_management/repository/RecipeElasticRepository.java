@@ -13,6 +13,7 @@ import java.util.UUID;
 
 @Repository
 public interface RecipeElasticRepository extends ElasticsearchRepository<RecipeDoc, UUID> {
+
     List<RecipeDoc> findByNameContaining(String namePart);
 
     Optional<RecipeDoc> findByName(String name);

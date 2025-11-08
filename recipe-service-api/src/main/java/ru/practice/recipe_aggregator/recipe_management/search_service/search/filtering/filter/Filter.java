@@ -6,6 +6,7 @@ import ru.practice.shared.dto.RecipeDto;
 import java.util.List;
 
 public interface Filter {
+
     void filter(List<RecipeDto> recipes, SearchContainer searchContainer);
 
     String getFilterName();

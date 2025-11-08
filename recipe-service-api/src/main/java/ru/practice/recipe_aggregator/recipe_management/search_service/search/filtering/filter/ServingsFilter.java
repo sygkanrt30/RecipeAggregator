@@ -7,6 +7,7 @@ import ru.practice.shared.dto.RecipeDto;
 import java.util.List;
 
 public class ServingsFilter implements Filter {
+
     @Override
     public void filter(List<RecipeDto> recipes, SearchContainer searchContainer) {
         if (searchContainer.maxServings() == null || searchContainer.maxServings() < 0) {

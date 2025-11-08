@@ -25,6 +25,7 @@ import java.util.List;
 @Configuration
 @EnableKafka
 public class KafkaConfig {
+
     @Value("${custom.kafka.offset-reset}")
     private String autoOffsetReset;
     @Value("${custom.kafka.auto-commit}")

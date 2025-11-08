@@ -7,5 +7,6 @@ import ru.practice.shared.dto.RecipeDto;
 import java.util.List;
 
 public interface FilterService {
+
     List<RecipeDto> processWithFilterChain(List<RecipeDto> recipes, SearchContainer searchContainer);
 }

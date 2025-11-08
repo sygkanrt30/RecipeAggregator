@@ -13,6 +13,7 @@ import java.util.List;
 @Qualifier("ingredientsSearcher")
 @RequiredArgsConstructor
 public class IngredientsSearcher implements Searcher {
+
     private final RecipeElasticRepository repository;
 
     @Override

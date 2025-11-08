@@ -25,6 +25,7 @@ import java.util.function.Function;
 @Accessors(chain = true, fluent = true)
 public class TokenCookieAuthenticationConfigurer
         extends AbstractHttpConfigurer<TokenCookieAuthenticationConfigurer, HttpSecurity> {
+
     private Function<String, Token> tokenCookieStringDeserializer;
     private JdbcTemplate jdbcTemplate;
     private UserRepository userRepository;
@@ -36,7 +37,7 @@ public class TokenCookieAuthenticationConfigurer
                 .addLogoutHandler((request, response, authentication) -> {
                     if (authentication != null &&
                             authentication.getPrincipal() instanceof User user) {
-                        jdbcTemplate.update("insert into deactivated_token (id, keep_until) values (?, ?)",
+                        jdbcTemplate.update("INSERT INTO deactivated_token (id, keep_until) VALUES (?, ?)",
                                 user.getToken().id(), Date.from(user.getToken().expiresAt()));
                         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
                     }

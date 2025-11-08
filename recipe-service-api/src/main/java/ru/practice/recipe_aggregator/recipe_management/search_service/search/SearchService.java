@@ -6,6 +6,7 @@ import ru.practice.shared.dto.RecipeDto;
 import java.util.List;
 
 public interface SearchService {
+
     List<RecipeDto> searchByName(SearchContainer container);
 
     List<RecipeDto> searchByNameWithFiltering(SearchContainer container);

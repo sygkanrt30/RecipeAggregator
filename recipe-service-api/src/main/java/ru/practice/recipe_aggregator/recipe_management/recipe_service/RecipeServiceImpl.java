@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class RecipeServiceImpl implements RecipeService {
+
     private static final String INDEX_NAME = "recipe";
     private static final int BATCHES_SIZE = 10;
     private final RecipeElasticRepository recipeRepository;

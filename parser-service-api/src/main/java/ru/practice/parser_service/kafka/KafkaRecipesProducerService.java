@@ -9,6 +9,7 @@ import java.util.List;
 
 @Component
 public class KafkaRecipesProducerService extends AbstractKafkaProducerService<List<RecipeDto>> {
+
     public KafkaRecipesProducerService(
             KafkaTemplate<String, List<RecipeDto>> kafkaTemplate,
             @Value("${custom-kafka.topic}") String recipesTopic) {

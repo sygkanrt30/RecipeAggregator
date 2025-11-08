@@ -13,6 +13,7 @@ import java.util.stream.IntStream;
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractKafkaConsumerService<T> implements Listener<T> {
+
     private final ConsumerProcessor<T> processor;
     @Getter
     private final String topic;

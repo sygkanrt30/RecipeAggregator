@@ -25,6 +25,7 @@ import ru.practice.recipe_aggregator.user_service.token.TokenCookieJweStringSeri
 
 @Configuration
 public class SecurityConfig {
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
             TokenCookieSessionAuthenticationStrategy tokenCookieSessionAuthenticationStrategy,

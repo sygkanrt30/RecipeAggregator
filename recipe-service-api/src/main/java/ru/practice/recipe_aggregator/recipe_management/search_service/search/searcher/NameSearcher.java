@@ -7,13 +7,13 @@ import ru.practice.recipe_aggregator.recipe_management.model.dto.container.Searc
 import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearch.RecipeDoc;
 import ru.practice.recipe_aggregator.recipe_management.repository.RecipeElasticRepository;
 
-
 import java.util.List;
 
 @Component
 @Qualifier("nameSearcher")
 @RequiredArgsConstructor
 public class NameSearcher implements Searcher {
+
     private final RecipeElasticRepository repository;
 
     @Override

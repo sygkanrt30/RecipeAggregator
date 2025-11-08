@@ -16,6 +16,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class TokenCookieJweStringSerializer implements Function<Token, String> {
+
     private final JWEEncrypter jweEncrypter;
     private JWEAlgorithm jweAlgorithm = JWEAlgorithm.DIR;
     private EncryptionMethod encryptionMethod = EncryptionMethod.A128GCM;

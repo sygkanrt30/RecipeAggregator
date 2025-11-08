@@ -8,6 +8,7 @@ import ru.practice.shared.dto.RecipeDto;
 import java.util.List;
 
 public class Mins4CookFilter implements Filter {
+
     @Override
     public void filter(List<RecipeDto> recipes, SearchContainer searchContainer) {
         if (searchContainer.maxMinsForCooking() == null || searchContainer.maxMinsForCooking() < 1) {

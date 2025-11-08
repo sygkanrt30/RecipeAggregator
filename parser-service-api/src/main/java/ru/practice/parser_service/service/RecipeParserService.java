@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 public final class RecipeParserService extends AbstractParserService<List<RecipeDto>> {
+
     private final RecipeParserConfig parserConfig;
     private final ProducerService<List<RecipeDto>> producer;
     private final WebsiteParser parser;

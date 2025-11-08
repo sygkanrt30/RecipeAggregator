@@ -14,6 +14,7 @@ import static ru.practice.parser_service.service.parsers.enums.CssQueryOfRecipes
 @Slf4j
 @UtilityClass
 public class IngredientsParser {
+
     public List<IngredientDto> parse(Document doc) {
         log.trace("Start parsing ingredients from document {}", doc.baseUri());
         var ingredients = new ArrayList<IngredientDto>();

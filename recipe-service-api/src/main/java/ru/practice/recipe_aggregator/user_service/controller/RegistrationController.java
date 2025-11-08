@@ -20,6 +20,7 @@ import ru.practice.recipe_aggregator.user_service.service.SaveUserService;
 @Validated
 @Slf4j
 class RegistrationController {
+
     private final SaveUserService userService;
     private final Authenticator authenticator;
 

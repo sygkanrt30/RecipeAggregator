@@ -13,6 +13,7 @@ import java.util.function.Function;
 @Slf4j
 @RequiredArgsConstructor
 public class TokenCookieJweStringDeserializer implements Function<String, Token> {
+
     private final JWEDecrypter jweDecrypter;
 
     @Override

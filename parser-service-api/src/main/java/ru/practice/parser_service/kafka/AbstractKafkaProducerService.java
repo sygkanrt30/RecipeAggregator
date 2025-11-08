@@ -11,6 +11,7 @@ import java.util.stream.IntStream;
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractKafkaProducerService<T> implements ProducerService<T> {
+
     private final KafkaTemplate<String, T> kafkaTemplate;
     private final String kafkaTopic;
 

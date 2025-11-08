@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 @Getter
 @Accessors(fluent = true)
 public enum CssQueryOfRecipesParts {
+
     NAME("h1.article-heading.text-headline-400"),
 
     DESCRIPTION("p.article-subheading.text-utility-300"),

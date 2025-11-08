@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class RecipeConsumerProcessor implements ConsumerProcessor<List<RecipeDto>> {
+
     private final RecipeMapper recipeMapper;
     private final RecipeService recipeEntityService;
 

@@ -20,6 +20,7 @@ import java.io.IOException;
 @Setter
 @Accessors(chain = true, fluent = true)
 class GetCsrfTokenFilter extends OncePerRequestFilter {
+
     private RequestMatcher requestMatcher = PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/csrf");
     private CsrfTokenRepository csrfTokenRepository = new CookieCsrfTokenRepository();
     private ObjectMapper objectMapper = new ObjectMapper();

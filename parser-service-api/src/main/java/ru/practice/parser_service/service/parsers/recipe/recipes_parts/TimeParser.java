@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 @UtilityClass
 @Slf4j
 public class TimeParser {
+
     private static final Pattern TIME_PATTERN = Pattern.compile("(?:((\\d+) hrs?)\\s*)?((\\d+) mins?)?");
 
     public Duration parseMinsFromString(String timeStr) {

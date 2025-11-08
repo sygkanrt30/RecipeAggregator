@@ -24,6 +24,7 @@ import static ru.practice.parser_service.service.parsers.enums.TimeLabel.*;
 @UtilityClass
 @Slf4j
 public class RecipeParser {
+
     public RecipeDto parseRecipePage(Document doc) {
         log.debug("Start parsing recipe from document {}", doc.baseUri());
         String name = getSimplePartsOfRecipe(doc, NAME);

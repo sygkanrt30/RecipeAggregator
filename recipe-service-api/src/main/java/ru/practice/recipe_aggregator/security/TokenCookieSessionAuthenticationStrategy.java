@@ -20,6 +20,7 @@ import java.util.function.Function;
 @Setter
 @Slf4j
 public class TokenCookieSessionAuthenticationStrategy implements SessionAuthenticationStrategy {
+
     private Function<Authentication, Token> tokenCookieFactory = new TokenCookieFactory();
     private Function<Token, String> tokenStringSerializer = Objects::toString;
 

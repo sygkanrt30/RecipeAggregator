@@ -14,6 +14,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class FavoriteRecipeServiceImpl implements FavoriteRecipeService {
+
     private final GetUserInfoService userInfoService;
     private final UserRepository userRepository;
     private final RecipeService recipeService;
@@ -37,7 +38,8 @@ public class FavoriteRecipeServiceImpl implements FavoriteRecipeService {
         var user = userInfoService.getUserByName(username);
         boolean isRemoved = user.getFavoriteRecipeIds().remove(recipeId);
         if (!isRemoved) {
-            throw new RecipeNotContainsException("Recipe not contains in favorite recipes " + recipeId);
+            log.warn("Recipe not contains in favorite recipes {}", recipeId);
+            return;
         }
         userRepository.save(user);
         log.info("Remove recipe {} from favorite recipes {}", username, recipeId);

@@ -16,6 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Document(indexName = "recipe")
 public class RecipeDoc {
+
     @Id
     @Field(type = FieldType.Keyword)
     private UUID id;

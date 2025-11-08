@@ -8,19 +8,15 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.practice.recipe_aggregator.recipe_management.recipe_service.RecipeService;
 import ru.practice.recipe_aggregator.user_service.model.Role;
 import ru.practice.recipe_aggregator.user_service.model.User;
 import ru.practice.recipe_aggregator.user_service.repository.UserRepository;
-import ru.practice.shared.dto.RecipeDto;
-
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserService implements SaveUserService, UserDetailsService, GetUserInfoService{
+public class UserService implements SaveUserService, UserDetailsService, GetUserInfoService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 

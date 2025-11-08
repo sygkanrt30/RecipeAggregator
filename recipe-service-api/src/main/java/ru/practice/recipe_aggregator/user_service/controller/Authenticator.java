@@ -16,6 +16,7 @@ import ru.practice.recipe_aggregator.security.TokenCookieSessionAuthenticationSt
 @Component
 @Slf4j
 final class Authenticator {
+
     private final TokenCookieSessionAuthenticationStrategy tokenCookieSessionAuthenticationStrategy;
     private final AuthenticationManager authenticationManager;
 

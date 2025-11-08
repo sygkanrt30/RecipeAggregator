@@ -23,6 +23,7 @@ import java.util.Set;
 @Slf4j
 @RequiredArgsConstructor
 public class WebsiteParserImpl implements WebsiteParser {
+
     private final RecipeParserConfig parserConfig;
     private final Set<String> visitedUrls = new HashSet<>();
     private final Set<String> parsedRecipeUrls = new HashSet<>();

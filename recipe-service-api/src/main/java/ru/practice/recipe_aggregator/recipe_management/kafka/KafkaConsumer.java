@@ -10,6 +10,7 @@ import java.util.List;
 
 @Component
 public class KafkaConsumer extends AbstractKafkaConsumerService<List<RecipeDto>> {
+
     public KafkaConsumer(ConsumerProcessor<List<RecipeDto>> processor,
                          @Value("${custom.kafka.topic}") String topic) {
         super(processor, topic);

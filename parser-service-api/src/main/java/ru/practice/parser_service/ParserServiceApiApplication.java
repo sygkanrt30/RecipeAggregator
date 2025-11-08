@@ -7,6 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableScheduling
 public class ParserServiceApiApplication {
+
 	public static void main(String[] args) {
 		SpringApplication.run(ParserServiceApiApplication.class, args);
 	}

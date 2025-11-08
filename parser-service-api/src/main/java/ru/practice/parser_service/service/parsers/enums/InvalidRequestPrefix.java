@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 @Getter
 @Accessors(fluent = true)
 public enum InvalidRequestPrefix {
+
     JAVASCRIPT("javascript:"),
     MAILTO("mailto:"),
     TEL("tel:");

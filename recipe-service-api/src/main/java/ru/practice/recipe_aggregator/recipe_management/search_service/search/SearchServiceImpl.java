@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class SearchServiceImpl implements SearchService {
+
     private final FilterService filterService;
     private final RecipeMapper recipeMapper;
     @Qualifier("nameSearcher")
@@ -70,12 +71,12 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public List<RecipeDto> searchByIngredients(SearchContainer container) {
-        throwIfIngredientsEmptyOrNull(container);
+        validateContainerNamePresent(container);
         List<RecipeDoc> recipeDocs = ingredientsSearcher.search(container);
         return convertToRecipeResponseDtoList(recipeDocs);
     }
 
-    private void throwIfIngredientsEmptyOrNull(SearchContainer container) {
+    private void validateContainerNamePresent(SearchContainer container) {
         if (container.ingredientsName() == null || container.ingredientsName().isEmpty()) {
             throw new IllegalArgumentException("Ingredients name cannot be empty or null");
         }
