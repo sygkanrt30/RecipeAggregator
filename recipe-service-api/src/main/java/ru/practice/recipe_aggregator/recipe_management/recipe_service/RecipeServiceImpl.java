@@ -14,9 +14,7 @@ import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearc
 import ru.practice.recipe_aggregator.recipe_management.repository.RecipeElasticRepository;
 import ru.practice.shared.dto.RecipeDto;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,17 +31,21 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     public List<RecipeDto> findAllByIds(List<UUID> recipeIds) {
         log.debug("search all recipes which id in {} ", recipeIds.toString());
-        var stringIds = recipeIds.stream()
-                .map(UUID::toString)
-                .toList();
-        return recipeRepository.findByIdsWithQuery(stringIds).stream()
+        return recipeRepository.findByIdIn(recipeIds).stream()
                 .map(mapper::toRecipeDto)
                 .toList();
     }
 
     @Override
-    public List<RecipeDoc> findAll() {
-        return recipeRepository.findAll();
+    public Set<UUID> findExistingIds(Set<UUID> recipeIds) {
+        if (recipeIds.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        return recipeRepository.findByIdIn(recipeIds)
+                .stream()
+                .map(RecipeDoc::getId)
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -69,11 +71,10 @@ public class RecipeServiceImpl implements RecipeService {
                 indexBatch(batch);
                 log.trace("Indexed {} of {} recipes", i, batch.size());
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
-                throw new RuntimeException(e.getMessage(), e.getCause());
+                throw new SaveRecipeException(e.getMessage(), e.getCause());
             }
         }
-        log.info("All {} recipes saved", recipes.size());
+        log.info("All {} recipes successfully saved", recipes.size());
     }
 
     private void indexBatch(List<RecipeDoc> batch) {

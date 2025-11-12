@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
+import java.util.Set;
 
 @Builder
 @Data
@@ -14,7 +14,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SearchContainer {
     final String name;
-    final List<String> ingredientsName;
+    final Set<String> ingredientNames;
     Integer maxMinsForCooking;
     Integer maxTotalMinutes;
     Integer maxMinsForPreparing;

@@ -11,7 +11,7 @@ import ru.practice.recipe_aggregator.recipe_management.model.dto.mapper.RecipeMa
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.FilterService;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.searcher.Searcher;
 
-import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -49,7 +49,7 @@ class SearchServiceImplTest {
 
     @Test
     void searchByIngredients_WhenIngredientsIsNull_ShouldThrowException() {
-        var container = SearchContainer.builder().ingredientsName(null).build();
+        var container = SearchContainer.builder().ingredientNames(null).build();
         var exception = assertThrows(IllegalArgumentException.class,
                 () -> searchService.searchByIngredients(container));
         assertEquals("Ingredients name cannot be empty or null", exception.getMessage());
@@ -57,7 +57,7 @@ class SearchServiceImplTest {
 
     @Test
     void searchByIngredients_WhenIngredientsIsEmpty_ShouldThrowException() {
-        var container = SearchContainer.builder().ingredientsName(List.of()).build();
+        var container = SearchContainer.builder().ingredientNames(Set.of()).build();
         var exception = assertThrows(IllegalArgumentException.class,
                 () -> searchService.searchByIngredients(container));
         assertEquals("Ingredients name cannot be empty or null", exception.getMessage());
@@ -85,7 +85,7 @@ class SearchServiceImplTest {
 
     @Test
     void searchByIngredientsWithFiltering_WhenIngredientsIsInvalid_ShouldThrowException() {
-        var container = SearchContainer.builder().ingredientsName(null).build();
+        var container = SearchContainer.builder().ingredientNames(null).build();
 
         assertThrows(IllegalArgumentException.class,
                 () -> searchService.searchByIngredientsWithFiltering(container));

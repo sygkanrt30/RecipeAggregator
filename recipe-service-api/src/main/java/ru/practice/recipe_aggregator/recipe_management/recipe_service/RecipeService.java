@@ -4,11 +4,12 @@ import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearc
 import ru.practice.shared.dto.RecipeDto;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface RecipeService {
 
-    List<RecipeDoc> findAll();
+    Set<UUID> findExistingIds(Set<UUID> recipeIds);
 
     UUID getIdByName(String recipeName);
 

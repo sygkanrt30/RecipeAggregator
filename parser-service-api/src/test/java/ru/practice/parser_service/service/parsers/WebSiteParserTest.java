@@ -7,7 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.practice.parser_service.config.RecipeParserConfig;
+import ru.practice.parser_service.service.parsers.recipe.RecipeParser;
 import ru.practice.parser_service.service.parsers.website.WebsiteParserImpl;
 import ru.practice.shared.dto.RecipeDto;
 
@@ -19,6 +21,10 @@ import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class WebSiteParserTest {
+
+    @MockBean
+    private RecipeParser recipeParser;
+
     private WebsiteParserImpl webSiteParser;
 
     @BeforeEach
@@ -34,7 +40,7 @@ class WebSiteParserTest {
                 .recipeTag("recipe")
                 .userAgent("test-agent")
                 .referrer("https://test.com");
-        webSiteParser = new WebsiteParserImpl(parserConfig);
+        webSiteParser = new WebsiteParserImpl(parserConfig, recipeParser);
     }
 
     @Test

@@ -1,12 +1,11 @@
 package ru.practice.shared.dto;
 
-import lombok.Builder;
-
 import java.time.Duration;
 import java.util.List;
+import java.util.UUID;
 
-@Builder
 public record RecipeDto(
+        UUID id,
         String name,
         Duration minsForPreparing,
         Duration minsForCooking,
@@ -20,9 +19,9 @@ public record RecipeDto(
     @Override
     public String toString() {
         return String.format(
-                "Recipe{name=%s; minsForPreparing=%s; minsForCooking=%s; additionalMins=%s;" +
+                "Recipe{id=%s, name=%s; minsForPreparing=%s; minsForCooking=%s; additionalMins=%s;" +
                         " totalMins=%s; servings=%s; ingredients=%s; direction=%s; description=%s}",
-                name, minsForPreparing, minsForCooking, additionalMins, totalMins, servings, ingredients,
+                id, name, minsForPreparing, minsForCooking, additionalMins, totalMins, servings, ingredients,
                 direction.substring(0, Math.min(50, direction.length())),
                 description.substring(0, Math.min(50, description.length()))
         );

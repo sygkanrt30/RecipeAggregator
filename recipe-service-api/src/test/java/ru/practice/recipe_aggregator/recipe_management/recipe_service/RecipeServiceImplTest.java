@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -40,31 +39,17 @@ class RecipeServiceImplTest {
     private static final String INDEX_NAME = "recipe";
 
     @Test
-    void findAll_shouldDelegateToRepository() {
-        var recipes = List.of(
-                Instancio.create(RecipeDoc.class),
-                Instancio.create(RecipeDoc.class)
-        );
-        when(recipeRepository.findAll()).thenReturn(recipes);
-
-        List<RecipeDoc> result = recipeService.findAll();
-
-        assertThat(result).isEqualTo(recipes);
-    }
-
-    @Test
     void findAllByIds_ShouldReturnRecipes_WhenValidIdsProvided() {
         var id1 = UUID.randomUUID();
         var id2 = UUID.randomUUID();
         var recipeIds = List.of(id1, id2);
-        var stringIds = List.of(id1.toString(), id2.toString());
         var recipe1 = Instancio.create(RecipeDoc.class);
         var recipe2 = Instancio.create(RecipeDoc.class);
         var recipeDto1 = Instancio.create(RecipeDto.class);
         var recipeDto2 = Instancio.create(RecipeDto.class);
         var returnedRecipes = List.of(recipe1, recipe2);
         var expectedRecipes = List.of(recipeDto1, recipeDto2);
-        when(recipeRepository.findByIdsWithQuery(stringIds)).thenReturn(returnedRecipes);
+        when(recipeRepository.findByIdIn(recipeIds)).thenReturn(returnedRecipes);
         when(mapper.toRecipeDto(recipe1)).thenReturn(recipeDto1);
         when(mapper.toRecipeDto(recipe2)).thenReturn(recipeDto2);
 
@@ -73,19 +58,19 @@ class RecipeServiceImplTest {
         assertNotNull(result);
         assertEquals(2, result.size());
         assertEquals(expectedRecipes, result);
-        verify(recipeRepository).findByIdsWithQuery(stringIds);
+        verify(recipeRepository).findByIdIn(recipeIds);
     }
 
     @Test
     void findAllByIds_ShouldReturnEmptyList_WhenEmptyIdsListProvided() {
         List<UUID> emptyIds = List.of();
-        when(recipeRepository.findByIdsWithQuery(List.of())).thenReturn(List.of());
+        when(recipeRepository.findByIdIn(List.of())).thenReturn(List.of());
 
         var result = recipeService.findAllByIds(emptyIds);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
-        verify(recipeRepository).findByIdsWithQuery(List.of());
+        verify(recipeRepository).findByIdIn(List.of());
     }
 
     @Test
@@ -93,15 +78,11 @@ class RecipeServiceImplTest {
         var id1 = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         var id2 = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
         var recipeIds = List.of(id1, id2);
-        var expectedStringIds = List.of(
-                "123e4567-e89b-12d3-a456-426614174000",
-                "123e4567-e89b-12d3-a456-426614174001"
-        );
-        when(recipeRepository.findByIdsWithQuery(expectedStringIds)).thenReturn(List.of());
+        when(recipeRepository.findByIdIn(recipeIds)).thenReturn(List.of());
 
         recipeService.findAllByIds(recipeIds);
 
-        verify(recipeRepository).findByIdsWithQuery(expectedStringIds);
+        verify(recipeRepository).findByIdIn(recipeIds);
     }
 
     @Test

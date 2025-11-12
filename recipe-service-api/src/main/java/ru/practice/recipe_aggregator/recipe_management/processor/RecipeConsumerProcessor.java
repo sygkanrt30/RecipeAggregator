@@ -5,12 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.mapper.RecipeMapper;
-import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearch.RecipeDoc;
 import ru.practice.recipe_aggregator.recipe_management.recipe_service.RecipeService;
 import ru.practice.shared.dto.RecipeDto;
 
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -19,31 +19,36 @@ import java.util.stream.Collectors;
 public class RecipeConsumerProcessor implements ConsumerProcessor<List<RecipeDto>> {
 
     private final RecipeMapper recipeMapper;
-    private final RecipeService recipeEntityService;
+    private final RecipeService recipeService;
 
     @Override
     @Transactional
-    public void saveFromKafka(List<RecipeDto> recipesKafkaDto) {
-        log.debug("Numbers of recipes from kafka: {}", recipesKafkaDto.size());
-        if (recipesKafkaDto.isEmpty()) {
+    public void saveFromKafka(List<RecipeDto> recipesDto) {
+        log.debug("Numbers of recipes from kafka: {}", recipesDto.size());
+        if (recipesDto.isEmpty()) {
             log.warn("No recipes read from kafka");
             return;
         }
 
-        var nameOfEntitiesFromDb = recipeEntityService.findAll().stream()
-                .map(RecipeDoc::getName)
-                .collect(Collectors.toCollection(HashSet::new));
+        Set<UUID> incomingIds = recipesDto.stream()
+                .map(RecipeDto::id)
+                .collect(Collectors.toSet());
+        log.debug("Checking existence for {} recipe IDs in database", incomingIds.size());
 
-        var newRecipes = recipesKafkaDto.stream()
-                .filter(dto -> !nameOfEntitiesFromDb.contains(dto.name()))
-                .map(recipeMapper::fromRecipeKafkaDto)
+        Set<UUID> existingIds = recipeService.findExistingIds(incomingIds);
+        log.debug("Found {} existing recipes in database", existingIds.size());
+
+        var newRecipes = recipesDto.stream()
+                .filter(dto -> !existingIds.contains(dto.id()))
+                .map(recipeMapper::fromRecipeDto)
                 .toList();
-        log.debug("Number of recipes from kafka if not contains in elasticsearch: {}", newRecipes.size());
+
+        log.debug("Number of new recipes to save: {}", newRecipes.size());
 
         if (!newRecipes.isEmpty()) {
-            recipeEntityService.saveAllWithBatches(newRecipes);
+            recipeService.saveAllWithBatches(newRecipes);
             return;
         }
-        log.warn("All recipes already exist in elasticsearch");
+        log.warn("All recipes already exist in database");
     }
 }

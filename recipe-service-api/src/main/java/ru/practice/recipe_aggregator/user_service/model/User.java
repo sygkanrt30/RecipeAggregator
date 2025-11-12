@@ -10,7 +10,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import ru.practice.recipe_aggregator.user_service.token.Token;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 
 @AllArgsConstructor
@@ -47,14 +50,9 @@ public class User implements UserDetails {
     @ToString.Exclude
     private Instant createdAt;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "favorite_recipe",
-            joinColumns = @JoinColumn(name = "user_id")
-    )
-    @Column(name = "recipe_id")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
-    private List<UUID> favoriteRecipeIds = new ArrayList<>();
+    private List<FavoriteRecipe> favoriteRecipes = new ArrayList<>();
 
     @Transient
     @ToString.Exclude

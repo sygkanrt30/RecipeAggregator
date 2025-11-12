@@ -3,7 +3,6 @@ package ru.practice.recipe_aggregator.user_service.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -34,16 +33,19 @@ class RegistrationControllerTest {
     @Test
     @WithMockUser
     void doReg_ShouldReturnSuccess() throws Exception {
-        var username = Instancio.create(String.class);
+        var username = "ValidUser123";
         var password = "Password123!";
         var email = "test@example.com";
-
         mockMvc.perform(post("/api/v1/auth/reg")
-                        .param("username", username)
-                        .param("password", password)
-                        .param("email", email)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "username": "%s",
+                                    "password": "%s",
+                                    "email": "%s"
+                                }
+                                """.formatted(username, password, email))
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Registration successful"));
 
@@ -55,7 +57,7 @@ class RegistrationControllerTest {
     @Test
     @WithMockUser
     void doReg_WhenServiceThrowsException_ShouldReturnBadRequest() throws Exception {
-        var username = Instancio.create(String.class);
+        var username = "ValidUser123";
         var password = "Password123!";
         var email = "test@example.com";
         var errorMessage = "User already exists";
@@ -64,11 +66,15 @@ class RegistrationControllerTest {
                 .when(userService).save(anyString(), anyString(), anyString());
 
         mockMvc.perform(post("/api/v1/auth/reg")
-                        .param("username", username)
-                        .param("password", password)
-                        .param("email", email)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "username": "%s",
+                                    "password": "%s",
+                                    "email": "%s"
+                                }
+                                """.formatted(username, password, email))
+                        .with(csrf()))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Registration failed: " + errorMessage));
 
@@ -82,10 +88,14 @@ class RegistrationControllerTest {
         var email = "test@example.com";
 
         mockMvc.perform(post("/api/v1/auth/reg")
-                        .param("password", password)
-                        .param("email", email)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "password": "%s",
+                                    "email": "%s"
+                                }
+                                """.formatted(password, email))
+                        .with(csrf()))
                 .andExpect(status().isBadRequest());
 
         verify(userService, never()).save(anyString(), anyString(), anyString());
@@ -95,14 +105,18 @@ class RegistrationControllerTest {
     @Test
     @WithMockUser
     void doReg_WithMissingPassword_ShouldReturnBadRequest() throws Exception {
-        var username = Instancio.create(String.class);
+        var username = "ValidUser123";
         var email = "test@example.com";
 
         mockMvc.perform(post("/api/v1/auth/reg")
-                        .param("username", username)
-                        .param("email", email)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "username": "%s",
+                                    "email": "%s"
+                                }
+                                """.formatted(username, email))
+                        .with(csrf()))
                 .andExpect(status().isBadRequest());
 
         verify(userService, never()).save(anyString(), anyString(), anyString());
@@ -112,14 +126,18 @@ class RegistrationControllerTest {
     @Test
     @WithMockUser
     void doReg_WithMissingEmail_ShouldReturnBadRequest() throws Exception {
-        var username = Instancio.create(String.class);
+        var username = "ValidUser123";
         var password = "Password123!";
 
         mockMvc.perform(post("/api/v1/auth/reg")
-                        .param("username", username)
-                        .param("password", password)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "username": "%s",
+                                    "password": "%s"
+                                }
+                                """.formatted(username, password))
+                        .with(csrf()))
                 .andExpect(status().isBadRequest());
 
         verify(userService, never()).save(anyString(), anyString(), anyString());

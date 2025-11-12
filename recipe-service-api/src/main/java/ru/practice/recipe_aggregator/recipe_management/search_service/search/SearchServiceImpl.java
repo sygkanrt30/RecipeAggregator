@@ -62,7 +62,7 @@ public class SearchServiceImpl implements SearchService {
     public List<RecipeDto> searchByIngredientsWithFiltering(SearchContainer container) {
         List<RecipeDto> recipes = searchByIngredients(container);
         if (recipes.isEmpty()) {
-            log.debug("No recipes found for ingredients {}", container.ingredientsName());
+            log.debug("No recipes found for ingredients {}", container.ingredientNames());
             return recipes;
         }
         filterService.processWithFilterChain(recipes, container);
@@ -77,7 +77,7 @@ public class SearchServiceImpl implements SearchService {
     }
 
     private void validateContainerNamePresent(SearchContainer container) {
-        if (container.ingredientsName() == null || container.ingredientsName().isEmpty()) {
+        if (container.ingredientNames() == null || container.ingredientNames().isEmpty()) {
             throw new IllegalArgumentException("Ingredients name cannot be empty or null");
         }
     }

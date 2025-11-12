@@ -25,6 +25,7 @@ import java.util.Set;
 public class WebsiteParserImpl implements WebsiteParser {
 
     private final RecipeParserConfig parserConfig;
+    private final RecipeParser recipeParser;
     private final Set<String> visitedUrls = new HashSet<>();
     private final Set<String> parsedRecipeUrls = new HashSet<>();
     private final List<RecipeDto> allRecipes = new ArrayList<>();
@@ -82,7 +83,7 @@ public class WebsiteParserImpl implements WebsiteParser {
             return;
         }
         try {
-            var recipe = RecipeParser.parseRecipePage(doc);
+            var recipe = recipeParser.parseRecipePage(doc);
             if (isNewRecipe(recipe, normalizedUrl)) {
                 if (newRecipes.size() < parserConfig.maxRecipes()) {
                     newRecipes.add(recipe);

@@ -18,6 +18,7 @@ import ru.practice.shared.dto.RecipeDto;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -50,7 +51,7 @@ class SearchControllerTest {
         );
         when(searchService.searchByName(any(SearchContainer.class))).thenReturn(expectedResults);
 
-        mockMvc.perform(get("/api/v1/search/search-by-name/chicken")
+        mockMvc.perform(get("/api/v1/search/name/chicken")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -68,7 +69,7 @@ class SearchControllerTest {
     void searchByName_WithNoResults_ShouldReturnEmptyList() throws Exception {
         when(searchService.searchByName(any(SearchContainer.class))).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/api/v1/search/search-by-name/nonexistent")
+        mockMvc.perform(get("/api/v1/search/name/nonexistent")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -78,11 +79,11 @@ class SearchControllerTest {
     @Test
     @WithMockUser(username = TEST_USER)
     void searchByIngredients_ShouldReturnResults() throws Exception {
-        var ingredients = List.of("chicken", "rice");
+        var ingredients = Set.of("chicken", "rice");
         var expectedResults = List.of(mock(RecipeDto.class), mock(RecipeDto.class));
         when(searchService.searchByIngredients(any(SearchContainer.class))).thenReturn(expectedResults);
 
-        mockMvc.perform(get("/api/v1/search/search-by-ingredients")
+        mockMvc.perform(get("/api/v1/search/ingredients")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(ingredients))
                         .accept(MediaType.APPLICATION_JSON))
@@ -93,7 +94,7 @@ class SearchControllerTest {
                 .andExpect(jsonPath("$[0]").exists())
                 .andExpect(jsonPath("$[1]").exists());
         verify(searchService).searchByIngredients(argThat(container ->
-                container.ingredientsName().equals(ingredients) &&
+                container.ingredientNames().equals(ingredients) &&
                         container.name() == null
         ));
     }
@@ -101,7 +102,7 @@ class SearchControllerTest {
     @Test
     @WithMockUser(username = TEST_USER)
     void searchByIngredients_WithNullBody_ShouldReturnBadRequest() throws Exception {
-        mockMvc.perform(get("/api/v1/search/search-by-ingredients")
+        mockMvc.perform(get("/api/v1/search/ingredients")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -113,7 +114,7 @@ class SearchControllerTest {
         var expectedResults = List.of(mock(RecipeDto.class));
         when(searchService.searchByIngredientsWithFiltering(any(SearchContainer.class))).thenReturn(expectedResults);
 
-        mockMvc.perform(get("/api/v1/search/search-by-ingredients-with-filtering")
+        mockMvc.perform(get("/api/v1/search/ingredients-with-filtering")
                         .param("ingredientsName", "chicken", "rice")
                         .param("maxMins4Cook", "30")
                         .param("maxTotalMins", "60")
@@ -126,7 +127,7 @@ class SearchControllerTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(expectedResults.size()));
         verify(searchService).searchByIngredientsWithFiltering(argThat(container ->
-                container.ingredientsName().equals(List.of("chicken", "rice")) &&
+                container.ingredientNames().equals(Set.of("chicken", "rice")) &&
                         container.maxMinsForCooking() == 30 &&
                         container.maxTotalMinutes() == 60 &&
                         container.maxMinsForPreparing() == 15 &&
@@ -141,7 +142,7 @@ class SearchControllerTest {
         var expectedResults = List.of(mock(RecipeDto.class));
         when(searchService.searchByIngredientsWithFiltering(any(SearchContainer.class))).thenReturn(expectedResults);
 
-        mockMvc.perform(get("/api/v1/search/search-by-ingredients-with-filtering")
+        mockMvc.perform(get("/api/v1/search/ingredients-with-filtering")
                         .param("ingredientsName", "chicken", "rice")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -149,7 +150,7 @@ class SearchControllerTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(expectedResults.size()));
         verify(searchService).searchByIngredientsWithFiltering(argThat(container ->
-                container.ingredientsName().equals(List.of("chicken", "rice")) &&
+                container.ingredientNames().equals(Set.of("chicken", "rice")) &&
                         container.maxMinsForCooking() == null &&
                         container.maxTotalMinutes() == null &&
                         container.maxMinsForPreparing() == null &&
@@ -164,7 +165,7 @@ class SearchControllerTest {
         var expectedResults = List.of(mock(RecipeDto.class));
         when(searchService.searchByNameWithFiltering(any(SearchContainer.class))).thenReturn(expectedResults);
 
-        mockMvc.perform(get("/api/v1/search/search-by-name-with-filtering")
+        mockMvc.perform(get("/api/v1/search/name-with-filtering")
                         .param("name", "pasta")
                         .param("maxMins4Cook", "30")
                         .param("maxTotalMins", "60")
@@ -192,7 +193,7 @@ class SearchControllerTest {
         var expectedResults = List.of(mock(RecipeDto.class));
         when(searchService.searchByNameWithFiltering(any(SearchContainer.class))).thenReturn(expectedResults);
 
-        mockMvc.perform(get("/api/v1/search/search-by-name-with-filtering")
+        mockMvc.perform(get("/api/v1/search/name-with-filtering")
                         .param("name", "pasta")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

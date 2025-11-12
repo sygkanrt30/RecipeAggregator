@@ -18,6 +18,6 @@ public class IngredientsSearcher implements Searcher {
 
     @Override
     public List<RecipeDoc> search(SearchContainer container) {
-        return repository.findByIngredientsContainingAny(container.ingredientsName());
+        return repository.findByIngredientsContainingAny(container.ingredientNames());
     }
 }

@@ -35,7 +35,7 @@ class PersonalAccountControllerTest {
     void addToFavorites_ShouldCallService() throws Exception {
         var recipeName = Instancio.create(String.class);
 
-        mockMvc.perform(post("/api/v1/account/add-to-favorites")
+        mockMvc.perform(post("/api/v1/account/favorite")
                         .param("recipe_name", recipeName)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -49,7 +49,7 @@ class PersonalAccountControllerTest {
     void addToFavorites_WithoutCsrf_ShouldReturnForbidden() throws Exception {
         var recipeName = Instancio.create(String.class);
 
-        mockMvc.perform(post("/api/v1/account/add-to-favorites")
+        mockMvc.perform(post("/api/v1/account/favorite")
                         .param("recipe_name", recipeName)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
@@ -61,7 +61,7 @@ class PersonalAccountControllerTest {
     void addToFavorites_Unauthenticated_ShouldReturnUnauthorized() throws Exception {
         var recipeName = Instancio.create(String.class);
 
-        mockMvc.perform(post("/api/v1/account/add-to-favorites")
+        mockMvc.perform(post("/api/v1/account/favorite")
                         .param("recipe_name", recipeName)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -75,7 +75,7 @@ class PersonalAccountControllerTest {
     void removeFromFavorites_ShouldCallService() throws Exception {
         var recipeName = Instancio.create(String.class);
 
-        mockMvc.perform(delete("/api/v1/account/remove-from-favorites")
+        mockMvc.perform(delete("/api/v1/account/favorite")
                         .param("recipe_name", recipeName)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -89,7 +89,7 @@ class PersonalAccountControllerTest {
     void removeFromFavorites_WithoutCsrf_ShouldReturnForbidden() throws Exception {
         var recipeName = Instancio.create(String.class);
 
-        mockMvc.perform(delete("/api/v1/account/remove-from-favorites")
+        mockMvc.perform(delete("/api/v1/account/favorite")
                         .param("recipe_name", recipeName)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
@@ -104,7 +104,7 @@ class PersonalAccountControllerTest {
 
         when(favoriteRecipeService.getFavorites(TEST_USERNAME)).thenReturn(favorites);
 
-        mockMvc.perform(get("/api/v1/account/get-favorites")
+        mockMvc.perform(get("/api/v1/account/favorite")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2));
@@ -117,7 +117,7 @@ class PersonalAccountControllerTest {
     void getFavorites_WhenNoFavorites_ShouldReturnEmptyList() throws Exception {
         when(favoriteRecipeService.getFavorites(TEST_USERNAME)).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/v1/account/get-favorites")
+        mockMvc.perform(get("/api/v1/account/favorite")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
@@ -127,7 +127,7 @@ class PersonalAccountControllerTest {
 
     @Test
     void getFavorites_Unauthenticated_ShouldReturnUnauthorized() throws Exception {
-        mockMvc.perform(get("/api/v1/account/get-favorites")
+        mockMvc.perform(get("/api/v1/account/favorite")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
 
@@ -137,7 +137,7 @@ class PersonalAccountControllerTest {
     @Test
     @WithMockUser(username = TEST_USERNAME)
     void addToFavorites_WithEmptyRecipeName_ShouldReturnOk() throws Exception {
-        mockMvc.perform(post("/api/v1/account/add-to-favorites")
+        mockMvc.perform(post("/api/v1/account/favorite")
                         .param("recipe_name", "")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))

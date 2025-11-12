@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.response.ResponseDto;
-import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.exception.InvalidConditionException;
 
 @ControllerAdvice
 @Slf4j
@@ -30,18 +29,18 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResponseDto catchInvalidConditionException(InvalidConditionException e) {
-        return getAppErrorHandlerResponseDto(e, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler
     public ResponseDto catchIllegalArgumentException(IllegalArgumentException e) {
         return getAppErrorHandlerResponseDto(e, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler
+    public ResponseDto catchCustomException(ParentException e) {
+        return getAppErrorHandlerResponseDto(e, e.responseStatus());
+    }
+
     private ResponseDto getAppErrorHandlerResponseDto(Exception e, HttpStatus status) {
         String error = e.getMessage();
-        log.error(error, e);
+        log.error(error, e.getCause());
         return ResponseDto.getResponseError(status, error);
     }
 }

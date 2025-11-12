@@ -16,6 +16,9 @@ import ru.practice.shared.dto.RecipeDto;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,80 +30,62 @@ class RecipeConsumerProcessorTest {
     private RecipeMapper recipeMapper;
 
     @Mock
-    private RecipeService recipeEntityService;
+    private RecipeService recipeService;
 
     @InjectMocks
-    private RecipeConsumerProcessor recipeService;
+    private RecipeConsumerProcessor recipeConsumerProcessor;
 
     @AfterEach
     void resetMocks() {
-        Mockito.reset(recipeMapper, recipeEntityService);
+        Mockito.reset(recipeMapper, recipeService);
     }
 
     @Test
     void saveFromKafka_shouldHandleEmptyList() {
-        recipeService.saveFromKafka(Collections.emptyList());
+        recipeConsumerProcessor.saveFromKafka(Collections.emptyList());
 
-        verify(recipeEntityService, never()).saveAllWithBatches(any());
+        verify(recipeService, never()).saveAllWithBatches(any());
     }
 
     @Test
     void saveFromKafka_shouldHandleSingleItemBatch() {
         var dto = Instancio.create(RecipeDto.class);
         var entity = Instancio.create(RecipeDoc.class);
-        when(recipeEntityService.findAll()).thenReturn(Collections.emptyList());
-        when(recipeMapper.fromRecipeKafkaDto(dto)).thenReturn(entity);
+        when(recipeMapper.fromRecipeDto(dto)).thenReturn(entity);
 
-        recipeService.saveFromKafka(List.of(dto));
+        recipeConsumerProcessor.saveFromKafka(List.of(dto));
 
-        verify(recipeEntityService).findAll();
-        verify(recipeMapper).fromRecipeKafkaDto(dto);
-        verify(recipeEntityService).saveAllWithBatches(List.of(entity));
+        verify(recipeService).saveAllWithBatches(List.of(entity));
     }
 
     @Test
     void saveFromKafka_shouldFilterExistingAndSaveNewRecipes() {
-        var existingNames = Set.of("Existing1", "Existing2");
-        var existingEntities = existingNames.stream()
-                .map(name -> Instancio.of(RecipeDoc.class)
-                        .set(field(RecipeDoc::getName), name)
-                        .ignore(field(RecipeDoc::getId))
-                        .create())
+        // given
+        var existingIds = Set.of(UUID.randomUUID(), UUID.randomUUID());
+        var newIds = Set.of(UUID.randomUUID(), UUID.randomUUID());
+        var allIds = Stream.concat(existingIds.stream(), newIds.stream())
+                .collect(Collectors.toSet());
+        var existingDtos = existingIds.stream()
+                .map(id -> Instancio.of(RecipeDto.class).set(field(RecipeDto::id), id).create())
                 .toList();
-        var kafkaDtos = List.of(
-                createKafkaDtoWithName("Existing1"),
-                createKafkaDtoWithName("New1"),
-                createKafkaDtoWithName("New2")
-        );
-        var newEntity1 = createRecipeWithName("New1");
-        var newEntity2 = createRecipeWithName("New2");
-        when(recipeEntityService.findAll()).thenReturn(existingEntities);
-        when(recipeMapper.fromRecipeKafkaDto(argThat(dto -> dto != null && "New1".equals(dto.name()))))
-                .thenReturn(newEntity1);
-        when(recipeMapper.fromRecipeKafkaDto(argThat(dto -> dto != null && "New2".equals(dto.name()))))
-                .thenReturn(newEntity2);
+        var newDtos = newIds.stream()
+                .map(id -> Instancio.of(RecipeDto.class).set(field(RecipeDto::id), id).create())
+                .toList();
+        var kafkaDtos = Stream.concat(existingDtos.stream(), newDtos.stream()).toList();
+        var newEntities = newIds.stream()
+                .map(id -> Instancio.of(RecipeDoc.class).set(field(RecipeDoc::getId), id).create())
+                .toList();
+        when(recipeService.findExistingIds(allIds)).thenReturn(existingIds);
+        for (int i = 0; i < newDtos.size(); i++) {
+            when(recipeMapper.fromRecipeDto(newDtos.get(i))).thenReturn(newEntities.get(i));
+        }
 
-        recipeService.saveFromKafka(kafkaDtos);
+        // when
+        recipeConsumerProcessor.saveFromKafka(kafkaDtos);
 
-        verify(recipeEntityService).findAll();
-        verify(recipeMapper, never()).fromRecipeKafkaDto(argThat(dto -> dto != null && existingNames.contains(dto.name())));
-        verify(recipeMapper).fromRecipeKafkaDto(argThat(dto -> dto != null && "New1".equals(dto.name())));
-        verify(recipeMapper).fromRecipeKafkaDto(argThat(dto -> dto != null && "New2".equals(dto.name())));
-        verify(recipeEntityService).saveAllWithBatches(
-                argThat(list -> list != null && list.size() == 2 && list.containsAll(List.of(newEntity1, newEntity2)))
-        );
-    }
-
-    private RecipeDto createKafkaDtoWithName(String name) {
-        return Instancio.of(RecipeDto.class)
-                .set(field(RecipeDto::name), name)
-                .create();
-    }
-
-    private RecipeDoc createRecipeWithName(String name) {
-        return Instancio.of(RecipeDoc.class)
-                .set(field(RecipeDoc::getName), name)
-                .ignore(field(RecipeDoc::getId))
-                .create();
+        // then
+        verify(recipeService).saveAllWithBatches(newEntities);
+        existingDtos.forEach(dto ->
+                verify(recipeMapper, never()).fromRecipeDto(dto));
     }
 }

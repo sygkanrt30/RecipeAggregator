@@ -3,8 +3,6 @@ package ru.practice.recipe_aggregator.user_service.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,15 +13,10 @@ import ru.practice.recipe_aggregator.user_service.repository.UserRepository;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserService implements SaveUserService, UserDetailsService, GetUserInfoService {
+public class UserService implements SaveUserService, GetUserInfoService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return getUserByName(username);
-    }
 
     @Override
     public User getUserByName(String username) {
