@@ -4,14 +4,15 @@ import ru.practice.recipe_aggregator.recipe_management.model.dto.container.Searc
 import ru.practice.shared.dto.RecipeDto;
 
 import java.util.List;
+import java.util.Set;
 
 public interface SearchService {
 
-    List<RecipeDto> searchByName(SearchContainer container);
+    List<RecipeDto> searchByName(String name);
 
     List<RecipeDto> searchByNameWithFiltering(SearchContainer container);
 
     List<RecipeDto> searchByIngredientsWithFiltering(SearchContainer container);
 
-    List<RecipeDto> searchByIngredients(SearchContainer container);
+    List<RecipeDto> searchByIngredients(Set<String> ingredientNames);
 }

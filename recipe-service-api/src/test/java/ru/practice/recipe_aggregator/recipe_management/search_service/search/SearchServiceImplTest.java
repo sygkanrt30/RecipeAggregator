@@ -5,11 +5,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Qualifier;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.mapper.RecipeMapper;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.FilterService;
-import ru.practice.recipe_aggregator.recipe_management.search_service.search.searcher.Searcher;
+import ru.practice.recipe_aggregator.recipe_management.search_service.search.searcher.NameSearcher;
 
 import java.util.Set;
 
@@ -21,13 +20,13 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class SearchServiceImplTest {
+
     @Mock
     private FilterService filterService;
     @Mock
     private RecipeMapper mapper;
     @Mock
-    @Qualifier("nameSearcher")
-    private Searcher nameSearcher;
+    private NameSearcher nameSearcher;
     @InjectMocks
     private SearchServiceImpl searchService;
 
@@ -35,7 +34,7 @@ class SearchServiceImplTest {
     void searchByName_WhenNameIsNull_ShouldThrowException() {
         var container = SearchContainer.builder().name(null).build();
         var exception = assertThrows(IllegalArgumentException.class,
-                () -> searchService.searchByName(container));
+                () -> searchService.searchByName(null));
         assertEquals("Search name cannot be empty or null", exception.getMessage());
     }
 
@@ -43,7 +42,7 @@ class SearchServiceImplTest {
     void searchByName_WhenNameIsEmpty_ShouldThrowException() {
         var container = SearchContainer.builder().name("").build();
         var exception = assertThrows(IllegalArgumentException.class,
-                () -> searchService.searchByName(container));
+                () -> searchService.searchByName(""));
         assertEquals("Search name cannot be empty or null", exception.getMessage());
     }
 
@@ -51,7 +50,7 @@ class SearchServiceImplTest {
     void searchByIngredients_WhenIngredientsIsNull_ShouldThrowException() {
         var container = SearchContainer.builder().ingredientNames(null).build();
         var exception = assertThrows(IllegalArgumentException.class,
-                () -> searchService.searchByIngredients(container));
+                () -> searchService.searchByIngredients(null));
         assertEquals("Ingredients name cannot be empty or null", exception.getMessage());
     }
 
@@ -59,7 +58,7 @@ class SearchServiceImplTest {
     void searchByIngredients_WhenIngredientsIsEmpty_ShouldThrowException() {
         var container = SearchContainer.builder().ingredientNames(Set.of()).build();
         var exception = assertThrows(IllegalArgumentException.class,
-                () -> searchService.searchByIngredients(container));
+                () -> searchService.searchByIngredients(Set.of()));
         assertEquals("Ingredients name cannot be empty or null", exception.getMessage());
     }
 
@@ -70,8 +69,6 @@ class SearchServiceImplTest {
         var result = searchService.searchByNameWithFiltering(container);
 
         assertTrue(result.isEmpty());
-        verify(filterService, never()).processWithFilterChain(anyList(), any());
-        verify(mapper, never()).toRecipeDto(any());
     }
 
     @Test

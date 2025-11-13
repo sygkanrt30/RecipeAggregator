@@ -7,6 +7,7 @@ import ru.practice.recipe_aggregator.recipe_management.search_service.search.Sea
 import ru.practice.shared.dto.RecipeDto;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.Set;
 
@@ -19,18 +20,12 @@ public class SearchController {
 
     @GetMapping("/name/{name}")
     public List<RecipeDto> searchByName(@PathVariable @NotBlank String name) {
-        var container = SearchContainer.builder()
-                .name(name)
-                .build();
-        return searchService.searchByName(container);
+        return searchService.searchByName(name);
     }
 
     @GetMapping("/ingredients")
-    public List<RecipeDto> searchByIngredients(@RequestBody Set<String> ingredientNames) {
-        var container = SearchContainer.builder()
-                .ingredientNames(ingredientNames)
-                .build();
-        return searchService.searchByIngredients(container);
+    public List<RecipeDto> searchByIngredients(@RequestBody @NotEmpty Set<String> ingredientNames) {
+        return searchService.searchByIngredients(ingredientNames);
     }
 
     @GetMapping("/ingredients-with-filtering")

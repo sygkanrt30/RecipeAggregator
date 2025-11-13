@@ -2,16 +2,17 @@ package ru.practice.recipe_aggregator.recipe_management.search_service.search;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.mapper.RecipeMapper;
 import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearch.RecipeDoc;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.FilterService;
-import ru.practice.recipe_aggregator.recipe_management.search_service.search.searcher.Searcher;
+import ru.practice.recipe_aggregator.recipe_management.search_service.search.searcher.IngredientsSearcher;
+import ru.practice.recipe_aggregator.recipe_management.search_service.search.searcher.NameSearcher;
 import ru.practice.shared.dto.RecipeDto;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,23 +22,14 @@ public class SearchServiceImpl implements SearchService {
 
     private final FilterService filterService;
     private final RecipeMapper recipeMapper;
-    @Qualifier("nameSearcher")
-    private final Searcher nameSearcher;
-    @Qualifier("ingredientsSearcher")
-    private final Searcher ingredientsSearcher;
+    private final NameSearcher nameSearcher;
+    private final IngredientsSearcher ingredientsSearcher;
 
 
     @Override
-    public List<RecipeDto> searchByName(SearchContainer container) {
-        throwIfNameEmptyOrNull(container);
-        List<RecipeDoc> recipeDocs = nameSearcher.search(container);
+    public List<RecipeDto> searchByName(String name) {
+        List<RecipeDoc> recipeDocs = nameSearcher.search(name);
         return convertToRecipeResponseDtoList(recipeDocs);
-    }
-
-    private void throwIfNameEmptyOrNull(SearchContainer container) {
-        if (container.name() == null || container.name().isEmpty()) {
-            throw new IllegalArgumentException("Search name cannot be empty or null");
-        }
     }
 
     private List<RecipeDto> convertToRecipeResponseDtoList(List<RecipeDoc> recipeDocs) {
@@ -49,7 +41,7 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public List<RecipeDto> searchByNameWithFiltering(SearchContainer container) {
-        List<RecipeDto> recipes = searchByName(container);
+        List<RecipeDto> recipes = searchByName(container.name());
         if (recipes.isEmpty()) {
             log.debug("No recipes found for name {}", container.name());
             return recipes;
@@ -60,7 +52,7 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public List<RecipeDto> searchByIngredientsWithFiltering(SearchContainer container) {
-        List<RecipeDto> recipes = searchByIngredients(container);
+        List<RecipeDto> recipes = searchByIngredients(container.ingredientNames());
         if (recipes.isEmpty()) {
             log.debug("No recipes found for ingredients {}", container.ingredientNames());
             return recipes;
@@ -70,15 +62,8 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public List<RecipeDto> searchByIngredients(SearchContainer container) {
-        validateContainerNamePresent(container);
-        List<RecipeDoc> recipeDocs = ingredientsSearcher.search(container);
+    public List<RecipeDto> searchByIngredients(Set<String> ingredientNames) {
+        List<RecipeDoc> recipeDocs = ingredientsSearcher.search(ingredientNames);
         return convertToRecipeResponseDtoList(recipeDocs);
-    }
-
-    private void validateContainerNamePresent(SearchContainer container) {
-        if (container.ingredientNames() == null || container.ingredientNames().isEmpty()) {
-            throw new IllegalArgumentException("Ingredients name cannot be empty or null");
-        }
     }
 }
