@@ -2,6 +2,7 @@ package ru.practice.parser_service.service.parsers;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,14 +10,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.yaml.snakeyaml.Yaml;
 import ru.practice.parser_service.service.mapper.RecipeMapper;
 import ru.practice.parser_service.service.parsers.recipe.RecipeParser;
 import ru.practice.parser_service.service.parsers.recipe.recipes_parts.TimeParser;
 import ru.practice.shared.dto.IngredientDto;
 import ru.practice.shared.dto.RecipeDto;
 
+import java.io.IOException;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,54 +32,70 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class RecipeParserTest {
 
+    static final String TEST_APPLICATION_YAML = "test-application.yaml";
     @Mock
     private RecipeMapper mapper;
 
     @InjectMocks
     private RecipeParser recipeParser;
 
+    private static MockedStatic<TimeParser> mockedTime;
+    private static Document validDoc;
+    private static Document missingNameDoc;
+    private static Document missingTimeDoc;
+    private static Document emptyDescriptionDoc;
+
     @BeforeAll
-    static void setUp() {
-        MockedStatic<TimeParser> mockedTime = mockStatic(TimeParser.class);
+    static void setUpAll() throws IOException {
+        mockedTime = mockStatic(TimeParser.class);
         mockedTime.when(() -> TimeParser.parseMinsFromString("30 mins"))
                 .thenReturn(Duration.ofMinutes(30));
         mockedTime.when(() -> TimeParser.parseMinsFromString("1 hour"))
                 .thenReturn(Duration.ofMinutes(60));
+
+        Map<String, String> htmlContents = loadHtmlFromYaml();
+        validDoc = Jsoup.parse(htmlContents.get("valid"));
+        missingNameDoc = Jsoup.parse(htmlContents.get("missingName"));
+        missingTimeDoc = Jsoup.parse(htmlContents.get("missingTime"));
+        emptyDescriptionDoc = Jsoup.parse(htmlContents.get("emptyDescription"));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, String> loadHtmlFromYaml() throws IOException {
+        var yaml = new Yaml();
+        try (var inputStream = RecipeParserTest.class.getClassLoader()
+                .getResourceAsStream(TEST_APPLICATION_YAML)) {
+
+            Map<String, Object> data = yaml.load(inputStream);
+            var test = (Map<String, Object>) data.get("test");
+            var recipes = (Map<String, Object>) test.get("recipes");
+
+            var result = new HashMap<String, String>();
+            result.put("valid", getHtml(recipes, "valid"));
+            result.put("missingName", getHtml(recipes, "missing-name"));
+            result.put("missingTime", getHtml(recipes, "missing-time"));
+            result.put("emptyDescription", getHtml(recipes, "empty-description"));
+
+            return result;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static String getHtml(Map<String, Object> recipes, String key) {
+        Map<String, Object> recipe = (Map<String, Object>) recipes.get(key);
+        return (String) recipe.get("html");
+    }
+
+    @AfterAll
+    static void tearDownAll() {
+        if (mockedTime != null) {
+            mockedTime.close();
+        }
     }
 
     @Test
     void parseRecipePage_shouldReturnCorrectRecipe() {
         // Arrange
-        var html = """
-                <div>
-                    <h1 class="article-heading text-headline-400">Test Recipe</h1>
-                    <p class="article-subheading text-utility-300">Test Description</p>
-                    <div class="mm-recipes-details">
-                        <div class="mm-recipes-details__item">
-                            <div class="mm-recipes-details__label">servings:</div>
-                            <div class="mm-recipes-details__value">4</div>
-                        </div>
-                        <div class="mm-recipes-details__item">
-                            <div class="mm-recipes-details__label">prep time:</div>
-                            <div class="mm-recipes-details__value">30 mins</div>
-                        </div>
-                        <div class="mm-recipes-details__item">
-                            <div class="mm-recipes-details__label">cook time:</div>
-                            <div class="mm-recipes-details__value">1 hour</div>
-                        </div>
-                    </div>
-                    <ul class="mm-recipes-structured-ingredients">
-                        <li class="mm-recipes-structured-ingredients__list-item">
-                            <span data-ingredient-quantity="true">1/2</span>
-                            <span data-ingredient-unit="true">teaspoon</span>
-                            <span data-ingredient-name="true">vanilla extract</span>
-                        </li>
-                    </ul>
-                    <ol class="mntl-sc-block-group">
-                        <li><p class="mntl-sc-block-html">Test Directions</p></li>
-                    </ol>
-                </div>
-                """;
         var expectedName = "Test Recipe";
         var expectedPrepTime = Duration.ofMinutes(30);
         var expectedCookTime = Duration.ofMinutes(60);
@@ -113,10 +134,8 @@ class RecipeParserTest {
                 expectedDescription
         )).thenReturn(expectedRecipeDto);
 
-        Document doc = Jsoup.parse(html);
-
         // Act
-        RecipeDto result = recipeParser.parseRecipePage(doc);
+        RecipeDto result = recipeParser.parseRecipePage(validDoc);
 
         // Assert
         assertNotNull(result);
@@ -133,44 +152,13 @@ class RecipeParserTest {
 
     @Test
     void parseRecipePage_shouldThrowExceptionWhenNameIsMissing() {
-        // Arrange
-        var html = """
-                <div>
-                    <p class="article-subheading text-utility-300">Test Description</p>
-                </div>
-                """;
-        Document doc = Jsoup.parse(html);
-
         // Act & Assert
-        assertThrows(NullPointerException.class, () -> recipeParser.parseRecipePage(doc));
+        assertThrows(NullPointerException.class, () -> recipeParser.parseRecipePage(missingNameDoc));
     }
 
     @Test
     void parseRecipePage_shouldHandleMissingTimeParameters() {
         // Arrange
-        var html = """
-                <div>
-                    <h1 class="article-heading text-headline-400">Test Recipe</h1>
-                    <p class="article-subheading text-utility-300">Test Description</p>
-                    <div class="mm-recipes-details">
-                        <div class="mm-recipes-details__item">
-                            <div class="mm-recipes-details__label">servings:</div>
-                            <div class="mm-recipes-details__value">4</div>
-                        </div>
-                    </div>
-                    <ul class="mm-recipes-structured-ingredients">
-                        <li class="mm-recipes-structured-ingredients__list-item">
-                            <span data-ingredient-quantity="true">1</span>
-                            <span data-ingredient-unit="true">cup</span>
-                            <span data-ingredient-name="true">flour</span>
-                        </li>
-                    </ul>
-                    <ol class="mntl-sc-block-group">
-                        <li><p class="mntl-sc-block-html">Mix ingredients</p></li>
-                    </ol>
-                </div>
-                """;
-
         var expectedName = "Test Recipe";
         var zeroDuration = Duration.ofMinutes(0);
         int expectedServings = 4;
@@ -206,9 +194,8 @@ class RecipeParserTest {
                 eq(expectedDescription)
         )).thenReturn(expectedRecipeDto);
 
-        Document doc = Jsoup.parse(html);
         // Act
-        RecipeDto result = recipeParser.parseRecipePage(doc);
+        RecipeDto result = recipeParser.parseRecipePage(missingTimeDoc);
 
         // Assert
         assertNotNull(result);
@@ -220,22 +207,7 @@ class RecipeParserTest {
 
     @Test
     void parseRecipePage_shouldHandleEmptyDescription() {
-        // Arrange
-        var html = """
-                <div>
-                    <h1 class="article-heading text-headline-400">Test Recipe</h1>
-                    <div class="mm-recipes-details">
-                        <div class="mm-recipes-details__item">
-                            <div class="mm-recipes-details__label">servings:</div>
-                            <div class="mm-recipes-details__value">2</div>
-                        </div>
-                    </div>
-                </div>
-                """;
-
-        Document doc = Jsoup.parse(html);
-
         // Act & Assert
-        assertThrows(NullPointerException.class, () -> recipeParser.parseRecipePage(doc));
+        assertThrows(NullPointerException.class, () -> recipeParser.parseRecipePage(emptyDescriptionDoc));
     }
 }

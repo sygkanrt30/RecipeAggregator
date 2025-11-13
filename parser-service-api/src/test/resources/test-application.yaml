@@ -1,0 +1,70 @@
+test:
+  recipes:
+    valid:
+      html: |
+        <div>
+          <h1 class="article-heading text-headline-400">Test Recipe</h1>
+          <p class="article-subheading text-utility-300">Test Description</p>
+          <div class="mm-recipes-details">
+            <div class="mm-recipes-details__item">
+              <div class="mm-recipes-details__label">servings:</div>
+              <div class="mm-recipes-details__value">4</div>
+            </div>
+            <div class="mm-recipes-details__item">
+              <div class="mm-recipes-details__label">prep time:</div>
+              <div class="mm-recipes-details__value">30 mins</div>
+            </div>
+            <div class="mm-recipes-details__item">
+              <div class="mm-recipes-details__label">cook time:</div>
+              <div class="mm-recipes-details__value">1 hour</div>
+            </div>
+          </div>
+          <ul class="mm-recipes-structured-ingredients">
+            <li class="mm-recipes-structured-ingredients__list-item">
+              <span data-ingredient-quantity="true">1/2</span>
+              <span data-ingredient-unit="true">teaspoon</span>
+              <span data-ingredient-name="true">vanilla extract</span>
+            </li>
+          </ul>
+          <ol class="mntl-sc-block-group">
+            <li><p class="mntl-sc-block-html">Test Directions</p></li>
+          </ol>
+        </div>
+    missing-name:
+      html: |
+        <div>
+          <p class="article-subheading text-utility-300">Test Description</p>
+        </div>
+    missing-time:
+      html: |
+        <div>
+          <h1 class="article-heading text-headline-400">Test Recipe</h1>
+          <p class="article-subheading text-utility-300">Test Description</p>
+          <div class="mm-recipes-details">
+            <div class="mm-recipes-details__item">
+              <div class="mm-recipes-details__label">servings:</div>
+              <div class="mm-recipes-details__value">4</div>
+            </div>
+          </div>
+          <ul class="mm-recipes-structured-ingredients">
+            <li class="mm-recipes-structured-ingredients__list-item">
+              <span data-ingredient-quantity="true">1</span>
+              <span data-ingredient-unit="true">cup</span>
+              <span data-ingredient-name="true">flour</span>
+            </li>
+          </ul>
+          <ol class="mntl-sc-block-group">
+            <li><p class="mntl-sc-block-html">Mix ingredients</p></li>
+          </ol>
+        </div>
+    empty-description:
+      html: |
+        <div>
+          <h1 class="article-heading text-headline-400">Test Recipe</h1>
+          <div class="mm-recipes-details">
+            <div class="mm-recipes-details__item">
+              <div class="mm-recipes-details__label">servings:</div>
+              <div class="mm-recipes-details__value">2</div>
+            </div>
+          </div>
+        </div>
