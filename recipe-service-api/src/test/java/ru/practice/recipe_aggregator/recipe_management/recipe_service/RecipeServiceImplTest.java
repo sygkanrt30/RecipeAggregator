@@ -6,6 +6,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
@@ -49,28 +52,32 @@ class RecipeServiceImplTest {
         var recipeDto2 = Instancio.create(RecipeDto.class);
         var returnedRecipes = List.of(recipe1, recipe2);
         var expectedRecipes = List.of(recipeDto1, recipeDto2);
-        when(recipeRepository.findByIdIn(recipeIds)).thenReturn(returnedRecipes);
+        var testNumberOfPage = 0;
+        var testPageSize = expectedRecipes.size();
+        Pageable pageable = PageRequest.of(testNumberOfPage, testPageSize);
+        when(recipeRepository.findByIdIn(recipeIds, pageable)).thenReturn(new PageImpl<>(returnedRecipes));
         when(mapper.toRecipeDto(recipe1)).thenReturn(recipeDto1);
         when(mapper.toRecipeDto(recipe2)).thenReturn(recipeDto2);
 
-        var result = recipeService.findAllByIds(recipeIds);
+        var result = recipeService.findAllByIds(recipeIds, testNumberOfPage, testPageSize);
 
         assertNotNull(result);
         assertEquals(2, result.size());
         assertEquals(expectedRecipes, result);
-        verify(recipeRepository).findByIdIn(recipeIds);
     }
 
     @Test
     void findAllByIds_ShouldReturnEmptyList_WhenEmptyIdsListProvided() {
         List<UUID> emptyIds = List.of();
-        when(recipeRepository.findByIdIn(List.of())).thenReturn(List.of());
+        var testNumberOfPage = 0;
+        var testPageSize = 10;
+        Pageable pageable = PageRequest.of(testNumberOfPage, testPageSize);
+        when(recipeRepository.findByIdIn(List.of(), pageable)).thenReturn(new PageImpl<>(List.of()));
 
-        var result = recipeService.findAllByIds(emptyIds);
+        var result = recipeService.findAllByIds(emptyIds, testNumberOfPage, testPageSize);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
-        verify(recipeRepository).findByIdIn(List.of());
     }
 
     @Test
@@ -78,11 +85,15 @@ class RecipeServiceImplTest {
         var id1 = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         var id2 = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
         var recipeIds = List.of(id1, id2);
-        when(recipeRepository.findByIdIn(recipeIds)).thenReturn(List.of());
+        var testNumberOfPage = 0;
+        var testPageSize = recipeIds.size();
+        Pageable pageable = PageRequest.of(testNumberOfPage, testPageSize);
 
-        recipeService.findAllByIds(recipeIds);
+        when(recipeRepository.findByIdIn(recipeIds, pageable)).thenReturn(new PageImpl<>(List.of()));
 
-        verify(recipeRepository).findByIdIn(recipeIds);
+        recipeService.findAllByIds(recipeIds, testNumberOfPage, testPageSize);
+
+        verify(recipeRepository).findByIdIn(recipeIds, pageable);
     }
 
     @Test

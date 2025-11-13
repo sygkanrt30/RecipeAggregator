@@ -1,5 +1,7 @@
 package ru.practice.recipe_aggregator.recipe_management.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Repository;
@@ -17,7 +19,7 @@ public interface RecipeElasticRepository extends ElasticsearchRepository<RecipeD
 
     Optional<RecipeDoc> findByName(String name);
 
-    Collection<RecipeDoc> findByIdIn(Collection<UUID> id);
+    Page<RecipeDoc> findByIdIn(Collection<UUID> id, Pageable pageable);
 
     @Query("""
             {

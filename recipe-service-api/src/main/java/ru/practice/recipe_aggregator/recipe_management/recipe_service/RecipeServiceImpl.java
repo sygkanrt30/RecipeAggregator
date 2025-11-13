@@ -3,6 +3,8 @@ package ru.practice.recipe_aggregator.recipe_management.recipe_service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
@@ -29,9 +31,10 @@ public class RecipeServiceImpl implements RecipeService {
     private final RecipeMapper mapper;
 
     @Override
-    public List<RecipeDto> findAllByIds(List<UUID> recipeIds) {
+    public List<RecipeDto> findAllByIds(List<UUID> recipeIds, int page, int size) {
         log.debug("search all recipes which id in {} ", recipeIds.toString());
-        return recipeRepository.findByIdIn(recipeIds).stream()
+        Pageable pageable = PageRequest.of(page, size);
+        return recipeRepository.findByIdIn(recipeIds, pageable).stream()
                 .map(mapper::toRecipeDto)
                 .toList();
     }
@@ -41,8 +44,8 @@ public class RecipeServiceImpl implements RecipeService {
         if (recipeIds.isEmpty()) {
             return Collections.emptySet();
         }
-
-        return recipeRepository.findByIdIn(recipeIds)
+        Pageable pageable = PageRequest.of(0, recipeIds.size());
+        return recipeRepository.findByIdIn(recipeIds, pageable)
                 .stream()
                 .map(RecipeDoc::getId)
                 .collect(Collectors.toSet());

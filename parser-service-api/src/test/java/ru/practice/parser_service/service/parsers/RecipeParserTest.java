@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class RecipeParserTest {
 
-    static final String TEST_APPLICATION_YAML = "test-application.yaml";
+    private static final String TEST_APPLICATION_YAML = "test-application.yaml";
     @Mock
     private RecipeMapper mapper;
 

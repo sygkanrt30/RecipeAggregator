@@ -29,7 +29,9 @@ class PersonalAccountController {
     }
 
     @GetMapping
-    public List<RecipeDto> getFavorites(@AuthenticationPrincipal UserDetails user) {
-        return favoriteRecipeService.getFavorites(user.getUsername());
+    public List<RecipeDto> getFavorites(@AuthenticationPrincipal UserDetails user,
+                                        @RequestParam(defaultValue = "0") int page,
+                                        @RequestParam(defaultValue = "15") int size) {
+        return favoriteRecipeService.getFavorites(user.getUsername(), page, size);
     }
 }

@@ -49,11 +49,12 @@ public class FavoriteRecipeServiceImpl implements FavoriteRecipeService {
     }
 
     @Override
-    public List<RecipeDto> getFavorites(String username) {
+    public List<RecipeDto> getFavorites(String username, int page, int size) {
         List<FavoriteRecipe> favoriteRecipeIds = userInfoService.getUserByName(username).getFavoriteRecipes();
-        return recipeService.findAllByIds(favoriteRecipeIds.stream()
+        List<UUID> uuids = favoriteRecipeIds.stream()
                 .map(FavoriteRecipe::getId)
                 .map(FavoriteRecipeId::getRecipeId)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
+        return recipeService.findAllByIds(uuids, page, size);
     }
 }

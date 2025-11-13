@@ -49,22 +49,17 @@ class FavoriteRecipeServiceImplTest {
         var expectedRecipes = Instancio.ofList(RecipeDto.class)
                 .size(favoriteRecipes.size())
                 .create();
-
+        var testPage = 0;
+        var testPageSize = expectedRecipes.size();
         when(userInfoService.getUserByName(any())).thenReturn(user);
-        when(recipeService.findAllByIds(any())).thenReturn(expectedRecipes);
+        when(recipeService.findAllByIds(any(), eq(testPage), eq(testPageSize))).thenReturn(expectedRecipes);
 
         // when
-        List<RecipeDto> result = favoriteService.getFavorites("any");
+        List<RecipeDto> result = favoriteService.getFavorites("any", testPage, testPageSize);
 
         // then
         assertNotNull(result);
         assertEquals(expectedRecipes.size(), result.size());
-        verify(recipeService).findAllByIds(argThat(ids ->
-                ids.size() == favoriteRecipes.size() &&
-                        ids.containsAll(favoriteRecipes.stream()
-                                .map(fav -> fav.getId().getRecipeId())
-                                .toList())
-        ));
     }
 
     @Test

@@ -15,5 +15,5 @@ public interface RecipeService {
 
     void saveAllWithBatches(List<RecipeDoc> recipes);
 
-    List<RecipeDto> findAllByIds(List<UUID> recipeIds);
+    List<RecipeDto> findAllByIds(List<UUID> recipeIds, int page, int size);
 }

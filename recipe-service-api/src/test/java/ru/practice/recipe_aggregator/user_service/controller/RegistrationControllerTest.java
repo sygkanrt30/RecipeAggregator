@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practice.recipe_aggregator.user_service.exception.RegistrationException;
 import ru.practice.recipe_aggregator.user_service.service.SaveUserService;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -21,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(RegistrationController.class)
 class RegistrationControllerTest {
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -62,7 +64,7 @@ class RegistrationControllerTest {
         var email = "test@example.com";
         var errorMessage = "User already exists";
 
-        doThrow(new RuntimeException(errorMessage))
+        doThrow(new RegistrationException(errorMessage))
                 .when(userService).save(anyString(), anyString(), anyString());
 
         mockMvc.perform(post("/api/v1/auth/reg")
@@ -75,8 +77,8 @@ class RegistrationControllerTest {
                                 }
                                 """.formatted(username, password, email))
                         .with(csrf()))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Registration failed: " + errorMessage));
+                .andExpect(status().isConflict())
+                .andExpect(content().string(errorMessage));
 
         verify(authenticator, never()).authenticateAndSetCookie(any(), any(), any(), any());
     }

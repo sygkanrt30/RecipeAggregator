@@ -11,5 +11,5 @@ public interface FavoriteRecipeService {
 
     void removeFromFavorites(String username, String recipeName);
 
-    List<RecipeDto> getFavorites(String username);
+    List<RecipeDto> getFavorites(String username, int page, int size);
 }

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import ru.practice.recipe_aggregator.user_service.exception.RegistrationException;
 import ru.practice.recipe_aggregator.user_service.model.Role;
 import ru.practice.recipe_aggregator.user_service.model.User;
 import ru.practice.recipe_aggregator.user_service.repository.UserRepository;
@@ -33,7 +34,11 @@ public class UserService implements SaveUserService, GetUserInfoService {
                 .email(email)
                 .role(Role.USER)
                 .build();
-        userRepository.saveAndFlush(user);
+        try {
+            userRepository.saveAndFlush(user);
+        } catch (Exception e) {
+            throw new RegistrationException(e.getMessage(), e);
+        }
         log.info("Saved user: {}", user);
     }
 }
