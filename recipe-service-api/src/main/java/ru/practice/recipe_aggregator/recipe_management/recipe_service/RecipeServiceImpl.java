@@ -28,14 +28,14 @@ public class RecipeServiceImpl implements RecipeService {
     private static final int BATCHES_SIZE = 10;
     private final RecipeElasticRepository recipeRepository;
     private final ElasticsearchOperations elasticsearchOperations;
-    private final RecipeMapper mapper;
+    private final RecipeMapper recipeMapper;
 
     @Override
     public List<RecipeDto> findAllByIds(List<UUID> recipeIds, int page, int size) {
         log.debug("search all recipes which id in {} ", recipeIds.toString());
         Pageable pageable = PageRequest.of(page, size);
         return recipeRepository.findByIdIn(recipeIds, pageable).stream()
-                .map(mapper::toRecipeDto)
+                .map(recipeMapper::toRecipeDto)
                 .toList();
     }
 

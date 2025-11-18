@@ -8,20 +8,20 @@ import ru.practice.shared.dto.RecipeDto;
 
 import java.time.Duration;
 
-@Component("mapper")
+@Component
 @Mapper(componentModel = "spring")
 public interface RecipeMapper {
 
-    @Mapping(target = "minsForPreparing", expression = "java(minutesToDuration(recipe.getMinsForPreparing()))")
-    @Mapping(target = "minsForCooking", expression = "java(minutesToDuration(recipe.getMinsForCooking()))")
-    @Mapping(target = "additionalMins", expression = "java(minutesToDuration(recipe.getAdditionalMins()))")
-    @Mapping(target = "totalMins", expression = "java(minutesToDuration(recipe.getTotalMins()))")
+    @Mapping(target = "timeForPreparing", expression = "java(minutesToDuration(recipe.getMinsForPreparing()))")
+    @Mapping(target = "timeForCooking", expression = "java(minutesToDuration(recipe.getMinsForCooking()))")
+    @Mapping(target = "additionalTime", expression = "java(minutesToDuration(recipe.getAdditionalMins()))")
+    @Mapping(target = "totalTime", expression = "java(minutesToDuration(recipe.getTotalMins()))")
     RecipeDto toRecipeDto(RecipeDoc recipe);
 
-    @Mapping(target = "minsForPreparing", expression = "java(durationToMinutes(kafkaDto.minsForPreparing()))")
-    @Mapping(target = "minsForCooking", expression = "java(durationToMinutes(kafkaDto.minsForCooking()))")
-    @Mapping(target = "additionalMins", expression = "java(durationToMinutes(kafkaDto.additionalMins()))")
-    @Mapping(target = "totalMins", expression = "java(durationToMinutes(kafkaDto.totalMins()))")
+    @Mapping(target = "minsForPreparing", expression = "java(durationToMinutes(kafkaDto.timeForPreparing()))")
+    @Mapping(target = "minsForCooking", expression = "java(durationToMinutes(kafkaDto.timeForCooking()))")
+    @Mapping(target = "additionalMins", expression = "java(durationToMinutes(kafkaDto.additionalTime()))")
+    @Mapping(target = "totalMins", expression = "java(durationToMinutes(kafkaDto.totalTime()))")
     RecipeDoc fromRecipeDto(RecipeDto kafkaDto);
 
     default int durationToMinutes(Duration duration) {

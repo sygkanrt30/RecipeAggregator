@@ -10,9 +10,7 @@ public interface SearchService {
 
     List<RecipeDto> searchByName(String name);
 
-    List<RecipeDto> searchByNameWithFiltering(SearchContainer container);
-
-    List<RecipeDto> searchByIngredientsWithFiltering(SearchContainer container);
+    List<RecipeDto> searchWithFiltering(SearchContainer container);
 
     List<RecipeDto> searchByIngredients(Set<String> ingredientNames);
 }

@@ -51,9 +51,9 @@ class RegistrationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("Registration successful"));
 
-        verify(userService).save(username, password, email);
+        verify(userService).save(username, password.getBytes(), email);
         verify(authenticator).authenticateAndSetCookie(
-                any(HttpServletRequest.class), any(HttpServletResponse.class), eq(username), eq(password));
+                any(HttpServletRequest.class), any(HttpServletResponse.class), eq(username), eq(password.getBytes()));
     }
 
     @Test
@@ -65,7 +65,7 @@ class RegistrationControllerTest {
         var errorMessage = "User already exists";
 
         doThrow(new RegistrationException(errorMessage))
-                .when(userService).save(anyString(), anyString(), anyString());
+                .when(userService).save(anyString(), any(), anyString());
 
         mockMvc.perform(post("/api/v1/auth/reg")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -100,7 +100,7 @@ class RegistrationControllerTest {
                         .with(csrf()))
                 .andExpect(status().isBadRequest());
 
-        verify(userService, never()).save(anyString(), anyString(), anyString());
+        verify(userService, never()).save(anyString(), any(), anyString());
         verify(authenticator, never()).authenticateAndSetCookie(any(), any(), any(), any());
     }
 
@@ -121,7 +121,7 @@ class RegistrationControllerTest {
                         .with(csrf()))
                 .andExpect(status().isBadRequest());
 
-        verify(userService, never()).save(anyString(), anyString(), anyString());
+        verify(userService, never()).save(anyString(), any(), anyString());
         verify(authenticator, never()).authenticateAndSetCookie(any(), any(), any(), any());
     }
 
@@ -142,7 +142,7 @@ class RegistrationControllerTest {
                         .with(csrf()))
                 .andExpect(status().isBadRequest());
 
-        verify(userService, never()).save(anyString(), anyString(), anyString());
+        verify(userService, never()).save(anyString(), any(), anyString());
         verify(authenticator, never()).authenticateAndSetCookie(any(), any(), any(), any());
     }
 }

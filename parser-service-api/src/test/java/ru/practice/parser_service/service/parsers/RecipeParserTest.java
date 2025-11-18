@@ -121,7 +121,6 @@ class RecipeParserTest {
                 expectedDirection,
                 expectedDescription
         );
-
         when(mapper.toRecipeDto(
                 expectedName,
                 expectedPrepTime,
@@ -133,26 +132,26 @@ class RecipeParserTest {
                 expectedDirection,
                 expectedDescription
         )).thenReturn(expectedRecipeDto);
+        var expected = RecipeDto.builder()
+                .id(expectedId)
+                .name("test recipe")
+                .description("Test Description")
+                .direction("Test Directions")
+                .ingredients(expectedIngredients)
+                .servings(4)
+                .timeForPreparing(Duration.ofMinutes(30))
+                .timeForCooking(Duration.ofMinutes(60))
+                .additionalTime(Duration.ofMinutes(0))
+                .totalTime(Duration.ofMinutes(0))
+                .build();
 
-        // Act
         RecipeDto result = recipeParser.parseRecipePage(validDoc);
 
-        // Assert
-        assertNotNull(result);
-        assertEquals("test recipe", result.name());
-        assertEquals("Test Description", result.description());
-        assertEquals("Test Directions", result.direction());
-        assertEquals(expectedIngredients, result.ingredients());
-        assertEquals(4, result.servings());
-        assertEquals(Duration.ofMinutes(30), result.minsForPreparing());
-        assertEquals(Duration.ofMinutes(60), result.minsForCooking());
-        assertEquals(Duration.ofMinutes(0), result.additionalMins());
-        assertEquals(Duration.ofMinutes(0), result.totalMins());
+        assertEquals(expected, result);
     }
 
     @Test
     void parseRecipePage_shouldThrowExceptionWhenNameIsMissing() {
-        // Act & Assert
         assertThrows(NullPointerException.class, () -> recipeParser.parseRecipePage(missingNameDoc));
     }
 
@@ -199,10 +198,10 @@ class RecipeParserTest {
 
         // Assert
         assertNotNull(result);
-        assertEquals(Duration.ofMinutes(0), result.minsForPreparing());
-        assertEquals(Duration.ofMinutes(0), result.minsForCooking());
-        assertEquals(Duration.ofMinutes(0), result.additionalMins());
-        assertEquals(Duration.ofMinutes(0), result.totalMins());
+        assertEquals(Duration.ofMinutes(0), result.timeForPreparing());
+        assertEquals(Duration.ofMinutes(0), result.timeForCooking());
+        assertEquals(Duration.ofMinutes(0), result.additionalTime());
+        assertEquals(Duration.ofMinutes(0), result.totalTime());
     }
 
     @Test

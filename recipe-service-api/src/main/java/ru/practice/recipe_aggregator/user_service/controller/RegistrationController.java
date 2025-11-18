@@ -2,6 +2,7 @@ package ru.practice.recipe_aggregator.user_service.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practice.recipe_aggregator.user_service.model.dto.UserCredentials;
 import ru.practice.recipe_aggregator.user_service.service.SaveUserService;
 
-import javax.validation.Valid;
+
 
 @RestController
 @RequestMapping("api/v1/auth")
@@ -31,7 +32,7 @@ class RegistrationController {
             HttpServletResponse response,
             @RequestBody @Valid UserCredentials userCredentials) {
         var username = userCredentials.username();
-        var password = userCredentials.password();
+        var password = userCredentials.password().getBytes();
         userService.save(username, password, userCredentials.email());
         authenticator.authenticateAndSetCookie(request, response, username, password);
         return ResponseEntity.ok("Registration successful");

@@ -8,14 +8,14 @@ import org.springframework.stereotype.Repository;
 import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearch.RecipeDoc;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
 public interface RecipeElasticRepository extends ElasticsearchRepository<RecipeDoc, UUID> {
 
-    List<RecipeDoc> findByNameContaining(String namePart);
+    Set<RecipeDoc> findByNameContaining(String namePart);
 
     Optional<RecipeDoc> findByName(String name);
 
@@ -34,5 +34,5 @@ public interface RecipeElasticRepository extends ElasticsearchRepository<RecipeD
               }
             }
             """)
-    List<RecipeDoc> findByIngredientsContainingAny(Collection<String> ingredients);
+    Set<RecipeDoc> findByIngredientsContainingAny(Collection<String> ingredients);
 }

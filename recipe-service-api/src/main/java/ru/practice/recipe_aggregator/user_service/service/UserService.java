@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.practice.recipe_aggregator.user_service.exception.RegistrationException;
-import ru.practice.recipe_aggregator.user_service.model.Role;
+import ru.practice.recipe_aggregator.user_service.mapper.UserMapper;
 import ru.practice.recipe_aggregator.user_service.model.User;
 import ru.practice.recipe_aggregator.user_service.repository.UserRepository;
 
@@ -18,6 +18,7 @@ public class UserService implements SaveUserService, GetUserInfoService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     @Override
     public User getUserByName(String username) {
@@ -27,13 +28,8 @@ public class UserService implements SaveUserService, GetUserInfoService {
 
     @Override
     @Transactional
-    public void save(String username, String password, String email) {
-        var user = User.builder()
-                .username(username)
-                .password(passwordEncoder.encode(password))
-                .email(email)
-                .role(Role.USER)
-                .build();
+    public void save(String username, byte[] password, String email) {
+        var user = userMapper.fromCredentials(username, passwordEncoder.encode(new String(password)), email);
         try {
             userRepository.saveAndFlush(user);
         } catch (Exception e) {

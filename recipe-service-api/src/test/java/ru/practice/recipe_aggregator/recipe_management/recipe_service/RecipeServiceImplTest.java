@@ -34,7 +34,7 @@ class RecipeServiceImplTest {
     private ElasticsearchOperations elasticsearchOperations;
 
     @Mock
-    private RecipeMapper mapper;
+    private RecipeMapper recipeMapper;
 
     @InjectMocks
     private RecipeServiceImpl recipeService;
@@ -56,8 +56,8 @@ class RecipeServiceImplTest {
         var testPageSize = expectedRecipes.size();
         Pageable pageable = PageRequest.of(testNumberOfPage, testPageSize);
         when(recipeRepository.findByIdIn(recipeIds, pageable)).thenReturn(new PageImpl<>(returnedRecipes));
-        when(mapper.toRecipeDto(recipe1)).thenReturn(recipeDto1);
-        when(mapper.toRecipeDto(recipe2)).thenReturn(recipeDto2);
+        when(recipeMapper.toRecipeDto(recipe1)).thenReturn(recipeDto1);
+        when(recipeMapper.toRecipeDto(recipe2)).thenReturn(recipeDto2);
 
         var result = recipeService.findAllByIds(recipeIds, testNumberOfPage, testPageSize);
 

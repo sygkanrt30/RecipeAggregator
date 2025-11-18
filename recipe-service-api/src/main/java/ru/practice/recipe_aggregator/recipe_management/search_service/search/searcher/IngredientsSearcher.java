@@ -6,7 +6,7 @@ import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearc
 import ru.practice.recipe_aggregator.recipe_management.repository.RecipeElasticRepository;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -14,7 +14,7 @@ public class IngredientsSearcher {
 
     private final RecipeElasticRepository repository;
 
-    public List<RecipeDoc> search(Collection<String> ingredientNames) {
+    public Set<RecipeDoc> search(Collection<String> ingredientNames) {
         return repository.findByIngredientsContainingAny(ingredientNames);
     }
 }

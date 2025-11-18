@@ -8,24 +8,26 @@ import ru.practice.shared.dto.RecipeDto;
 import java.util.List;
 
 @Slf4j
-public class ServingsFilter implements Filter {
+public class TotalTimeFilter implements Filter {
 
     @Override
     public void filter(List<RecipeDto> recipes, SearchContainer searchContainer) {
-        FilterCondition filterCondition = searchContainer.servingsCondition();
+        FilterCondition filterCondition = searchContainer.totalTimeCondition();
         if (isInvalidCondition(filterCondition)) {
-            log.trace("Filter condition is null");
+            log.trace("Filter condition null or value <= 0");
             return;
         }
-        int servingsCondition = filterCondition.value();
-        recipes.removeIf(recipe ->
-                Filter.isSuitableForRemove(filterCondition, servingsCondition, recipe.servings())
-        );
+        long totalMinutes = filterCondition.value();
+        recipes.removeIf(recipe -> {
+            long totalTime = recipe.totalTime().toMinutes();
+            return Filter.isSuitableForRemove(filterCondition, totalMinutes, totalTime);
+        });
     }
 
     private boolean isInvalidCondition(final FilterCondition filterCondition) {
         return filterCondition == null || filterCondition.value() <= 0;
     }
+
 
     @Override
     public String getFilterName() {

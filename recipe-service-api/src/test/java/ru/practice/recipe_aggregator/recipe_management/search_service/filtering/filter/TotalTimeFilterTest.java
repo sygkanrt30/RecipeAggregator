@@ -7,7 +7,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.FilterCondition;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.FilterOperator;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
-import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.filter.ServingsFilter;
+import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.filter.TotalTimeFilter;
 import ru.practice.shared.dto.RecipeDto;
 
 import java.util.ArrayList;
@@ -16,21 +16,23 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ServingsFilterTest {
 
-    private ServingsFilter filter;
+class TotalTimeFilterTest {
+
+    private TotalTimeFilter filter;
     private List<RecipeDto> recipes;
 
     @BeforeEach
     void setUp() {
-        filter = new ServingsFilter();
-        recipes = RecipesForFilterTestFactory.createServingsRecipes();
+        filter = new TotalTimeFilter();
+        recipes = RecipesForFilterTestFactory.createTotalTimeRecipes();
     }
 
     @Test
-    void filter_WhenFilterConditionIsNull_ShouldDoNothing() {
+    void filter_WhenFilterConditionHasValueZero_ShouldDoNothing() {
+        var filterCondition = new FilterCondition("totalTime", FilterOperator.EQ, 0);
         var searchContainer = SearchContainer.builder()
-                .servingsCondition(null)
+                .totalTimeCondition(filterCondition)
                 .build();
         var recipesSizeBefore = recipes.size();
 
@@ -40,10 +42,9 @@ class ServingsFilterTest {
     }
 
     @Test
-    void filter_WhenFilterConditionHasValueZero_ShouldDoNothing() {
-        var filterCondition = new FilterCondition("servings", FilterOperator.EQ, 0);
+    void filter_WhenFilterConditionIsNull_ShouldDoNothing() {
         var searchContainer = SearchContainer.builder()
-                .servingsCondition(filterCondition)
+                .totalTimeCondition(null)
                 .build();
         var recipesSizeBefore = recipes.size();
 
@@ -54,9 +55,9 @@ class ServingsFilterTest {
 
     @Test
     void filter_WhenFilterConditionHasNegativeValue_ShouldDoNothing() {
-        var filterCondition = new FilterCondition("servings", FilterOperator.EQ, -5);
+        var filterCondition = new FilterCondition("totalTime", FilterOperator.EQ, -5);
         var searchContainer = SearchContainer.builder()
-                .servingsCondition(filterCondition)
+                .totalTimeCondition(filterCondition)
                 .build();
         var recipesSizeBefore = recipes.size();
 
@@ -67,23 +68,24 @@ class ServingsFilterTest {
 
     @Test
     void filter_WhenFilterOperationIsEQ_ShouldFilterRecipes() {
-        var filterCondition = new FilterCondition("servings", FilterOperator.EQ, 4);
+        var filterCondition = new FilterCondition("totalTime", FilterOperator.EQ, 45);
         var searchContainer = SearchContainer.builder()
-                .servingsCondition(filterCondition)
+                .totalTimeCondition(filterCondition)
                 .build();
         var recipesSizeBefore = 1;
 
         filter.filter(recipes, searchContainer);
 
         assertEquals(recipesSizeBefore, recipes.size());
+        assertEquals("Standard Dinner", recipes.getFirst().name());
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {1, 2, 6})
+    @ValueSource(ints = {12, 20, 180})
     void filter_WhenFilterOperationIsNEQ_ShouldFilterRecipes(int value) {
-        var filterCondition = new FilterCondition("servings", FilterOperator.NEQ, value);
+        var filterCondition = new FilterCondition("totalTime", FilterOperator.NEQ, value);
         var searchContainer = SearchContainer.builder()
-                .servingsCondition(filterCondition)
+                .totalTimeCondition(filterCondition)
                 .build();
         var recipesSizeBefore = 7;
 
@@ -94,12 +96,11 @@ class ServingsFilterTest {
 
     @Test
     void filter_WhenFilterOperationIsGT_ShouldFilterRecipes() {
-        var filterCondition = new FilterCondition("servings", FilterOperator.GT, 8);
+        var filterCondition = new FilterCondition("totalTime", FilterOperator.GT, 75);
         var searchContainer = SearchContainer.builder()
-                .servingsCondition(filterCondition)
+                .totalTimeCondition(filterCondition)
                 .build();
         var recipesSizeBefore = 2;
-
         filter.filter(recipes, searchContainer);
 
         assertEquals(recipesSizeBefore, recipes.size());
@@ -107,9 +108,9 @@ class ServingsFilterTest {
 
     @Test
     void filter_WhenFilterOperationIsLT_ShouldFilterRecipes() {
-        var filterCondition = new FilterCondition("servings", FilterOperator.LT, 4);
+        var filterCondition = new FilterCondition("totalTime", FilterOperator.LT, 20);
         var searchContainer = SearchContainer.builder()
-                .servingsCondition(filterCondition)
+                .totalTimeCondition(filterCondition)
                 .build();
         var recipesSizeBefore = 3;
 
@@ -120,9 +121,9 @@ class ServingsFilterTest {
 
     @Test
     void filter_WhenFilterOperationIsGTE_ShouldFilterRecipes() {
-        var filterCondition = new FilterCondition("servings", FilterOperator.GTE, 8);
+        var filterCondition = new FilterCondition("totalTime", FilterOperator.GTE, 75);
         var searchContainer = SearchContainer.builder()
-                .servingsCondition(filterCondition)
+                .totalTimeCondition(filterCondition)
                 .build();
         var recipesSizeBefore = 3;
 
@@ -133,9 +134,9 @@ class ServingsFilterTest {
 
     @Test
     void filter_WhenFilterOperationIsLTE_ShouldFilterRecipes() {
-        var filterCondition = new FilterCondition("servings", FilterOperator.LTE, 2);
+        var filterCondition = new FilterCondition("totalTime", FilterOperator.LTE, 12);
         var searchContainer = SearchContainer.builder()
-                .servingsCondition(filterCondition)
+                .totalTimeCondition(filterCondition)
                 .build();
         var recipesSizeBefore = 3;
 
@@ -147,9 +148,9 @@ class ServingsFilterTest {
     @Test
     void filter_WhenEmptyRecipeList_ShouldDoNothing() {
         var emptyRecipes = new ArrayList<RecipeDto>();
-        var filterCondition = new FilterCondition("servings", FilterOperator.EQ, 4);
+        var filterCondition = new FilterCondition("totalTime", FilterOperator.EQ, 45);
         var searchContainer = SearchContainer.builder()
-                .servingsCondition(filterCondition)
+                .totalTimeCondition(filterCondition)
                 .build();
 
         filter.filter(emptyRecipes, searchContainer);
@@ -159,9 +160,9 @@ class ServingsFilterTest {
 
     @Test
     void filter_WhenAllRecipesMatchCondition_ShouldReturnAll() {
-        var filterCondition = new FilterCondition("servings", FilterOperator.GT, 0);
+        var filterCondition = new FilterCondition("totalTime", FilterOperator.GT, 0);
         var searchContainer = SearchContainer.builder()
-                .servingsCondition(filterCondition)
+                .totalTimeCondition(filterCondition)
                 .build();
         var recipesSizeBefore = recipes.size();
 
@@ -172,9 +173,9 @@ class ServingsFilterTest {
 
     @Test
     void filter_WhenNoRecipesMatchCondition_ShouldReturnEmptyList() {
-        var filterCondition = new FilterCondition("servings", FilterOperator.GT, 50);
+        var filterCondition = new FilterCondition("totalTime", FilterOperator.GT, 500);
         var searchContainer = SearchContainer.builder()
-                .servingsCondition(filterCondition)
+                .totalTimeCondition(filterCondition)
                 .build();
 
         filter.filter(recipes, searchContainer);
@@ -183,35 +184,37 @@ class ServingsFilterTest {
     }
 
     @Test
-    void filter_WhenZeroServingsRecipes_ShouldBeFilteredOut() {
-        var filterCondition = new FilterCondition("servings", FilterOperator.GT, 0);
+    void filter_WhenEdgeCasesOperationIsLTE_ShouldFilterRecipes() {
+        var edgeRecipes = RecipesForFilterTestFactory.createEdgeCasesRecipes();
+        var filterCondition = new FilterCondition("totalTime", FilterOperator.LTE, 100);
         var searchContainer = SearchContainer.builder()
-                .servingsCondition(filterCondition)
+                .totalTimeCondition(filterCondition)
                 .build();
+        var recipesSizeBefore = 2;
 
-        filter.filter(recipes, searchContainer);
+        filter.filter(edgeRecipes, searchContainer);
 
-        assertTrue(recipes.stream().anyMatch(recipe -> recipe.servings() == 0));
+        assertEquals(recipesSizeBefore, edgeRecipes.size());
     }
 
     @Test
     void filter_WhenMultipleOperations_ShouldWorkCorrectly() {
         var recipesCopy = new ArrayList<>(recipes);
 
-        var filterCondition1 = new FilterCondition("servings", FilterOperator.GT, 4);
+        var filterCondition1 = new FilterCondition("totalTime", FilterOperator.GT, 50);
         var searchContainer1 = SearchContainer.builder()
-                .servingsCondition(filterCondition1)
+                .totalTimeCondition(filterCondition1)
                 .build();
 
         filter.filter(recipesCopy, searchContainer1);
-        assertEquals(4, recipesCopy.size());
+        assertEquals(3, recipesCopy.size());
 
-        var filterCondition2 = new FilterCondition("servings", FilterOperator.LTE, 12);
+        var filterCondition2 = new FilterCondition("totalTime", FilterOperator.LTE, 180);
         var searchContainer2 = SearchContainer.builder()
-                .servingsCondition(filterCondition2)
+                .totalTimeCondition(filterCondition2)
                 .build();
 
         filter.filter(recipesCopy, searchContainer2);
-        assertEquals(3, recipesCopy.size());
+        assertEquals(2, recipesCopy.size());
     }
 }

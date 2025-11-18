@@ -21,7 +21,7 @@ final class Authenticator {
     private final AuthenticationManager authenticationManager;
 
     public void authenticateAndSetCookie(HttpServletRequest request, HttpServletResponse response,
-                                         String username, String password) {
+                                         String username, byte[] password) {
         log.trace("trying to authenticate user with username ({}) after registration", username);
         try {
             var authentication = authenticationManager.authenticate(

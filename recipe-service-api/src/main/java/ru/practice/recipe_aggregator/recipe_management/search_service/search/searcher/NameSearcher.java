@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearch.RecipeDoc;
 import ru.practice.recipe_aggregator.recipe_management.repository.RecipeElasticRepository;
 
-import java.util.List;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -13,7 +13,7 @@ public class NameSearcher {
 
     private final RecipeElasticRepository repository;
 
-    public List<RecipeDoc> search(String name) {
+    public Set<RecipeDoc> search(String name) {
         return repository.findByNameContaining(name);
     }
 }
