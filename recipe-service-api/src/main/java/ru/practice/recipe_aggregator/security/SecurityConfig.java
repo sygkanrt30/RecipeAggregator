@@ -3,9 +3,11 @@ package ru.practice.recipe_aggregator.security;
 import com.nimbusds.jose.crypto.DirectDecrypter;
 import com.nimbusds.jose.crypto.DirectEncrypter;
 import com.nimbusds.jose.jwk.OctetSequenceKey;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
@@ -18,34 +20,70 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import ru.practice.recipe_aggregator.user_service.repository.UserRepository;
 import ru.practice.recipe_aggregator.user_service.token.TokenCookieJweStringDeserializer;
 import ru.practice.recipe_aggregator.user_service.token.TokenCookieJweStringSerializer;
 
+import java.util.List;
+import java.util.Objects;
+
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
+    private static final long MAX_AGE = 3600L;
+    private final Environment env;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
             TokenCookieSessionAuthenticationStrategy tokenCookieSessionAuthenticationStrategy,
             TokenCookieAuthenticationConfigurer tokenCookieAuthenticationConfigurer) throws Exception {
-        return http.httpBasic(Customizer.withDefaults())
+        String regUrl = Objects.requireNonNull(env.getProperty("spring.backend.url.reg"));
+        String loginUrl = Objects.requireNonNull(env.getProperty("spring.backend.url.login"));
+        var loginPostfix = loginUrl.substring(loginUrl.lastIndexOf('/'));
+        return http
                 .with(tokenCookieAuthenticationConfigurer, Customizer.withDefaults())
-                .csrf(csrf -> csrf.csrfTokenRepository(new CookieCsrfTokenRepository())
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                         .sessionAuthenticationStrategy((authentication, request, response) -> {
                         }))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .addFilterAfter(new GetCsrfTokenFilter(), ExceptionTranslationFilter.class)
                 .authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests
-                                .requestMatchers("/login").permitAll()
-                                .requestMatchers("/auth/reg").not().fullyAuthenticated()
+                                .requestMatchers(loginPostfix).permitAll()
+                                .requestMatchers(regUrl).not().fullyAuthenticated()
                                 .anyRequest().authenticated())
+                .formLogin(form -> form
+                        .loginPage(loginPostfix)
+                        .loginProcessingUrl(loginUrl)
+                        .permitAll())
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                         .sessionAuthenticationStrategy(tokenCookieSessionAuthenticationStrategy))
                 .build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        String frontendBaseUrl = Objects.requireNonNull(env.getProperty("spring.frontend.base.url"));
+        String csrfTokenHeaderName = Objects.requireNonNull(env.getProperty("csrf.token.header-name"));
+        var config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of(frontendBaseUrl));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of(csrfTokenHeaderName));
+        config.setAllowCredentials(true);
+        config.setMaxAge(MAX_AGE);
+
+        var source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 
     @Bean

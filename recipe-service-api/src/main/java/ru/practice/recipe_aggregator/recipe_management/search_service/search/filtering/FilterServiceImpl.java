@@ -29,7 +29,7 @@ public class FilterServiceImpl implements FilterService {
             int currentSize = recipes.size();
             log.trace("list current size: {}", currentSize);
 
-            size -= currentSize;
+            size -= (size - currentSize);
             log.debug("filter {} removed {} recipes from list", filter.getFilterName(), size);
         }
         log.info("Recipes filtration was successful");

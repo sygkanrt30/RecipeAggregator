@@ -3,6 +3,8 @@ version: '3.8'
 services:
   kafka:
     image: apache/kafka:3.7.0
+    hostname: kafka
+    container_name: kafka
     ports:
       - "9092:9092"
       - "9093:9093"
@@ -11,7 +13,7 @@ services:
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
@@ -139,6 +141,19 @@ services:
       start_period: 30s
     networks:
       - general-network
+
+  frontend:
+    container_name: recipe-aggregator-frontend
+    restart: always
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    depends_on:
+      - recipe-service
+    environment:
+      - REACT_APP_API_URL=http://recipe-service:8082
 
 networks:
   db-network:

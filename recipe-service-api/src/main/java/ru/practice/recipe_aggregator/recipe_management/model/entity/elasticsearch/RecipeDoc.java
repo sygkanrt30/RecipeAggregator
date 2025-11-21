@@ -24,10 +24,10 @@ public class RecipeDoc {
     @Field(type = FieldType.Text)
     private String name;
 
-    @Field(type = FieldType.Integer)
+    @Field(type = FieldType.Integer, name = "mins4Prep")
     private int minsForPreparing;
 
-    @Field(type = FieldType.Integer)
+    @Field(type = FieldType.Integer, name = "mins4Cook")
     private int minsForCooking;
 
     @Field(type = FieldType.Integer)

@@ -1,8 +1,18 @@
 spring:
   application:
     name: recipe-aggregator
+  frontend:
+    base:
+      url: http://localhost:3002
+  backend:
+    url:
+      reg: api/v1/auth/reg
+      login: api/v1/login
   kafka:
     bootstrap-servers: kafka:9092
+    consumer:
+      properties:
+        security.protocol: PLAINTEXT
   datasource:
     url: jdbc:postgresql://localhost:5435/recipe_service
     username: postgres
@@ -51,6 +61,10 @@ elasticsearch:
 
 jwt:
   cookie-token-key: '{"kty":"oct","k":"956PBFst1FguLr5irJD-aQ"}'
+
+csrf:
+  token:
+    header-name: X-CSRF-TOKEN
 
 logging:
   file:

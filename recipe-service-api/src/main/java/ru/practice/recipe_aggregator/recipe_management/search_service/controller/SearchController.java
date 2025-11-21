@@ -1,6 +1,7 @@
 package ru.practice.recipe_aggregator.recipe_management.search_service.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class SearchController {
     private final RequestMapper requestMapper;
 
     @GetMapping("/name/{name}")
-    public List<RecipeDto> searchByName(@PathVariable @Valid @NotEmpty String name) {
+    public List<RecipeDto> searchByName(@PathVariable @Valid @NotBlank String name) {
         return searchService.searchByName(name);
     }
 

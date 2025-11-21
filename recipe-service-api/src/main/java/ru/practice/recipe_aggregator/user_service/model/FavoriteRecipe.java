@@ -19,7 +19,13 @@ public class FavoriteRecipe {
     private FavoriteRecipeId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_favorite_recipe_user"))
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_favorite_recipe_user"),
+            insertable = false,
+            updatable = false
+    )
     @ToString.Exclude
     private User user;
 
@@ -36,6 +42,6 @@ public class FavoriteRecipe {
 
     @Override
     public final int hashCode() {
-        return Objects.hash(id);
+        return this instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

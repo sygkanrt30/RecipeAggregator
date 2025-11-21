@@ -25,7 +25,7 @@ final class Authenticator {
         log.trace("trying to authenticate user with username ({}) after registration", username);
         try {
             var authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(username, password)
+                    new UsernamePasswordAuthenticationToken(username, new String(password))
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
             tokenCookieSessionAuthenticationStrategy.onAuthentication(authentication, request, response);
