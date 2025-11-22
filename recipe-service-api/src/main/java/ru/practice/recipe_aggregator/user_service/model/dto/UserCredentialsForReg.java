@@ -3,7 +3,7 @@ package ru.practice.recipe_aggregator.user_service.model.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
-public record UserCredentials(
+public record UserCredentialsForReg(
         @Pattern(regexp = "^[A-Za-zА-Яа-яЁё][A-Za-zА-Яа-яЁё0-9_]{0,24}$",
                 message = "Incorrect username")
         @NotBlank

@@ -13,6 +13,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,9 +43,8 @@ public class SecurityConfig {
             HttpSecurity http,
             TokenCookieSessionAuthenticationStrategy tokenCookieSessionAuthenticationStrategy,
             TokenCookieAuthenticationConfigurer tokenCookieAuthenticationConfigurer) throws Exception {
-        String regUrl = Objects.requireNonNull(env.getProperty("spring.backend.url.reg"));
-        String loginUrl = Objects.requireNonNull(env.getProperty("spring.backend.url.login"));
-        var loginPostfix = loginUrl.substring(loginUrl.lastIndexOf('/'));
+
+        String authUrl = Objects.requireNonNull(env.getProperty("spring.backend.url.auth"));
         return http
                 .with(tokenCookieAuthenticationConfigurer, Customizer.withDefaults())
                 .csrf(csrf -> csrf
@@ -56,13 +56,10 @@ public class SecurityConfig {
                 .addFilterAfter(new GetCsrfTokenFilter(), ExceptionTranslationFilter.class)
                 .authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests
-                                .requestMatchers(loginPostfix).permitAll()
-                                .requestMatchers(regUrl).not().fullyAuthenticated()
+                                .requestMatchers(authUrl).permitAll()
                                 .anyRequest().authenticated())
-                .formLogin(form -> form
-                        .loginPage(loginPostfix)
-                        .loginProcessingUrl(loginUrl)
-                        .permitAll())
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                         .sessionAuthenticationStrategy(tokenCookieSessionAuthenticationStrategy))

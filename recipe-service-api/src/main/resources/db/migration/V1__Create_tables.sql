@@ -19,7 +19,7 @@ CREATE TABLE favorite_recipe (
 );
 
 CREATE TABLE deactivated_token (
-     id BIGINT PRIMARY KEY,
+     id UUID PRIMARY KEY,
      keep_until TIMESTAMP NOT NULL CHECK (keep_until > NOW())
 );
 

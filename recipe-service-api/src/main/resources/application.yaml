@@ -6,8 +6,7 @@ spring:
       url: http://localhost:3002
   backend:
     url:
-      reg: api/v1/auth/reg
-      login: api/v1/login
+      auth: api/v1/auth/**
   kafka:
     bootstrap-servers: kafka:9092
     consumer:

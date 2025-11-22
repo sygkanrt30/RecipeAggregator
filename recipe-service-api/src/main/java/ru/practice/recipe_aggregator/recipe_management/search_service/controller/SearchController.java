@@ -25,12 +25,12 @@ public class SearchController {
         return searchService.searchByName(name);
     }
 
-    @GetMapping("/ingredients")
+    @PostMapping("/ingredients")
     public List<RecipeDto> searchByIngredients(@RequestBody @Valid @NotEmpty Set<String> ingredientNames) {
         return searchService.searchByIngredients(ingredientNames);
     }
 
-    @GetMapping("/with-filtering")
+    @PostMapping("/with-filtering")
     public List<RecipeDto> searchByIngredientsWithFiltering(@RequestBody SearchRequest request) {
         var container = requestMapper.toSearchContainer(request);
         return searchService.searchWithFiltering(container);

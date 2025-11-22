@@ -1,0 +1,433 @@
+import React, {useState} from 'react';
+import './MainPage.css';
+import {useNavigate} from 'react-router-dom';
+import {useAuth} from '../security/AuthContext';
+import {getCsrfToken} from '../utils/CsrfUtils';
+import {formatDuration, formatIngredient} from "../utils/RecipeFormatUtils";
+
+const MainPage = () => {
+    const [searchType, setSearchType] = useState('name');
+    const [name, setName] = useState('');
+    const [ingredients, setIngredients] = useState('');
+    const [searchRequest, setSearchRequest] = useState({
+        name: '',
+        ingredientNames: new Set(),
+        cookingTime: 0,
+        cookingTimeOperator: 'EQ',
+        totalTime: 0,
+        totalTimeOperator: 'EQ',
+        preparationTime: 0,
+        preparationTimeOperator: 'EQ',
+        servings: 0,
+        servingsOperator: 'EQ'
+    });
+    const [recipes, setRecipes] = useState([]);
+    const [message, setMessage] = useState('');
+    const navigate = useNavigate();
+    const {username, logout} = useAuth();
+
+    const LOGOUT_URL = 'http://localhost:8082/logout';
+    const SEARCH_BY_NAME_URL = 'http://localhost:8082/api/v1/search/name';
+    const SEARCH_BY_INGREDIENTS_URL = 'http://localhost:8082/api/v1/search/ingredients';
+    const SEARCH_WITH_FILTERING_URL = 'http://localhost:8082/api/v1/search/with-filtering';
+    const ADD_TO_FAVORITES_URL = 'http://localhost:8082/api/v1/account/favorite';
+
+    const handleLogout = async () => {
+        try {
+            const csrfToken = await getCsrfToken();
+            await fetch(LOGOUT_URL, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'X-XSRF-TOKEN': csrfToken.token
+                }
+            });
+            logout();
+            navigate('/login');
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    };
+
+    const handleSearch = async (e) => {
+        e.preventDefault();
+        setMessage('');
+        setRecipes([]);
+
+        try {
+            const csrfToken = await getCsrfToken();
+
+            let url = '';
+            let options = {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-XSRF-TOKEN': csrfToken.token
+                }
+            };
+
+            switch (searchType) {
+                case 'name':
+                    url = `${SEARCH_BY_NAME_URL}/${encodeURIComponent(name)}`;
+                    break;
+                case 'ingredients':
+                    const ingredientSet = new Set(ingredients.split(',').map(i => i.trim()).filter(i => i));
+                    url = SEARCH_BY_INGREDIENTS_URL;
+                    options.method = 'POST';
+                    options.body = JSON.stringify(Array.from(ingredientSet));
+                    break;
+                case 'filtering':
+                    const request = {
+                        ...searchRequest,
+                        ingredientNames: Array.from(searchRequest.ingredientNames)
+                    };
+                    url = SEARCH_WITH_FILTERING_URL;
+                    options.method = 'POST';
+                    options.body = JSON.stringify(request);
+                    break;
+                default:
+                    return;
+            }
+
+            const response = await fetch(url, options);
+
+            if (response.ok) {
+                const result = await response.json();
+                setRecipes(result);
+                if (result.length === 0) {
+                    setMessage('Recipes not found');
+                }
+            } else {
+                setMessage('Error searching recipes');
+            }
+        } catch (error) {
+            setMessage('Network error: ' + error.message);
+        }
+    };
+
+    const handleIngredientChange = (e) => {
+        const ingredientsArray = e.target.value.split(',').map(i => i.trim()).filter(i => i);
+        setSearchRequest(prev => ({
+            ...prev,
+            ingredientNames: new Set(ingredientsArray)
+        }));
+    };
+
+    const handleFavorites = () => {
+        navigate("/favorites");
+    };
+
+    const handleAddToFavorites = async (recipeName) => {
+        try {
+            const csrfToken = await getCsrfToken();
+
+            const response = await fetch(`${ADD_TO_FAVORITES_URL}?recipe_name=${encodeURIComponent(recipeName)}`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'X-XSRF-TOKEN': csrfToken.token
+                }
+            });
+
+            if (response.ok) {
+                setMessage(`Recipe "${recipeName}" added to favorites!`);
+            } else {
+                setMessage('Error adding recipe to favorites');
+            }
+        } catch (error) {
+            setMessage('Network error: ' + error.message);
+        }
+    };
+
+    return (
+        <div className="main-container">
+            <div className="header">
+                <h1>Recipe Aggregator</h1>
+                <div className="user-panel">
+                    <span className="username">Welcome, {username}!</span>
+                    <button className="button-favorites" onClick={handleFavorites}>
+                        Favorites
+                    </button>
+                    <button className="button-logout" onClick={handleLogout}>
+                        Logout
+                    </button>
+                </div>
+            </div>
+
+            <div className="search-container">
+                <h2>Search Recipes</h2>
+
+                <div className="search-type-selector">
+                    <button
+                        className={`type-button ${searchType === 'name' ? 'active' : ''}`}
+                        onClick={() => setSearchType('name')}
+                    >
+                        By Name
+                    </button>
+                    <button
+                        className={`type-button ${searchType === 'ingredients' ? 'active' : ''}`}
+                        onClick={() => setSearchType('ingredients')}
+                    >
+                        By Ingredients
+                    </button>
+                    <button
+                        className={`type-button ${searchType === 'filtering' ? 'active' : ''}`}
+                        onClick={() => setSearchType('filtering')}
+                    >
+                        Advanced Search
+                    </button>
+                </div>
+
+                <form onSubmit={handleSearch} className="search-form">
+                    {searchType === 'name' && (
+                        <div className="form-group">
+                            <label>Recipe name:</label>
+                            <input
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="Enter recipe name in English"
+                                required
+                            />
+                        </div>
+                    )}
+
+                    {searchType === 'ingredients' && (
+                        <div className="form-group">
+                            <label>Ingredients (comma separated):</label>
+                            <input
+                                type="text"
+                                value={ingredients}
+                                onChange={(e) => setIngredients(e.target.value)}
+                                placeholder="eggs, flour, sugar"
+                                required
+                            />
+                        </div>
+                    )}
+
+                    {searchType === 'filtering' && (
+                        <div className="filter-form">
+                            <div className="form-group">
+                                <label>Name:</label>
+                                <input
+                                    type="text"
+                                    value={searchRequest.name}
+                                    onChange={(e) => setSearchRequest(prev => ({...prev, name: e.target.value}))}
+                                    placeholder="Recipe name in English"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Ingredients (comma separated):</label>
+                                <input
+                                    type="text"
+                                    onChange={handleIngredientChange}
+                                    placeholder="eggs, flour, sugar"
+                                />
+                            </div>
+
+                            <div className="filter-row">
+                                <div className="filter-group">
+                                    <label>Cooking time:</label>
+                                    <div className="filter-controls">
+                                        <select
+                                            value={searchRequest.cookingTimeOperator}
+                                            onChange={(e) => setSearchRequest(prev => ({
+                                                ...prev,
+                                                cookingTimeOperator: e.target.value
+                                            }))}
+                                        >
+                                            <option value="EQ">=</option>
+                                            <option value="NEQ">≠</option>
+                                            <option value="GT">{">"}</option>
+                                            <option value="LT">{"<"}</option>
+                                            <option value="GTE">≥</option>
+                                            <option value="LTE">≤</option>
+                                        </select>
+                                        <input
+                                            type="number"
+                                            value={searchRequest.cookingTime}
+                                            onChange={(e) => setSearchRequest(prev => ({
+                                                ...prev,
+                                                cookingTime: parseInt(e.target.value) || 0
+                                            }))}
+                                            placeholder="Minutes"
+                                            className="small-input"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="filter-group">
+                                    <label>Total time:</label>
+                                    <div className="filter-controls">
+                                        <select
+                                            value={searchRequest.totalTimeOperator}
+                                            onChange={(e) => setSearchRequest(prev => ({
+                                                ...prev,
+                                                totalTimeOperator: e.target.value
+                                            }))}
+                                        >
+                                            <option value="EQ">=</option>
+                                            <option value="NEQ">≠</option>
+                                            <option value="GT">{">"}</option>
+                                            <option value="LT">{"<"}</option>
+                                            <option value="GTE">≥</option>
+                                            <option value="LTE">≤</option>
+                                        </select>
+                                        <input
+                                            type="number"
+                                            value={searchRequest.totalTime}
+                                            onChange={(e) => setSearchRequest(prev => ({
+                                                ...prev,
+                                                totalTime: parseInt(e.target.value) || 0
+                                            }))}
+                                            placeholder="Minutes"
+                                            className="small-input"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="filter-row">
+                                <div className="filter-group">
+                                    <label>Preparation time:</label>
+                                    <div className="filter-controls">
+                                        <select
+                                            value={searchRequest.preparationTimeOperator}
+                                            onChange={(e) => setSearchRequest(prev => ({
+                                                ...prev,
+                                                preparationTimeOperator: e.target.value
+                                            }))}
+                                        >
+                                            <option value="EQ">=</option>
+                                            <option value="NEQ">≠</option>
+                                            <option value="GT">{">"}</option>
+                                            <option value="LT">{"<"}</option>
+                                            <option value="GTE">≥</option>
+                                            <option value="LTE">≤</option>
+                                        </select>
+                                        <input
+                                            type="number"
+                                            value={searchRequest.preparationTime}
+                                            onChange={(e) => setSearchRequest(prev => ({
+                                                ...prev,
+                                                preparationTime: parseInt(e.target.value) || 0
+                                            }))}
+                                            placeholder="Minutes"
+                                            className="small-input"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="filter-group">
+                                    <label>Servings:</label>
+                                    <div className="filter-controls">
+                                        <select
+                                            value={searchRequest.servingsOperator}
+                                            onChange={(e) => setSearchRequest(prev => ({
+                                                ...prev,
+                                                servingsOperator: e.target.value
+                                            }))}
+                                        >
+                                            <option value="EQ">=</option>
+                                            <option value="NEQ">≠</option>
+                                            <option value="GT">{">"}</option>
+                                            <option value="LT">{"<"}</option>
+                                            <option value="GTE">≥</option>
+                                            <option value="LTE">≤</option>
+                                        </select>
+                                        <input
+                                            type="number"
+                                            value={searchRequest.servings}
+                                            onChange={(e) => setSearchRequest(prev => ({
+                                                ...prev,
+                                                servings: parseInt(e.target.value) || 0
+                                            }))}
+                                            placeholder="Count"
+                                            className="small-input"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <button type="submit" className="button-search">Search Recipes</button>
+                </form>
+
+                {message && <p className="message">{message}</p>}
+            </div>
+
+            {recipes.length > 0 && (
+                <div className="results-container">
+                    <h3>Found recipes: {recipes.length}</h3>
+                    <div className="recipes-grid">
+                        {recipes.map((recipe) => (
+                            <div key={recipe.id} className="recipe-card">
+                                <div className="recipe-header">
+                                    <h4>{recipe.name}</h4>
+                                    <button
+                                        className="button-add-favorite"
+                                        onClick={() => handleAddToFavorites(recipe.name)}
+                                    >
+                                        Add to Favorites
+                                    </button>
+                                </div>
+
+                                {recipe.description && (
+                                    <p className="recipe-description">{recipe.description}</p>
+                                )}
+
+                                <div className="recipe-times">
+                                    <div className="time-item">
+                                        <span className="time-label">Preparation:</span>
+                                        <span className="time-value">{formatDuration(recipe.timeForPreparing)}</span>
+                                    </div>
+                                    <div className="time-item">
+                                        <span className="time-label">Cooking:</span>
+                                        <span className="time-value">{formatDuration(recipe.timeForCooking)}</span>
+                                    </div>
+                                    <div className="time-item">
+                                        <span className="time-label">Additional:</span>
+                                        <span className="time-value">{formatDuration(recipe.additionalTime)}</span>
+                                    </div>
+                                    <div className="time-item total">
+                                        <span className="time-label">Total time:</span>
+                                        <span className="time-value">{formatDuration(recipe.totalTime)}</span>
+                                    </div>
+                                </div>
+
+                                {recipe.servings > 0 && (
+                                    <div className="recipe-servings">
+                                        <strong>Servings:</strong> {recipe.servings}
+                                    </div>
+                                )}
+
+                                {recipe.ingredients && recipe.ingredients.length > 0 && (
+                                    <div className="recipe-ingredients">
+                                        <strong>Ingredients:</strong>
+                                        <ul>
+                                            {recipe.ingredients.map((ingredient, index) => (
+                                                <li key={index}>{formatIngredient(ingredient)}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                {recipe.direction && (
+                                    <div className="recipe-direction">
+                                        <strong>Directions:</strong>
+                                        <p>{recipe.direction}</p>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default MainPage;
