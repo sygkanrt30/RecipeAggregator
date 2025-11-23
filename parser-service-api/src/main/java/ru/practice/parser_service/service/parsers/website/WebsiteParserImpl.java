@@ -6,6 +6,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
 import ru.practice.parser_service.config.RecipeParserConfig;
+import ru.practice.parser_service.service.cache.Cache;
+import ru.practice.parser_service.service.cache.RecipeCache;
+import ru.practice.parser_service.service.cache.UrlCache;
 import ru.practice.parser_service.service.exception.ParserException;
 import ru.practice.parser_service.service.parsers.enums.InvalidRequestPrefix;
 import ru.practice.parser_service.service.parsers.enums.ValidHtmlTag;
@@ -15,9 +18,7 @@ import ru.practice.shared.dto.RecipeDto;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Component
 @Slf4j
@@ -26,9 +27,9 @@ public class WebsiteParserImpl implements WebsiteParser {
 
     private final RecipeParserConfig parserConfig;
     private final RecipeParser recipeParser;
-    private final Set<String> visitedUrls = new HashSet<>();
-    private final Set<String> parsedRecipeUrls = new HashSet<>();
-    private final List<RecipeDto> allRecipes = new ArrayList<>();
+    private final Cache<String> visitedUrlsCache = new UrlCache();
+    private final Cache<String> parsedRecipeUrlsCache = new UrlCache();
+    private final Cache<RecipeDto> recipeCache = new RecipeCache();
 
     @Override
     public List<RecipeDto> parse(String url) {
@@ -38,7 +39,7 @@ public class WebsiteParserImpl implements WebsiteParser {
         parseWebsiteRecursive(url, 0, newRecipes);
         long duration = System.currentTimeMillis() - startTime;
         log.info("Parsing completed in {} ms. {} new recipes found", duration, newRecipes.size());
-        allRecipes.addAll(newRecipes);
+        recipeCache.putAll(newRecipes);
         return newRecipes;
     }
 
@@ -46,7 +47,6 @@ public class WebsiteParserImpl implements WebsiteParser {
         if (shouldStopParsing(url, depth, newRecipes)) {
             return;
         }
-        visitedUrls.add(url);
         try {
             var doc = getDocument(url);
             log.debug("URL processing (depth {}): {}", depth, url);
@@ -69,7 +69,7 @@ public class WebsiteParserImpl implements WebsiteParser {
             log.debug("Maximum depth {} for URL exceeded: {}", parserConfig.maxDepth(), url);
             return true;
         }
-        if (visitedUrls.contains(url)) {
+        if (visitedUrlsCache.contains(url)) {
             log.debug("URL is already visited: {}", url);
             return true;
         }
@@ -78,16 +78,11 @@ public class WebsiteParserImpl implements WebsiteParser {
 
     private void processRecipePage(String url, Document doc, List<RecipeDto> newRecipes) {
         String normalizedUrl = normalizeUrl(url);
-        if (parsedRecipeUrls.contains(normalizedUrl)) {
-            log.debug("Recipe has already been parsed before: {}", url);
-            return;
-        }
         try {
             var recipe = recipeParser.parseRecipePage(doc);
             if (isNewRecipe(recipe, normalizedUrl)) {
                 if (newRecipes.size() < parserConfig.maxRecipes()) {
                     newRecipes.add(recipe);
-                    parsedRecipeUrls.add(normalizedUrl);
                     if (newRecipes.size() % 5 == 0) {
                         log.debug("Progress: {} new recipes found from {}", newRecipes.size(), parserConfig.maxRecipes());
                     }
@@ -104,16 +99,10 @@ public class WebsiteParserImpl implements WebsiteParser {
     }
 
     private boolean isNewRecipe(RecipeDto recipe, String normalizedUrl) {
-        if (parsedRecipeUrls.contains(normalizedUrl)) {
+        if (parsedRecipeUrlsCache.contains(normalizedUrl)) {
             return false;
         }
-        return !isDuplicateRecipe(recipe);
-    }
-
-    private boolean isDuplicateRecipe(RecipeDto recipe) {
-        return allRecipes.stream()
-                .anyMatch(existing ->
-                        existing.name().equalsIgnoreCase(recipe.name()));
+        return !recipeCache.contains(recipe);
     }
 
     private String normalizeUrl(String url) {
@@ -185,8 +174,8 @@ public class WebsiteParserImpl implements WebsiteParser {
                 }
                 String href = link.absUrl(ValidHtmlTag.HREF.value());
                 if (isValidUrl(href) &&
-                        !visitedUrls.contains(href) &&
-                        !parsedRecipeUrls.contains(normalizeUrl(href))) {
+                        !visitedUrlsCache.contains(href) &&
+                        !parsedRecipeUrlsCache.contains(normalizeUrl(href))) {
                     parseWebsiteRecursive(href, currentDepth++, newRecipes);
                     processedLinks++;
                 }
