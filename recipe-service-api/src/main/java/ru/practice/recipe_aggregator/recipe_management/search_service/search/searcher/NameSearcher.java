@@ -14,6 +14,6 @@ public class NameSearcher {
     private final RecipeElasticRepository repository;
 
     public Set<RecipeDoc> search(String name) {
-        return repository.findByNameContaining(name);
+        return repository.findByNameMultiMatch(name);
     }
 }

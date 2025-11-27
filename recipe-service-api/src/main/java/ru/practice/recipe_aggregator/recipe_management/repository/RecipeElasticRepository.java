@@ -15,7 +15,16 @@ import java.util.UUID;
 @Repository
 public interface RecipeElasticRepository extends ElasticsearchRepository<RecipeDoc, UUID> {
 
-    Set<RecipeDoc> findByNameContaining(String namePart);
+    @Query("""
+            {
+                "multi_match": {
+                    "query": "?0",
+                    "fields": ["name", "name.analyzed"],
+                    "type": "best_fields"
+                }
+            }
+            """)
+    Set<RecipeDoc> findByNameMultiMatch(String name);
 
     Optional<RecipeDoc> findByName(String name);
 
