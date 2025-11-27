@@ -1,4 +1,4 @@
-package ru.practice.parser_service.service.parsers.recipe.recipes_parts;
+package ru.practice.parser_service.service.parsers.recipe.html.recipe_parts;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;

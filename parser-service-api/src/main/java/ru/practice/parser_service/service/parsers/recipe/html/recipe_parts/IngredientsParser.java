@@ -1,15 +1,15 @@
-package ru.practice.parser_service.service.parsers.recipe.recipes_parts;
+package ru.practice.parser_service.service.parsers.recipe.html.recipe_parts;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import ru.practice.shared.dto.IngredientDto;
+import ru.practice.shared.dto.ingredient.IngredientDto;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.practice.parser_service.service.parsers.enums.CssQueryOfRecipesParts.*;
+import static ru.practice.parser_service.service.parsers.recipe.html.CssQueryOfHtmlRecipeParts.*;
 
 @Slf4j
 @UtilityClass

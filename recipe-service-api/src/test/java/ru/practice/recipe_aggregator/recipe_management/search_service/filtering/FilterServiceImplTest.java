@@ -80,7 +80,6 @@ class FilterServiceImplTest {
                 .generate(Select.field(RecipeDto::ingredients), gen -> gen.collection().size(2))
                 .generate(Select.field(RecipeDto::direction), gen -> gen.string().length(20, 100))
                 .generate(Select.field(RecipeDto::description), gen -> gen.string().length(10, 50))
-                .set(Select.field(RecipeDto::additionalTime), Duration.ofMinutes(5))
                 .create();
     }
 }

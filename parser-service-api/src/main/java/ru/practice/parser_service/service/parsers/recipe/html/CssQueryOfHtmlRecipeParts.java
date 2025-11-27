@@ -1,4 +1,4 @@
-package ru.practice.parser_service.service.parsers.enums;
+package ru.practice.parser_service.service.parsers.recipe.html;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -7,7 +7,7 @@ import lombok.experimental.Accessors;
 @RequiredArgsConstructor
 @Getter
 @Accessors(fluent = true)
-public enum CssQueryOfRecipesParts {
+public enum CssQueryOfHtmlRecipeParts {
 
     NAME("h1.article-heading.text-headline-400"),
 

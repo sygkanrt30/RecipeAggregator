@@ -1,7 +1,7 @@
 package ru.practice.recipe_aggregator.recipe_management.search_service.filtering.filter;
 
-import ru.practice.shared.dto.IngredientDto;
 import ru.practice.shared.dto.RecipeDto;
+import ru.practice.shared.dto.ingredient.IngredientDto;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -107,7 +107,6 @@ final class RecipesForFilterTestFactory {
                 name,
                 prepTime,
                 cookingTime,
-                additionalTime,
                 totalMins,
                 servings,
                 ingredients,

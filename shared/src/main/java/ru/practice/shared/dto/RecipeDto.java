@@ -1,6 +1,7 @@
 package ru.practice.shared.dto;
 
 import lombok.Builder;
+import ru.practice.shared.dto.ingredient.IngredientDto;
 
 import java.time.Duration;
 import java.util.List;
@@ -12,7 +13,6 @@ public record RecipeDto(
         String name,
         Duration timeForPreparing,
         Duration timeForCooking,
-        Duration additionalTime,
         Duration totalTime,
         int servings,
         List<IngredientDto> ingredients,
@@ -22,9 +22,9 @@ public record RecipeDto(
     @Override
     public String toString() {
         return String.format(
-                "Recipe{id=%s, name=%s; timeForPreparing=%s; timeForCooking=%s; additionalTime=%s;" +
+                "Recipe{id=%s, name=%s; timeForPreparing=%s; timeForCooking=%s;" +
                         " totalTime=%s; servings=%s; ingredients=%s; direction=%s; description=%s}",
-                id, name, timeForPreparing, timeForCooking, additionalTime, totalTime, servings, ingredients,
+                id, name, timeForPreparing, timeForCooking, totalTime, servings, ingredients,
                 direction.substring(0, Math.min(50, direction.length())),
                 description.substring(0, Math.min(50, description.length()))
         );

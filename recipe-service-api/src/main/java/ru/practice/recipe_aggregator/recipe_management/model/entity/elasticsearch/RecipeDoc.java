@@ -31,9 +31,6 @@ public class RecipeDoc {
     private int minsForCooking;
 
     @Field(type = FieldType.Integer)
-    private int additionalMins;
-
-    @Field(type = FieldType.Integer)
     private int totalMins;
 
     @Field(type = FieldType.Integer)

@@ -6,8 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.FilterCondition;
@@ -15,6 +15,7 @@ import ru.practice.recipe_aggregator.recipe_management.model.dto.container.Filte
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.mapper.RequestMapper;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.SearchService;
+import ru.practice.recipe_aggregator.security.TestSecurityConfig;
 import ru.practice.shared.dto.RecipeDto;
 
 import java.util.Collections;
@@ -23,12 +24,14 @@ import java.util.Set;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(SearchController.class)
+@Import(TestSecurityConfig.class)
 class SearchControllerTest {
-    private static final String TEST_USER = "testuser";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -42,7 +45,6 @@ class SearchControllerTest {
     private RequestMapper requestMapper;
 
     @Test
-    @WithMockUser(username = TEST_USER)
     void searchByName_ShouldReturnResults() throws Exception {
         var expectedResults = List.of(
                 mock(RecipeDto.class),
@@ -62,7 +64,6 @@ class SearchControllerTest {
     }
 
     @Test
-    @WithMockUser(username = TEST_USER)
     void searchByName_WithNoResults_ShouldReturnEmptyList() throws Exception {
         when(searchService.searchByName("nonexistent")).thenReturn(Collections.emptyList());
 
@@ -74,13 +75,12 @@ class SearchControllerTest {
     }
 
     @Test
-    @WithMockUser(username = TEST_USER)
     void searchByIngredients_ShouldReturnResults() throws Exception {
         var ingredients = Set.of("chicken", "rice");
         var expectedResults = List.of(mock(RecipeDto.class), mock(RecipeDto.class));
         when(searchService.searchByIngredients(ingredients)).thenReturn(expectedResults);
 
-        mockMvc.perform(get("/api/v1/search/ingredients")
+        mockMvc.perform(post("/api/v1/search/ingredients")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(ingredients))
                         .accept(MediaType.APPLICATION_JSON))
@@ -94,18 +94,16 @@ class SearchControllerTest {
     }
 
     @Test
-    @WithMockUser(username = TEST_USER)
     void searchByIngredients_WithNullBody_ShouldReturnBadRequest() throws Exception {
-        mockMvc.perform(get("/api/v1/search/ingredients")
+        mockMvc.perform(post("/api/v1/search/ingredients")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    @WithMockUser(username = TEST_USER)
     void searchByIngredients_WithEmptyBody_ShouldReturnBadRequest() throws Exception {
-        mockMvc.perform(get("/api/v1/search/ingredients")
+        mockMvc.perform(post("/api/v1/search/ingredients")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("[]")
                         .accept(MediaType.APPLICATION_JSON))
@@ -113,7 +111,6 @@ class SearchControllerTest {
     }
 
     @Test
-    @WithMockUser(username = TEST_USER)
     void searchWithFiltering_ShouldReturnFilteredResults() throws Exception {
         var request = new SearchRequest(
                 "pasta",
@@ -142,7 +139,7 @@ class SearchControllerTest {
         when(requestMapper.toSearchContainer(request)).thenReturn(container);
         when(searchService.searchWithFiltering(container)).thenReturn(expectedResults);
 
-        mockMvc.perform(get("/api/v1/search/with-filtering")
+        mockMvc.perform(post("/api/v1/search/with-filtering")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
                         .accept(MediaType.APPLICATION_JSON))
@@ -156,11 +153,10 @@ class SearchControllerTest {
     }
 
     @Test
-    @WithMockUser(username = TEST_USER)
-    void searchWithFiltering_WithNullFilterParameters_ShouldHandleNulls() throws Exception {
+    void searchWithFiltering_WithNullValues_ShouldHandleCorrectly() throws Exception {
         var request = new SearchRequest(
                 "pasta",
-                Set.of("tomato"),
+                null,
                 0,
                 null,
                 0,
@@ -173,7 +169,6 @@ class SearchControllerTest {
 
         var container = SearchContainer.builder()
                 .name("pasta")
-                .ingredientNames(Set.of("tomato"))
                 .build();
 
         var expectedResults = List.of(mock(RecipeDto.class));
@@ -181,7 +176,7 @@ class SearchControllerTest {
         when(requestMapper.toSearchContainer(request)).thenReturn(container);
         when(searchService.searchWithFiltering(container)).thenReturn(expectedResults);
 
-        mockMvc.perform(get("/api/v1/search/with-filtering")
+        mockMvc.perform(post("/api/v1/search/with-filtering")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
                         .accept(MediaType.APPLICATION_JSON))
@@ -195,9 +190,46 @@ class SearchControllerTest {
     }
 
     @Test
-    @WithMockUser(username = TEST_USER)
+    void searchWithFiltering_WithEmptyIngredientNames_ShouldHandleCorrectly() throws Exception {
+        var request = new SearchRequest(
+                "pasta",
+                Collections.emptySet(),
+                0,
+                null,
+                0,
+                null,
+                0,
+                null,
+                0,
+                null
+        );
+
+        var container = SearchContainer.builder()
+                .name("pasta")
+                .ingredientNames(Collections.emptySet())
+                .build();
+
+        var expectedResults = List.of(mock(RecipeDto.class));
+
+        when(requestMapper.toSearchContainer(request)).thenReturn(container);
+        when(searchService.searchWithFiltering(container)).thenReturn(expectedResults);
+
+        mockMvc.perform(post("/api/v1/search/with-filtering")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(expectedResults.size()));
+
+        verify(requestMapper).toSearchContainer(request);
+        verify(searchService).searchWithFiltering(container);
+    }
+
+    @Test
     void searchWithFiltering_WithNullBody_ShouldReturnBadRequest() throws Exception {
-        mockMvc.perform(get("/api/v1/search/with-filtering")
+        mockMvc.perform(post("/api/v1/search/with-filtering")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());

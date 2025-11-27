@@ -1,10 +1,10 @@
-package ru.practice.parser_service.service.parsers.part_of_recipes;
+package ru.practice.parser_service.service.parsers.html.recipe_parts;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import ru.practice.parser_service.service.parsers.recipe.recipes_parts.TimeParser;
+import ru.practice.parser_service.service.parsers.recipe.html.recipe_parts.TimeParser;
 
 import java.time.Duration;
 

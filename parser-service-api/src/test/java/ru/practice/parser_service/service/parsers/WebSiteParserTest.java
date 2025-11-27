@@ -9,7 +9,7 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.practice.parser_service.config.RecipeParserConfig;
-import ru.practice.parser_service.service.parsers.recipe.RecipeParser;
+import ru.practice.parser_service.service.parsers.recipe.ParserOrganizer;
 import ru.practice.parser_service.service.parsers.website.WebsiteParserImpl;
 import ru.practice.shared.dto.RecipeDto;
 
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.never;
 class WebSiteParserTest {
 
     @MockBean
-    private RecipeParser recipeParser;
+    private ParserOrganizer parserOrganizer;
 
     private WebsiteParserImpl webSiteParser;
 
@@ -40,7 +40,7 @@ class WebSiteParserTest {
                 .recipeTag("recipe")
                 .userAgent("test-agent")
                 .referrer("https://test.com");
-        webSiteParser = new WebsiteParserImpl(parserConfig, recipeParser);
+        webSiteParser = new WebsiteParserImpl(parserConfig, parserOrganizer);
     }
 
     @Test

@@ -2,7 +2,7 @@ spring:
   application:
     name: parser-service-api
   kafka:
-    bootstrap-servers: kafka:9092
+    bootstrap-servers: localhost:9092
 
 server:
   port: 8081
@@ -35,7 +35,7 @@ parser:
   min-delay-ms: 1000
   max-delay-ms: 2000
   max-links-per-page: 50
-  max-recipes: 25
+  max-recipes: 5
   max-depth: 5
   container-selectors: >
     div.mntl-alphabetical-list__group, 
@@ -50,5 +50,14 @@ parser:
 logging:
   file:
     path: ./logs
+    name: ./logs/parser-service.log
   level:
     root: INFO
+  logback:
+    rollingpolicy:
+      max-file-size: 100MB
+      max-history: 10
+      total-size-cap: 5GB
+  pattern:
+    console: '%d{dd.MM.yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n'
+    file: '%d{dd.MM.yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n'

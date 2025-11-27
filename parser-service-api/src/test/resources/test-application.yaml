@@ -1,5 +1,126 @@
 test:
   recipes:
+    json-ld:
+      valid: |
+        {
+          "@context": "https://schema.org",
+          "@type": "Recipe",
+          "name": "Test Chocolate Cake",
+          "description": "A delicious and moist chocolate cake recipe",
+          "recipeYield": "8 servings",
+          "prepTime": "PT30M",
+          "cookTime": "PT1H",
+          "totalTime": "PT1H30M",
+          "recipeIngredient": [
+            "2 cups all-purpose flour",
+            "1 cup sugar",
+            "1/2 cup cocoa powder"
+          ],
+          "recipeInstructions": [
+            {
+              "@type": "HowToStep",
+              "text": "Preheat oven to 350°F (175°C)"
+            },
+            {
+              "@type": "HowToStep",
+              "text": "Mix dry ingredients together"
+            }
+          ],
+          "url": "https://example.com/recipes/12345/chocolate-cake"
+        }
+      array: |
+        [
+          {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": "Some Article"
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "Recipe",
+            "name": "Test Recipe in Array",
+            "description": "Recipe description",
+            "recipeYield": "4 servings",
+            "prepTime": "PT15M",
+            "cookTime": "PT45M",
+            "totalTime": "PT1H",
+            "recipeIngredient": ["1 cup flour", "2 eggs"],
+            "recipeInstructions": [
+              {
+                "@type": "HowToStep",
+                "text": "Step 1 instruction"
+              }
+            ]
+          }
+        ]
+      multiple-types: |
+        {
+          "@context": "https://schema.org",
+          "@type": ["Article", "Recipe"],
+          "name": "Test Recipe Multiple Types",
+          "description": "Recipe with multiple types",
+          "recipeYield": "2 servings",
+          "prepTime": "PT10M",
+          "cookTime": "PT20M",
+          "totalTime": "PT30M",
+          "recipeIngredient": ["1 tomato", "1 onion"],
+          "recipeInstructions": [
+            {
+              "@type": "HowToStep",
+              "text": "Chop vegetables"
+            }
+          ]
+        }
+      missing-fields: |
+        {
+          "@context": "https://schema.org",
+          "@type": "Recipe",
+          "description": "Recipe without name",
+          "recipeYield": "4 servings"
+        }
+      invalid-time: |
+        {
+          "@context": "https://schema.org",
+          "@type": "Recipe",
+          "name": "Test Recipe Invalid Time",
+          "description": "Recipe with invalid time format",
+          "prepTime": "30 minutes",
+          "cookTime": "1 hour",
+          "recipeIngredient": ["1 cup milk"]
+        }
+      empty-ingredients: |
+        {
+          "@context": "https://schema.org",
+          "@type": "Recipe",
+          "name": "Test Recipe Empty Ingredients",
+          "description": "Recipe with empty ingredients",
+          "recipeYield": "4 servings",
+          "prepTime": "PT15M",
+          "cookTime": "PT30M",
+          "totalTime": "PT45M",
+          "recipeIngredient": [],
+          "recipeInstructions": []
+        }
+      not-recipe: |
+        {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          "headline": "This is an article, not a recipe",
+          "description": "Article content"
+        }
+      with-url-id: |
+        {
+          "@context": "https://schema.org",
+          "@type": "Recipe",
+          "name": "Test Recipe",
+          "url": "https://example.com/recipes/98765/test-recipe",
+          "recipeYield": "4 servings",
+          "prepTime": "PT10M",
+          "cookTime": "PT20M",
+          "totalTime": "PT30M",
+          "recipeIngredient": ["1 item"],
+          "recipeInstructions": [{"@type": "HowToStep", "text": "Step 1"}]
+        }
     valid:
       html: |
         <div>

@@ -49,7 +49,7 @@ class RegistrationControllerTest {
                                 """.formatted(username, password, email))
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Registration successful"));
+                .andExpect(content().string("Sign up successful"));
 
         verify(userService).save(username, password.getBytes(), email);
         verify(authenticator).authenticateAndSetCookie(

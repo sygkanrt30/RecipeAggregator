@@ -1,4 +1,4 @@
-package ru.practice.parser_service.service.parsers;
+package ru.practice.parser_service.service.parsers.html;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,10 +12,10 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.yaml.snakeyaml.Yaml;
 import ru.practice.parser_service.service.mapper.RecipeMapper;
-import ru.practice.parser_service.service.parsers.recipe.RecipeParser;
-import ru.practice.parser_service.service.parsers.recipe.recipes_parts.TimeParser;
-import ru.practice.shared.dto.IngredientDto;
+import ru.practice.parser_service.service.parsers.recipe.html.HtmlRecipeParser;
+import ru.practice.parser_service.service.parsers.recipe.html.recipe_parts.TimeParser;
 import ru.practice.shared.dto.RecipeDto;
+import ru.practice.shared.dto.ingredient.IngredientDto;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -25,19 +25,21 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class RecipeParserTest {
+@SuppressWarnings("OptionalGetWithoutIsPresent")
+class HtmlRecipeParserTest {
 
     private static final String TEST_APPLICATION_YAML = "test-application.yaml";
     @Mock
     private RecipeMapper mapper;
 
     @InjectMocks
-    private RecipeParser recipeParser;
+    private HtmlRecipeParser recipeParser;
 
     private static MockedStatic<TimeParser> mockedTime;
     private static Document validDoc;
@@ -63,7 +65,7 @@ class RecipeParserTest {
     @SuppressWarnings("unchecked")
     private static Map<String, String> loadHtmlFromYaml() throws IOException {
         var yaml = new Yaml();
-        try (var inputStream = RecipeParserTest.class.getClassLoader()
+        try (var inputStream = HtmlRecipeParserTest.class.getClassLoader()
                 .getResourceAsStream(TEST_APPLICATION_YAML)) {
 
             Map<String, Object> data = yaml.load(inputStream);
@@ -99,7 +101,6 @@ class RecipeParserTest {
         var expectedName = "Test Recipe";
         var expectedPrepTime = Duration.ofMinutes(30);
         var expectedCookTime = Duration.ofMinutes(60);
-        var expectedAdditionalMins = Duration.ofMinutes(0);
         var expectedTotalMins = Duration.ofMinutes(0);
         int expectedServings = 4;
         var expectedIngredients = List.of(IngredientDto.of(
@@ -107,45 +108,31 @@ class RecipeParserTest {
         ));
         var expectedDirection = "Test Directions";
         var expectedDescription = "Test Description";
-        var expectedId = UUID.randomUUID();
 
-        var expectedRecipeDto = new RecipeDto(
-                expectedId,
-                "test recipe",
-                expectedPrepTime,
-                expectedCookTime,
-                expectedAdditionalMins,
-                expectedTotalMins,
-                expectedServings,
-                expectedIngredients,
-                expectedDirection,
-                expectedDescription
-        );
-        when(mapper.toRecipeDto(
-                expectedName,
-                expectedPrepTime,
-                expectedCookTime,
-                expectedAdditionalMins,
-                expectedTotalMins,
-                expectedServings,
-                expectedIngredients,
-                expectedDirection,
-                expectedDescription
-        )).thenReturn(expectedRecipeDto);
         var expected = RecipeDto.builder()
-                .id(expectedId)
-                .name("test recipe")
-                .description("Test Description")
-                .direction("Test Directions")
+                .id(UUID.randomUUID())
+                .name(expectedName)
+                .description(expectedDescription)
+                .direction(expectedDirection)
                 .ingredients(expectedIngredients)
-                .servings(4)
-                .timeForPreparing(Duration.ofMinutes(30))
-                .timeForCooking(Duration.ofMinutes(60))
-                .additionalTime(Duration.ofMinutes(0))
-                .totalTime(Duration.ofMinutes(0))
+                .servings(expectedServings)
+                .timeForPreparing(expectedPrepTime)
+                .timeForCooking(expectedCookTime)
+                .totalTime(expectedTotalMins)
                 .build();
+        when(mapper.toRecipeDto(
+                any(UUID.class),
+                eq(expectedName),
+                eq(expectedPrepTime),
+                eq(expectedCookTime),
+                eq(expectedTotalMins),
+                eq(expectedServings),
+                eq(expectedIngredients),
+                eq(expectedDirection),
+                eq(expectedDescription)
+        )).thenReturn(expected);
 
-        RecipeDto result = recipeParser.parseRecipePage(validDoc);
+        RecipeDto result = recipeParser.parseRecipePage(validDoc).get();
 
         assertEquals(expected, result);
     }
@@ -166,24 +153,22 @@ class RecipeParserTest {
         ));
         var expectedDirection = "Mix ingredients";
         var expectedDescription = "Test Description";
-        var expectedId = UUID.randomUUID();
 
-        var expectedRecipeDto = new RecipeDto(
-                expectedId,
-                "test recipe",
-                zeroDuration,
-                zeroDuration,
-                zeroDuration,
-                zeroDuration,
-                expectedServings,
-                expectedIngredients,
-                expectedDirection,
-                expectedDescription
-        );
+        var expected = RecipeDto.builder()
+                .id(UUID.randomUUID())
+                .name(expectedName)
+                .description(expectedDescription)
+                .direction(expectedDirection)
+                .ingredients(expectedIngredients)
+                .servings(expectedServings)
+                .timeForPreparing(zeroDuration)
+                .timeForCooking(zeroDuration)
+                .totalTime(zeroDuration)
+                .build();
 
         when(mapper.toRecipeDto(
+                any(UUID.class),
                 eq(expectedName),
-                eq(zeroDuration),
                 eq(zeroDuration),
                 eq(zeroDuration),
                 eq(zeroDuration),
@@ -191,16 +176,15 @@ class RecipeParserTest {
                 eq(expectedIngredients),
                 eq(expectedDirection),
                 eq(expectedDescription)
-        )).thenReturn(expectedRecipeDto);
+        )).thenReturn(expected);
 
         // Act
-        RecipeDto result = recipeParser.parseRecipePage(missingTimeDoc);
+        RecipeDto result = recipeParser.parseRecipePage(missingTimeDoc).get();
 
         // Assert
         assertNotNull(result);
         assertEquals(Duration.ofMinutes(0), result.timeForPreparing());
         assertEquals(Duration.ofMinutes(0), result.timeForCooking());
-        assertEquals(Duration.ofMinutes(0), result.additionalTime());
         assertEquals(Duration.ofMinutes(0), result.totalTime());
     }
 

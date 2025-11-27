@@ -14,13 +14,11 @@ public interface RecipeMapper {
 
     @Mapping(target = "timeForPreparing", expression = "java(minutesToDuration(recipe.getMinsForPreparing()))")
     @Mapping(target = "timeForCooking", expression = "java(minutesToDuration(recipe.getMinsForCooking()))")
-    @Mapping(target = "additionalTime", expression = "java(minutesToDuration(recipe.getAdditionalMins()))")
     @Mapping(target = "totalTime", expression = "java(minutesToDuration(recipe.getTotalMins()))")
     RecipeDto toRecipeDto(RecipeDoc recipe);
 
     @Mapping(target = "minsForPreparing", expression = "java(durationToMinutes(kafkaDto.timeForPreparing()))")
     @Mapping(target = "minsForCooking", expression = "java(durationToMinutes(kafkaDto.timeForCooking()))")
-    @Mapping(target = "additionalMins", expression = "java(durationToMinutes(kafkaDto.additionalTime()))")
     @Mapping(target = "totalMins", expression = "java(durationToMinutes(kafkaDto.totalTime()))")
     RecipeDoc fromRecipeDto(RecipeDto kafkaDto);
 
