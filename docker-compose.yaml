@@ -108,8 +108,8 @@ services:
     container_name: recipe-service
     restart: always
     build:
-      context: .
-      dockerfile: recipe-service-api/Dockerfile
+      context: ./recipe-service-api
+      dockerfile: ./Dockerfile
     depends_on:
       db:
         condition: service_healthy
@@ -141,8 +141,8 @@ services:
     container_name: parser-service
     restart: always
     build:
-      context: .
-      dockerfile: parser-service-api/Dockerfile
+      context: ./parser-service-api
+      dockerfile: ./Dockerfile
     depends_on:
       kafka:
         condition: service_healthy

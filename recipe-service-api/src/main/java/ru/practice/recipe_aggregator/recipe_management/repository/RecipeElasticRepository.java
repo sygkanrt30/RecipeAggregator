@@ -17,10 +17,26 @@ public interface RecipeElasticRepository extends ElasticsearchRepository<RecipeD
 
     @Query("""
             {
-                "multi_match": {
-                    "query": "?0",
-                    "fields": ["name", "name.analyzed"],
-                    "type": "best_fields"
+                "bool": {
+                    "should": [
+                        {
+                            "match_phrase_prefix": {
+                                "name": {
+                                    "query": "?0",
+                                    "slop": 10,
+                                    "max_expansions": 50
+                                }
+                            }
+                        },
+                        {
+                            "wildcard": {
+                                "name": {
+                                    "value": "*?0*",
+                                    "case_insensitive": true
+                                }
+                            }
+                        }
+                    ]
                 }
             }
             """)
