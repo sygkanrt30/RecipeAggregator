@@ -36,11 +36,11 @@ const Authorization = () => {
                 navigate("/recipe-aggregator");
             } else {
                 const errorText = await response.text();
-                setMessage('Login error: ' + errorText);
+                setMessage('Ошибка входа: ' + errorText);
                 console.log('Login error:', errorText);
             }
         } catch (error) {
-            setMessage('Network error: ' + error.message);
+            setMessage('Сетевая ошибка: ' + error.message);
             console.log('Network error:', error.message);
         }
     };
@@ -51,10 +51,10 @@ const Authorization = () => {
 
     return (
         <div className="container">
-            <h2>Log in</h2>
+            <h2>Вход</h2>
             <form onSubmit={handleSubmit}>
                 <div>
-                    <label>Username:</label>
+                    <label>Имя пользователя:</label>
                     <input
                         type="text"
                         value={username}
@@ -63,7 +63,7 @@ const Authorization = () => {
                     />
                 </div>
                 <div>
-                    <label>Password:</label>
+                    <label>Пароль:</label>
                     <input
                         type="password"
                         value={password}
@@ -71,8 +71,8 @@ const Authorization = () => {
                         required
                     />
                 </div>
-                <button type="submit" className="button-submit">Log in</button>
-                <button type="button" className="button-register" onClick={handleRegister}>Sign up</button>
+                <button type="submit" className="button-submit">Войти</button>
+                <button type="button" className="button-register" onClick={handleRegister}>Зарегистрироваться</button>
             </form>
             {message && <p className="message">{message}</p>}
         </div>

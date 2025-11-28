@@ -45,7 +45,7 @@ const MainPage = () => {
             logout();
             navigate('/login');
         } catch (error) {
-            console.error('Logout error:', error);
+            console.error('Ошибка выхода:', error);
         }
     };
 
@@ -96,13 +96,13 @@ const MainPage = () => {
                 const result = await response.json();
                 setRecipes(result);
                 if (result.length === 0) {
-                    setMessage('Recipes not found');
+                    setMessage('Рецепты не найдены');
                 }
             } else {
-                setMessage('Error searching recipes');
+                setMessage('Ошибка при поиске рецептов');
             }
         } catch (error) {
-            setMessage('Network error: ' + error.message);
+            setMessage('Сетевая ошибка: ' + error.message);
         }
     };
 
@@ -131,63 +131,63 @@ const MainPage = () => {
             });
 
             if (response.ok) {
-                setMessage(`Recipe "${recipeName}" added to favorites!`);
+                setMessage(`Рецепт "${recipeName}" добавлен в избранное!`);
             } else {
-                setMessage('Error adding recipe to favorites');
+                setMessage('Ошибка при добавлении рецепта в избранное');
             }
         } catch (error) {
-            setMessage('Network error: ' + error.message);
+            setMessage('Сетевая ошибка: ' + error.message);
         }
     };
 
     return (
         <div className="main-container">
             <div className="header">
-                <h1>Recipe Aggregator</h1>
+                <h1>Агрегатор рецептов</h1>
                 <div className="user-panel">
-                    <span className="username">Welcome, {username}!</span>
+                    <span className="username">Добро пожаловать, {username}!</span>
                     <button className="button-favorites" onClick={handleFavorites}>
-                        Favorites
+                        Избранное
                     </button>
                     <button className="button-logout" onClick={handleLogout}>
-                        Logout
+                        Выйти
                     </button>
                 </div>
             </div>
 
             <div className="search-container">
-                <h2>Search Recipes</h2>
+                <h2>Поиск рецептов</h2>
 
                 <div className="search-type-selector">
                     <button
                         className={`type-button ${searchType === 'name' ? 'active' : ''}`}
                         onClick={() => setSearchType('name')}
                     >
-                        By Name
+                        По названию
                     </button>
                     <button
                         className={`type-button ${searchType === 'ingredients' ? 'active' : ''}`}
                         onClick={() => setSearchType('ingredients')}
                     >
-                        By Ingredients
+                        По ингредиентам
                     </button>
                     <button
                         className={`type-button ${searchType === 'filtering' ? 'active' : ''}`}
                         onClick={() => setSearchType('filtering')}
                     >
-                        Advanced Search
+                        Расширенный поиск
                     </button>
                 </div>
 
                 <form onSubmit={handleSearch} className="search-form">
                     {searchType === 'name' && (
                         <div className="form-group">
-                            <label>Recipe name:</label>
+                            <label>Название рецепта:</label>
                             <input
                                 type="text"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                placeholder="Enter recipe name in English"
+                                placeholder="Введите название рецепта"
                                 required
                             />
                         </div>
@@ -195,12 +195,12 @@ const MainPage = () => {
 
                     {searchType === 'ingredients' && (
                         <div className="form-group">
-                            <label>Ingredients (comma separated):</label>
+                            <label>Ингредиенты (через запятую):</label>
                             <input
                                 type="text"
                                 value={ingredients}
                                 onChange={(e) => setIngredients(e.target.value)}
-                                placeholder="eggs, flour, sugar"
+                                placeholder="яйца, мука, сахар"
                                 required
                             />
                         </div>
@@ -209,27 +209,27 @@ const MainPage = () => {
                     {searchType === 'filtering' && (
                         <div className="filter-form">
                             <div className="form-group">
-                                <label>Name:</label>
+                                <label>Название:</label>
                                 <input
                                     type="text"
                                     value={searchRequest.name}
                                     onChange={(e) => setSearchRequest(prev => ({...prev, name: e.target.value}))}
-                                    placeholder="Recipe name in English"
+                                    placeholder="Название рецепта на английском"
                                 />
                             </div>
 
                             <div className="form-group">
-                                <label>Ingredients (comma separated):</label>
+                                <label>Ингредиенты (через запятую):</label>
                                 <input
                                     type="text"
                                     onChange={handleIngredientChange}
-                                    placeholder="eggs, flour, sugar"
+                                    placeholder="яйца, мука, сахар"
                                 />
                             </div>
 
                             <div className="filter-row">
                                 <div className="filter-group">
-                                    <label>Cooking time:</label>
+                                    <label>Время готовки:</label>
                                     <div className="filter-controls">
                                         <select
                                             value={searchRequest.cookingTimeOperator}
@@ -252,14 +252,14 @@ const MainPage = () => {
                                                 ...prev,
                                                 cookingTime: parseInt(e.target.value) || 0
                                             }))}
-                                            placeholder="Minutes"
+                                            placeholder="Минуты"
                                             className="small-input"
                                         />
                                     </div>
                                 </div>
 
                                 <div className="filter-group">
-                                    <label>Total time:</label>
+                                    <label>Общее время:</label>
                                     <div className="filter-controls">
                                         <select
                                             value={searchRequest.totalTimeOperator}
@@ -282,7 +282,7 @@ const MainPage = () => {
                                                 ...prev,
                                                 totalTime: parseInt(e.target.value) || 0
                                             }))}
-                                            placeholder="Minutes"
+                                            placeholder="Минуты"
                                             className="small-input"
                                         />
                                     </div>
@@ -291,7 +291,7 @@ const MainPage = () => {
 
                             <div className="filter-row">
                                 <div className="filter-group">
-                                    <label>Preparation time:</label>
+                                    <label>Время подготовки:</label>
                                     <div className="filter-controls">
                                         <select
                                             value={searchRequest.preparationTimeOperator}
@@ -314,14 +314,14 @@ const MainPage = () => {
                                                 ...prev,
                                                 preparationTime: parseInt(e.target.value) || 0
                                             }))}
-                                            placeholder="Minutes"
+                                            placeholder="Минуты"
                                             className="small-input"
                                         />
                                     </div>
                                 </div>
 
                                 <div className="filter-group">
-                                    <label>Servings:</label>
+                                    <label>Порции:</label>
                                     <div className="filter-controls">
                                         <select
                                             value={searchRequest.servingsOperator}
@@ -344,7 +344,7 @@ const MainPage = () => {
                                                 ...prev,
                                                 servings: parseInt(e.target.value) || 0
                                             }))}
-                                            placeholder="Count"
+                                            placeholder="Количество"
                                             className="small-input"
                                         />
                                     </div>
@@ -353,7 +353,7 @@ const MainPage = () => {
                         </div>
                     )}
 
-                    <button type="submit" className="button-search">Search Recipes</button>
+                    <button type="submit" className="button-search">Найти рецепты</button>
                 </form>
 
                 {message && <p className="message">{message}</p>}
@@ -361,7 +361,7 @@ const MainPage = () => {
 
             {recipes.length > 0 && (
                 <div className="results-container">
-                    <h3>Found recipes: {recipes.length}</h3>
+                    <h3>Найдено рецептов: {recipes.length}</h3>
                     <div className="recipes-grid">
                         {recipes.map((recipe) => (
                             <div key={recipe.id} className="recipe-card">
@@ -371,7 +371,7 @@ const MainPage = () => {
                                         className="button-add-favorite"
                                         onClick={() => handleAddToFavorites(recipe.name)}
                                     >
-                                        Add to Favorites
+                                        В избранное
                                     </button>
                                 </div>
 
@@ -381,32 +381,28 @@ const MainPage = () => {
 
                                 <div className="recipe-times">
                                     <div className="time-item">
-                                        <span className="time-label">Preparation:</span>
+                                        <span className="time-label">Подготовка:</span>
                                         <span className="time-value">{formatDuration(recipe.timeForPreparing)}</span>
                                     </div>
                                     <div className="time-item">
-                                        <span className="time-label">Cooking:</span>
+                                        <span className="time-label">Готовка:</span>
                                         <span className="time-value">{formatDuration(recipe.timeForCooking)}</span>
                                     </div>
-                                    <div className="time-item">
-                                        <span className="time-label">Additional:</span>
-                                        <span className="time-value">{formatDuration(recipe.additionalTime)}</span>
-                                    </div>
                                     <div className="time-item total">
-                                        <span className="time-label">Total time:</span>
+                                        <span className="time-label">Общее время:</span>
                                         <span className="time-value">{formatDuration(recipe.totalTime)}</span>
                                     </div>
                                 </div>
 
                                 {recipe.servings > 0 && (
                                     <div className="recipe-servings">
-                                        <strong>Servings:</strong> {recipe.servings}
+                                        <strong>Порции:</strong> {recipe.servings}
                                     </div>
                                 )}
 
                                 {recipe.ingredients && recipe.ingredients.length > 0 && (
                                     <div className="recipe-ingredients">
-                                        <strong>Ingredients:</strong>
+                                        <strong>Ингредиенты:</strong>
                                         <ul>
                                             {recipe.ingredients.map((ingredient, index) => (
                                                 <li key={index}>{formatIngredient(ingredient)}</li>
@@ -417,7 +413,7 @@ const MainPage = () => {
 
                                 {recipe.direction && (
                                     <div className="recipe-direction">
-                                        <strong>Directions:</strong>
+                                        <strong>Инструкция:</strong>
                                         <p>{recipe.direction}</p>
                                     </div>
                                 )}

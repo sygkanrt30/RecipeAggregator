@@ -1,7 +1,7 @@
 export const formatDuration = (seconds) => {
-    if (!seconds) return 'Not specified';
+    if (!seconds) return 'Не указан';
     const minutes = Math.round(seconds / 60);
-    return `${minutes} min`;
+    return `${minutes} мин`;
 };
 
 export const formatIngredient = (ingredient) => {

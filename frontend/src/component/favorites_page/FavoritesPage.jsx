@@ -39,14 +39,12 @@ const FavoritesPage = () => {
             if (response.ok) {
                 const recipes = await response.json();
                 setFavoriteRecipes(recipes);
-                // Предполагаем, что бэкенд возвращает информацию о пагинации
-                // Если нет, можно рассчитать на фронтенде
                 setTotalPages(Math.ceil(recipes.length / PAGE_SIZE));
             } else {
-                setMessage('Error loading favorites');
+                setMessage('Ошибка загрузки избранного');
             }
         } catch (error) {
-            setMessage('Network error: ' + error.message);
+            setMessage('Сетевая ошибка: ' + error.message);
         } finally {
             setLoading(false);
         }
@@ -66,14 +64,14 @@ const FavoritesPage = () => {
                 });
 
             if (response.ok) {
-                setMessage(`Recipe "${recipeName}" removed from favorites`);
+                setMessage(`Рецепт "${recipeName}" удален из избранного`);
                 loadFavorites();
                 setTimeout(() => setMessage(''), 3000);
             } else {
-                setMessage('Error removing recipe from favorites');
+                setMessage('Ошибка при удалении рецепта из избранного');
             }
         } catch (error) {
-            setMessage('Network error: ' + error.message);
+            setMessage('Сетевая ошибка: ' + error.message);
         }
     };
 
@@ -90,7 +88,7 @@ const FavoritesPage = () => {
             logout();
             navigate('/login');
         } catch (error) {
-            console.error('Logout error:', error);
+            console.error('Ошибка выхода:', error);
         }
     };
 
@@ -104,38 +102,35 @@ const FavoritesPage = () => {
 
     return (
         <div className="favorites-container">
-            {/* Header */}
             <div className="header">
-                <h1>Favorite Recipes</h1>
+                <h1>Избранные рецепты</h1>
                 <div className="user-panel">
-                    <span className="username">Welcome, {username}!</span>
+                    <span className="username">Добро пожаловать, {username}!</span>
                     <button className="button-back" onClick={handleBackToSearch}>
-                        Back to Search
+                        Назад к поиску
                     </button>
                     <button className="button-logout" onClick={handleLogout}>
-                        Logout
+                        Выйти
                     </button>
                 </div>
             </div>
 
-            {/* Main Content */}
             <div className="favorites-content">
-                <h2>My Favorite Recipes</h2>
+                <h2>Мои избранные рецепты</h2>
 
                 {message && <p className="message">{message}</p>}
 
                 {loading ? (
-                    <div className="loading">Loading favorites...</div>
+                    <div className="loading">Загрузка избранного...</div>
                 ) : favoriteRecipes.length === 0 ? (
                     <div className="no-favorites">
-                        <p>You don't have any favorite recipes yet.</p>
+                        <p>У вас пока нет избранных рецептов.</p>
                         <button className="button-back" onClick={handleBackToSearch}>
-                            Find Recipes
+                            Найти рецепты
                         </button>
                     </div>
                 ) : (
                     <>
-                        {/* Recipes Grid */}
                         <div className="recipes-grid">
                             {favoriteRecipes.map((recipe) => (
                                 <div key={recipe.id} className="recipe-card">
@@ -145,7 +140,7 @@ const FavoritesPage = () => {
                                             className="button-remove-favorite"
                                             onClick={() => handleRemoveFromFavorites(recipe.name)}
                                         >
-                                            Remove
+                                            Удалить
                                         </button>
                                     </div>
 
@@ -155,33 +150,29 @@ const FavoritesPage = () => {
 
                                     <div className="recipe-times">
                                         <div className="time-item">
-                                            <span className="time-label">Preparation:</span>
+                                            <span className="time-label">Подготовка:</span>
                                             <span
                                                 className="time-value">{formatDuration(recipe.timeForPreparing)}</span>
                                         </div>
                                         <div className="time-item">
-                                            <span className="time-label">Cooking:</span>
+                                            <span className="time-label">Готовка:</span>
                                             <span className="time-value">{formatDuration(recipe.timeForCooking)}</span>
                                         </div>
-                                        <div className="time-item">
-                                            <span className="time-label">Additional:</span>
-                                            <span className="time-value">{formatDuration(recipe.additionalTime)}</span>
-                                        </div>
                                         <div className="time-item total">
-                                            <span className="time-label">Total time:</span>
+                                            <span className="time-label">Общее время:</span>
                                             <span className="time-value">{formatDuration(recipe.totalTime)}</span>
                                         </div>
                                     </div>
 
                                     {recipe.servings > 0 && (
                                         <div className="recipe-servings">
-                                            <strong>Servings:</strong> {recipe.servings}
+                                            <strong>Порции:</strong> {recipe.servings}
                                         </div>
                                     )}
 
                                     {recipe.ingredients && recipe.ingredients.length > 0 && (
                                         <div className="recipe-ingredients">
-                                            <strong>Ingredients:</strong>
+                                            <strong>Ингредиенты:</strong>
                                             <ul>
                                                 {recipe.ingredients.map((ingredient, index) => (
                                                     <li key={index}>{formatIngredient(ingredient)}</li>
@@ -192,7 +183,7 @@ const FavoritesPage = () => {
 
                                     {recipe.direction && (
                                         <div className="recipe-direction">
-                                            <strong>Directions:</strong>
+                                            <strong>Инструкция:</strong>
                                             <p>{recipe.direction}</p>
                                         </div>
                                     )}
@@ -207,11 +198,11 @@ const FavoritesPage = () => {
                                     disabled={currentPage === 0}
                                     onClick={() => handlePageChange(currentPage - 1)}
                                 >
-                                    Previous
+                                    Назад
                                 </button>
 
                                 <span className="pagination-info">
-                                    Page {currentPage + 1} of {totalPages}
+                                    Страница {currentPage + 1} из {totalPages}
                                 </span>
 
                                 <button
@@ -219,7 +210,7 @@ const FavoritesPage = () => {
                                     disabled={currentPage >= totalPages - 1}
                                     onClick={() => handlePageChange(currentPage + 1)}
                                 >
-                                    Next
+                                    Вперед
                                 </button>
                             </div>
                         )}

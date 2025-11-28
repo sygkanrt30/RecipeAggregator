@@ -40,11 +40,11 @@ const Register = () => {
                 navigate("/recipe-aggregator");
             } else {
                 const errorData = await response.text();
-                setMessage('Registration error: ' + errorData);
+                setMessage('Ошибка регистрации: ' + errorData);
                 console.log('Registration error:', errorData);
             }
         } catch (error) {
-            setMessage('Network error: ' + error.message);
+            setMessage('Сетевая ошибка: ' + error.message);
             console.log('Network error:', error.message);
         }
     };
@@ -55,10 +55,10 @@ const Register = () => {
 
     return (
         <div className="container">
-            <h2>Registration</h2>
+            <h2>Регистрация</h2>
             <form onSubmit={handleSubmit}>
                 <div>
-                    <label>Username:</label>
+                    <label>Имя пользователя:</label>
                     <input
                         type="text"
                         value={username}
@@ -74,15 +74,15 @@ const Register = () => {
                     />
                 </div>
                 <div>
-                    <label>Password:</label>
+                    <label>Пароль:</label>
                     <input
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
                 </div>
-                <button type="submit" className="button-submit">Sign up</button>
-                <button type="button" className="button-enter" onClick={handleAuth}>Log in</button>
+                <button type="submit" className="button-submit">Зарегистрироваться</button>
+                <button type="button" className="button-enter" onClick={handleAuth}>Войти</button>
             </form>
             {message && <p className="message">{message}</p>}
         </div>

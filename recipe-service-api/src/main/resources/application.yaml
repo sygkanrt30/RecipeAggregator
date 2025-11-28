@@ -61,6 +61,15 @@ elasticsearch:
 jwt:
   cookie-token-key: '{"kty":"oct","k":"956PBFst1FguLr5irJD-aQ"}'
 
+web-site:
+  lang: 'ru'
+
+yandex:
+  uri: 'https://translate.api.cloud.yandex.net/translate/v2/translate'
+  api:
+    key: 'AQVNzNKLpRuhWBf1okbHlSFBHzCPRzm2yN8aRnNN'
+    folder-id: 'b1g0d3qs7g5eumgm9jjb'
+
 csrf:
   token:
     header-name: X-CSRF-TOKEN
