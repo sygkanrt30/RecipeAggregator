@@ -7,10 +7,7 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 import org.springframework.stereotype.Repository;
 import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearch.RecipeDoc;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 public interface RecipeElasticRepository extends ElasticsearchRepository<RecipeDoc, UUID> {
@@ -45,6 +42,8 @@ public interface RecipeElasticRepository extends ElasticsearchRepository<RecipeD
     Optional<RecipeDoc> findByName(String name);
 
     Page<RecipeDoc> findByIdIn(Collection<UUID> id, Pageable pageable);
+
+    List<RecipeDoc> findByNameIn(Collection<String> names);
 
     @Query("""
             {

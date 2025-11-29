@@ -7,5 +7,5 @@ import java.util.List;
 public interface Translator {
     String translate(String text, String sourceLang, String targetLang);
 
-    List<RecipeDto> translateListOfRecipeDtos(List<RecipeDto> recipes);
+    List<RecipeDto> translateListOfRecipeDtos(List<RecipeDto> recipes, String sourceLang, String targetLang);
 }

@@ -40,14 +40,13 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
-    public Set<UUID> findExistingIds(Set<UUID> recipeIds) {
-        if (recipeIds.isEmpty()) {
+    public Set<String> findExistingNames(Set<String> recipeNames) {
+        if (recipeNames.isEmpty()) {
             return Collections.emptySet();
         }
-        Pageable pageable = PageRequest.of(0, recipeIds.size());
-        return recipeRepository.findByIdIn(recipeIds, pageable)
+        return recipeRepository.findByNameIn(recipeNames)
                 .stream()
-                .map(RecipeDoc::getId)
+                .map(RecipeDoc::getName)
                 .collect(Collectors.toSet());
     }
 

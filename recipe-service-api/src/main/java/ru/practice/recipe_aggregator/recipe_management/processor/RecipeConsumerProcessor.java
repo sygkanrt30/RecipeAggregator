@@ -10,7 +10,6 @@ import ru.practice.shared.dto.RecipeDto;
 
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -30,16 +29,16 @@ public class RecipeConsumerProcessor implements ConsumerProcessor<List<RecipeDto
             return;
         }
 
-        Set<UUID> incomingIds = recipesDto.stream()
-                .map(RecipeDto::id)
+        Set<String> incomingNames = recipesDto.stream()
+                .map(RecipeDto::name)
                 .collect(Collectors.toSet());
-        log.debug("Checking existence for {} recipe IDs in database", incomingIds.size());
+        log.debug("Checking existence for {} recipe names in database", incomingNames.size());
 
-        Set<UUID> existingIds = recipeService.findExistingIds(incomingIds);
-        log.debug("Found {} existing recipes in database", existingIds.size());
+        Set<String> existingNames = recipeService.findExistingNames(incomingNames);
+        log.debug("Found {} existing recipes in database", existingNames.size());
 
         var newRecipes = recipesDto.stream()
-                .filter(dto -> !existingIds.contains(dto.id()))
+                .filter(dto -> !existingNames.contains(dto.name()))
                 .map(recipeMapper::fromRecipeDto)
                 .toList();
 

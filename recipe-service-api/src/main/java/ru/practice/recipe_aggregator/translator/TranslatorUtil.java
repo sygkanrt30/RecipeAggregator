@@ -27,7 +27,8 @@ public class TranslatorUtil {
     public List<RecipeDto> translateDtoDependingOnWebsiteLanguage(List<RecipeDto> recipes) {
         return switch (languageCode) {
             case ENGLISH -> recipes;
-            case RUSSIAN -> translator.translateListOfRecipeDtos(recipes);
+            case RUSSIAN -> translator.translateListOfRecipeDtos(recipes,
+                    LanguageCode.ENGLISH.code(), LanguageCode.RUSSIAN.code());
         };
     }
 }

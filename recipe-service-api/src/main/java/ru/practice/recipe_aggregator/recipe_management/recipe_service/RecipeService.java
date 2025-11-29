@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface RecipeService {
 
-    Set<UUID> findExistingIds(Set<UUID> recipeIds);
+    Set<String> findExistingNames(Set<String> recipeNames);
 
     UUID getIdByName(String recipeName);
 

@@ -80,13 +80,13 @@ class YandexTranslator implements Translator {
     }
 
     @Override
-    public List<RecipeDto> translateListOfRecipeDtos(List<RecipeDto> recipes) {
+    public List<RecipeDto> translateListOfRecipeDtos(List<RecipeDto> recipes, String sourceLang, String targetLang) {
         return recipes.stream()
-                .map(this::translateDto)
+                .map(recipeDto -> translateDto(recipeDto, sourceLang, targetLang))
                 .collect(Collectors.toList());
     }
 
-    private RecipeDto translateDto(RecipeDto recipeDto) {
+    private RecipeDto translateDto(RecipeDto recipeDto, String sourceLang, String targetLang) {
         List<String> allTexts = collectAllTexts(recipeDto);
 
         if (allTexts.isEmpty()) {
@@ -94,7 +94,7 @@ class YandexTranslator implements Translator {
         }
 
         try {
-            List<String> translations = bulkTranslate(allTexts);
+            List<String> translations = bulkTranslate(allTexts, sourceLang, targetLang);
             RecipeDto translatedDto = buildTranslatedDto(recipeDto, translations);
             log.debug("translatedDto: {}", translatedDto.toString());
             return translatedDto;
@@ -130,10 +130,8 @@ class YandexTranslator implements Translator {
         return texts;
     }
 
-    private List<String> bulkTranslate(List<String> texts) throws Exception {
-        JsonNode root = getRoot(
-                LanguageCode.ENGLISH.code(),
-                LanguageCode.RUSSIAN.code(), texts.toArray(new String[0]));
+    private List<String> bulkTranslate(List<String> texts, String sourceLang, String targetLang) throws Exception {
+        JsonNode root = getRoot(sourceLang, targetLang, texts.toArray(new String[0]));
         JsonNode translationsNode = root.get("translations");
 
         List<String> translations = new ArrayList<>();
