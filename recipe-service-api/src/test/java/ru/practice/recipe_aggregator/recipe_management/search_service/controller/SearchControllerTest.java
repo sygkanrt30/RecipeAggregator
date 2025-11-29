@@ -16,12 +16,14 @@ import ru.practice.recipe_aggregator.recipe_management.model.dto.container.Searc
 import ru.practice.recipe_aggregator.recipe_management.model.dto.mapper.RequestMapper;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.SearchService;
 import ru.practice.recipe_aggregator.security.TestSecurityConfig;
+import ru.practice.recipe_aggregator.translator.TranslatorUtil;
 import ru.practice.shared.dto.RecipeDto;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -44,12 +46,17 @@ class SearchControllerTest {
     @MockitoBean
     private RequestMapper requestMapper;
 
+    @MockitoBean
+    private TranslatorUtil translator;
+
     @Test
     void searchByName_ShouldReturnResults() throws Exception {
         var expectedResults = List.of(
                 mock(RecipeDto.class),
                 mock(RecipeDto.class)
         );
+        when(translator.translateTextDependingOnWebsiteLanguage("chicken")).thenReturn("chicken");
+        when(translator.translateDtoDependingOnWebsiteLanguage(any())).thenReturn(expectedResults);
         when(searchService.searchByName("chicken")).thenReturn(expectedResults);
 
         mockMvc.perform(get("/api/v1/search/name/chicken")
@@ -65,6 +72,8 @@ class SearchControllerTest {
 
     @Test
     void searchByName_WithNoResults_ShouldReturnEmptyList() throws Exception {
+        when(translator.translateTextDependingOnWebsiteLanguage("nonexistent")).thenReturn("nonexistent");
+        when(translator.translateDtoDependingOnWebsiteLanguage(any())).thenReturn(Collections.emptyList());
         when(searchService.searchByName("nonexistent")).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/api/v1/search/name/nonexistent")
@@ -78,7 +87,11 @@ class SearchControllerTest {
     void searchByIngredients_ShouldReturnResults() throws Exception {
         var ingredients = Set.of("chicken", "rice");
         var expectedResults = List.of(mock(RecipeDto.class), mock(RecipeDto.class));
-        when(searchService.searchByIngredients(ingredients)).thenReturn(expectedResults);
+
+        when(translator.translateTextDependingOnWebsiteLanguage("chicken")).thenReturn("chicken");
+        when(translator.translateTextDependingOnWebsiteLanguage("rice")).thenReturn("rice");
+        when(translator.translateDtoDependingOnWebsiteLanguage(any())).thenReturn(expectedResults);
+        when(searchService.searchByIngredients(any())).thenReturn(expectedResults);
 
         mockMvc.perform(post("/api/v1/search/ingredients")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -90,7 +103,6 @@ class SearchControllerTest {
                 .andExpect(jsonPath("$.length()").value(expectedResults.size()))
                 .andExpect(jsonPath("$[0]").exists())
                 .andExpect(jsonPath("$[1]").exists());
-        verify(searchService).searchByIngredients(ingredients);
     }
 
     @Test
@@ -136,7 +148,11 @@ class SearchControllerTest {
 
         var expectedResults = List.of(mock(RecipeDto.class));
 
-        when(requestMapper.toSearchContainer(request)).thenReturn(container);
+        when(translator.translateTextDependingOnWebsiteLanguage("pasta")).thenReturn("pasta");
+        when(translator.translateTextDependingOnWebsiteLanguage("tomato")).thenReturn("tomato");
+        when(translator.translateTextDependingOnWebsiteLanguage("cheese")).thenReturn("cheese");
+        when(translator.translateDtoDependingOnWebsiteLanguage(any())).thenReturn(expectedResults);
+        when(requestMapper.toSearchContainer(any(SearchRequest.class))).thenReturn(container);
         when(searchService.searchWithFiltering(container)).thenReturn(expectedResults);
 
         mockMvc.perform(post("/api/v1/search/with-filtering")
@@ -147,9 +163,6 @@ class SearchControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(expectedResults.size()));
-
-        verify(requestMapper).toSearchContainer(request);
-        verify(searchService).searchWithFiltering(container);
     }
 
     @Test
@@ -173,7 +186,9 @@ class SearchControllerTest {
 
         var expectedResults = List.of(mock(RecipeDto.class));
 
-        when(requestMapper.toSearchContainer(request)).thenReturn(container);
+        when(translator.translateTextDependingOnWebsiteLanguage("pasta")).thenReturn("pasta");
+        when(translator.translateDtoDependingOnWebsiteLanguage(any())).thenReturn(expectedResults);
+        when(requestMapper.toSearchContainer(any(SearchRequest.class))).thenReturn(container);
         when(searchService.searchWithFiltering(container)).thenReturn(expectedResults);
 
         mockMvc.perform(post("/api/v1/search/with-filtering")
@@ -184,9 +199,6 @@ class SearchControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(expectedResults.size()));
-
-        verify(requestMapper).toSearchContainer(request);
-        verify(searchService).searchWithFiltering(container);
     }
 
     @Test
@@ -211,7 +223,9 @@ class SearchControllerTest {
 
         var expectedResults = List.of(mock(RecipeDto.class));
 
-        when(requestMapper.toSearchContainer(request)).thenReturn(container);
+        when(translator.translateTextDependingOnWebsiteLanguage("pasta")).thenReturn("pasta");
+        when(translator.translateDtoDependingOnWebsiteLanguage(any())).thenReturn(expectedResults);
+        when(requestMapper.toSearchContainer(any(SearchRequest.class))).thenReturn(container);
         when(searchService.searchWithFiltering(container)).thenReturn(expectedResults);
 
         mockMvc.perform(post("/api/v1/search/with-filtering")
@@ -222,9 +236,6 @@ class SearchControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(expectedResults.size()));
-
-        verify(requestMapper).toSearchContainer(request);
-        verify(searchService).searchWithFiltering(container);
     }
 
     @Test

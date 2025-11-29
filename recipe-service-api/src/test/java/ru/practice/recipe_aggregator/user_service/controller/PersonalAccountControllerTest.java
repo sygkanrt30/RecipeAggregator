@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practice.recipe_aggregator.translator.TranslatorUtil;
 import ru.practice.recipe_aggregator.user_service.service.FavoriteRecipeService;
 import ru.practice.shared.dto.RecipeDto;
 
@@ -28,12 +29,18 @@ class PersonalAccountControllerTest {
     @MockitoBean
     private FavoriteRecipeService favoriteRecipeService;
 
+    @MockitoBean
+    private TranslatorUtil translator;
+
     private static final String TEST_USERNAME = "testuser";
 
     @Test
     @WithMockUser(username = TEST_USERNAME)
     void addToFavorites_ShouldCallService() throws Exception {
         var recipeName = Instancio.create(String.class);
+        var translatedName = "translated_" + recipeName;
+
+        when(translator.translateTextDependingOnWebsiteLanguage(recipeName)).thenReturn(translatedName);
 
         mockMvc.perform(post("/api/v1/account/favorite")
                         .param("recipe_name", recipeName)
@@ -41,7 +48,7 @@ class PersonalAccountControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        verify(favoriteRecipeService).add2Favorites(TEST_USERNAME, recipeName);
+        verify(favoriteRecipeService).add2Favorites(TEST_USERNAME, translatedName);
     }
 
     @Test
@@ -74,6 +81,9 @@ class PersonalAccountControllerTest {
     @WithMockUser(username = TEST_USERNAME)
     void removeFromFavorites_ShouldCallService() throws Exception {
         var recipeName = Instancio.create(String.class);
+        var translatedName = "translated_" + recipeName;
+
+        when(translator.translateTextDependingOnWebsiteLanguage(recipeName)).thenReturn(translatedName);
 
         mockMvc.perform(delete("/api/v1/account/favorite")
                         .param("recipe_name", recipeName)
@@ -81,7 +91,8 @@ class PersonalAccountControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        verify(favoriteRecipeService).removeFromFavorites(TEST_USERNAME, recipeName);
+        verify(translator).translateTextDependingOnWebsiteLanguage(recipeName);
+        verify(favoriteRecipeService).removeFromFavorites(TEST_USERNAME, translatedName);
     }
 
     @Test
@@ -101,8 +112,10 @@ class PersonalAccountControllerTest {
     @WithMockUser(username = TEST_USERNAME)
     void getFavorites_ShouldReturnFavoritesList() throws Exception {
         var favorites = Instancio.ofList(RecipeDto.class).size(2).create();
+        var translatedFavorites = Instancio.ofList(RecipeDto.class).size(2).create();
 
         when(favoriteRecipeService.getFavorites(TEST_USERNAME, 0, 15)).thenReturn(favorites);
+        when(translator.translateDtoDependingOnWebsiteLanguage(favorites)).thenReturn(translatedFavorites);
 
         mockMvc.perform(get("/api/v1/account/favorite")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -110,14 +123,17 @@ class PersonalAccountControllerTest {
                 .andExpect(jsonPath("$.length()").value(2));
 
         verify(favoriteRecipeService).getFavorites(TEST_USERNAME, 0, 15);
+        verify(translator).translateDtoDependingOnWebsiteLanguage(favorites);
     }
 
     @Test
     @WithMockUser(username = TEST_USERNAME)
     void getFavorites_WithCustomPagination_ShouldReturnFavoritesList() throws Exception {
         var favorites = Instancio.ofList(RecipeDto.class).size(5).create();
+        var translatedFavorites = Instancio.ofList(RecipeDto.class).size(5).create();
 
         when(favoriteRecipeService.getFavorites(TEST_USERNAME, 2, 10)).thenReturn(favorites);
+        when(translator.translateDtoDependingOnWebsiteLanguage(favorites)).thenReturn(translatedFavorites);
 
         mockMvc.perform(get("/api/v1/account/favorite")
                         .param("page", "2")
@@ -127,12 +143,16 @@ class PersonalAccountControllerTest {
                 .andExpect(jsonPath("$.length()").value(5));
 
         verify(favoriteRecipeService).getFavorites(TEST_USERNAME, 2, 10);
+        verify(translator).translateDtoDependingOnWebsiteLanguage(favorites);
     }
 
     @Test
     @WithMockUser(username = TEST_USERNAME)
     void getFavorites_WhenNoFavorites_ShouldReturnEmptyList() throws Exception {
-        when(favoriteRecipeService.getFavorites(TEST_USERNAME, 0, 15)).thenReturn(List.of());
+        List<RecipeDto> emptyList = List.of();
+
+        when(favoriteRecipeService.getFavorites(TEST_USERNAME, 0, 15)).thenReturn(emptyList);
+        when(translator.translateDtoDependingOnWebsiteLanguage(emptyList)).thenReturn(emptyList);
 
         mockMvc.perform(get("/api/v1/account/favorite")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -140,6 +160,7 @@ class PersonalAccountControllerTest {
                 .andExpect(jsonPath("$.length()").value(0));
 
         verify(favoriteRecipeService).getFavorites(TEST_USERNAME, 0, 15);
+        verify(translator).translateDtoDependingOnWebsiteLanguage(emptyList);
     }
 
     @Test
@@ -154,12 +175,36 @@ class PersonalAccountControllerTest {
     @Test
     @WithMockUser(username = TEST_USERNAME)
     void addToFavorites_WithEmptyRecipeName_ShouldReturnOk() throws Exception {
+        var emptyRecipeName = "";
+        var translatedName = "translated_empty";
+
+        when(translator.translateTextDependingOnWebsiteLanguage(emptyRecipeName)).thenReturn(translatedName);
+
         mockMvc.perform(post("/api/v1/account/favorite")
-                        .param("recipe_name", "")
+                        .param("recipe_name", emptyRecipeName)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        verify(favoriteRecipeService).add2Favorites(anyString(), anyString());
+        verify(translator).translateTextDependingOnWebsiteLanguage(emptyRecipeName);
+        verify(favoriteRecipeService).add2Favorites(TEST_USERNAME, translatedName);
+    }
+
+    @Test
+    @WithMockUser(username = TEST_USERNAME)
+    void removeFromFavorites_WithEmptyRecipeName_ShouldReturnOk() throws Exception {
+        var emptyRecipeName = "";
+        var translatedName = "translated_empty";
+
+        when(translator.translateTextDependingOnWebsiteLanguage(emptyRecipeName)).thenReturn(translatedName);
+
+        mockMvc.perform(delete("/api/v1/account/favorite")
+                        .param("recipe_name", emptyRecipeName)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(translator).translateTextDependingOnWebsiteLanguage(emptyRecipeName);
+        verify(favoriteRecipeService).removeFromFavorites(TEST_USERNAME, translatedName);
     }
 }

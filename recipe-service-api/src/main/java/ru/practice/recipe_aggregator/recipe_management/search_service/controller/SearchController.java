@@ -48,11 +48,16 @@ public class SearchController {
     }
 
     private void translateRequestParam(SearchRequest request) {
-        String nameOnEN = translator.translateTextDependingOnWebsiteLanguage(request.name());
-        var ingredientsOnEN = request.ingredientNames().stream()
-                .map(translator::translateTextDependingOnWebsiteLanguage).
-                collect(Collectors.toSet());
-        request.name(nameOnEN);
-        request.ingredientNames(ingredientsOnEN);
+        if (request.name() != null) {
+            String nameOnEN = translator.translateTextDependingOnWebsiteLanguage(request.name());
+            request.name(nameOnEN);
+        }
+
+        if (request.ingredientNames() != null) {
+            var ingredientsOnEN = request.ingredientNames().stream()
+                    .map(translator::translateTextDependingOnWebsiteLanguage)
+                    .collect(Collectors.toSet());
+            request.ingredientNames(ingredientsOnEN);
+        }
     }
 }
