@@ -1,12 +1,10 @@
 package ru.practice.shared.dto.ingredient;
 
-import static ru.practice.shared.dto.ingredient.DefaultValue.QUANTITY;
-
 final class FallbackParser {
     static IngredientDto parse(String text) {
-        String quantity = "";
-        String unit = "";
-        String name = text;
+        var quantity = "";
+        var unit = "";
+        var name = text;
 
         if (text.matches("^\\d+(?:\\.\\d+)?.*")) {
             String[] parts = text.split("\\s+", 2);
@@ -15,11 +13,6 @@ final class FallbackParser {
                 name = parts[1].trim();
             }
         }
-
-        if (quantity == null || quantity.trim().isEmpty()) {
-            quantity = QUANTITY.defaultValue();
-        }
-
-        return new IngredientDto(name, quantity, unit);
+        return IngredientDto.of(name, quantity, unit);
     }
 }

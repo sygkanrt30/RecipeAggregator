@@ -1,22 +1,22 @@
 package ru.practice.shared.dto.ingredient;
 
-import static ru.practice.shared.dto.ingredient.DefaultValue.QUANTITY;
-
 public record IngredientDto(
         String name,
         String quantity,
         String unit) {
 
+    private static final String QUANTITY_DEFAULT = "1";
+
     public static IngredientDto of(String name, String quantity, String unit) {
-        if (quantity == null || quantity.isEmpty()) {
-            quantity = QUANTITY.defaultValue();
+        if (quantity == null || quantity.trim().isEmpty()) {
+            quantity = QUANTITY_DEFAULT;
         }
         return new IngredientDto(name, quantity, unit);
     }
 
     public static IngredientDto of(String text) {
         if (text == null || text.trim().isEmpty()) {
-            return new IngredientDto("", QUANTITY.defaultValue(), "");
+            return new IngredientDto("", QUANTITY_DEFAULT, "");
         }
 
         var cleanedText = text.trim();
