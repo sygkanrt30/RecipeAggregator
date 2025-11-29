@@ -16,7 +16,6 @@ import ru.practice.shared.dto.RecipeDto;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -61,21 +60,30 @@ class RecipeConsumerProcessorTest {
     @Test
     void saveFromKafka_shouldFilterExistingAndSaveNewRecipes() {
         // given
-        var existingIds = Set.of(UUID.randomUUID(), UUID.randomUUID());
-        var newIds = Set.of(UUID.randomUUID(), UUID.randomUUID());
-        var allIds = Stream.concat(existingIds.stream(), newIds.stream())
+        var existingNames = Set.of("existingRecipe1", "existingRecipe2");
+        var newNames = Set.of("newRecipe1", "newRecipe2");
+        var allNames = Stream.concat(existingNames.stream(), newNames.stream())
                 .collect(Collectors.toSet());
-        var existingDtos = existingIds.stream()
-                .map(id -> Instancio.of(RecipeDto.class).set(field(RecipeDto::id), id).create())
+
+        var existingDtos = existingNames.stream()
+                .map(name -> Instancio.of(RecipeDto.class)
+                        .set(field(RecipeDto::name), name)
+                        .create())
                 .toList();
-        var newDtos = newIds.stream()
-                .map(id -> Instancio.of(RecipeDto.class).set(field(RecipeDto::id), id).create())
+        var newDtos = newNames.stream()
+                .map(name -> Instancio.of(RecipeDto.class)
+                        .set(field(RecipeDto::name), name)
+                        .create())
                 .toList();
         var kafkaDtos = Stream.concat(existingDtos.stream(), newDtos.stream()).toList();
-        var newEntities = newIds.stream()
-                .map(id -> Instancio.of(RecipeDoc.class).set(field(RecipeDoc::getId), id).create())
+
+        var newEntities = newDtos.stream()
+                .map(dto -> Instancio.of(RecipeDoc.class)
+                        .set(field(RecipeDoc::getName), dto.name())
+                        .create())
                 .toList();
-        when(recipeService.findExistingIds(allIds)).thenReturn(existingIds);
+
+        when(recipeService.findExistingNames(allNames)).thenReturn(existingNames);
         for (int i = 0; i < newDtos.size(); i++) {
             when(recipeMapper.fromRecipeDto(newDtos.get(i))).thenReturn(newEntities.get(i));
         }
