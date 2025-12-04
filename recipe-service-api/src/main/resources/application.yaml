@@ -86,6 +86,7 @@ logging:
       max-file-size: 100MB
       max-history: 10
       total-size-cap: 5GB
+      file-name-pattern: ${logging.file.path}/archived/recipe_service.%d{yyyy-MM-dd}.log
   pattern:
     console: '%d{dd.MM.yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n'
     file: '%d{dd.MM.yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n'

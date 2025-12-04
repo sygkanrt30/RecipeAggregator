@@ -1,7 +1,6 @@
 package ru.practice.parser_service.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -28,7 +27,7 @@ public class KafkaConfig {
     private String bootstrapServers;
 
     @Bean
-    public ProducerFactory<String, List<RecipeDto>> producerFactory() {
+    public ProducerFactory<String, List<RecipeDto>> producerFactory(ObjectMapper objectMapper) {
         var configProps = new HashMap<String, Object>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(ProducerConfig.ACKS_CONFIG, "all");
@@ -40,15 +39,8 @@ public class KafkaConfig {
         return new DefaultKafkaProducerFactory<>(
                 configProps,
                 new StringSerializer(),
-                new JsonSerializer<>(objectMapper())
+                new JsonSerializer<>(objectMapper)
         );
-    }
-
-    @Bean
-    public ObjectMapper objectMapper() {
-        var objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        return objectMapper;
     }
 
     @Bean

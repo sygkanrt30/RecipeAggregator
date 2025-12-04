@@ -6,6 +6,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
 import ru.practice.parser_service.config.RecipeParserConfig;
+import ru.practice.parser_service.service.cache.NameOfUrlCaches;
+import ru.practice.parser_service.service.cache.RecipeCache;
+import ru.practice.parser_service.service.cache.UrlCache;
 import ru.practice.parser_service.service.exception.ParserException;
 import ru.practice.parser_service.service.parsers.enums.InvalidRequestPrefix;
 import ru.practice.parser_service.service.parsers.enums.ValidHtmlTag;
@@ -15,9 +18,9 @@ import ru.practice.shared.dto.RecipeDto;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -26,9 +29,8 @@ public class WebsiteParserImpl implements WebsiteParser {
 
     private final RecipeParserConfig parserConfig;
     private final ParserOrganizer parserOrganizer;
-    private final Set<String> visitedUrlsCache = new HashSet<>();
-    private final Set<String> parsedRecipeUrlsCache = new HashSet<>();
-    private final Set<RecipeDto> recipeCache = new HashSet<>();
+    private final UrlCache<NameOfUrlCaches, String> urlsCache;
+    private final RecipeCache<String, RecipeDto> recipeCache;
 
     @Override
     public List<RecipeDto> parse(String url) {
@@ -38,7 +40,11 @@ public class WebsiteParserImpl implements WebsiteParser {
         parseWebsiteRecursive(url, 0, newRecipes);
         long duration = System.currentTimeMillis() - startTime;
         log.info("Parsing completed in {} ms. {} new recipes found", duration, newRecipes.size());
-        recipeCache.addAll(newRecipes);
+        Map<String, RecipeDto> newRecipesEntry = newRecipes.stream().collect(Collectors.toMap(
+                RecipeDto::name,
+                recipe -> recipe
+        ));
+        recipeCache.putAll(newRecipesEntry);
         return newRecipes;
     }
 
@@ -46,7 +52,7 @@ public class WebsiteParserImpl implements WebsiteParser {
         if (shouldStopParsing(url, depth, newRecipes)) {
             return;
         }
-        visitedUrlsCache.add(url);
+        urlsCache.put(NameOfUrlCaches.VISITED_URLS, url);
         try {
             var doc = getDocument(url);
             log.debug("URL processing (depth {}): {}", depth, url);
@@ -69,7 +75,7 @@ public class WebsiteParserImpl implements WebsiteParser {
             log.debug("Maximum depth {} for URL exceeded: {}", parserConfig.maxDepth(), url);
             return true;
         }
-        if (visitedUrlsCache.contains(url)) {
+        if (urlsCache.contains(NameOfUrlCaches.VISITED_URLS, url)) {
             log.debug("URL is already visited: {}", url);
             return true;
         }
@@ -83,9 +89,9 @@ public class WebsiteParserImpl implements WebsiteParser {
             if (isNewRecipe(recipe, normalizedUrl)) {
                 if (newRecipes.size() < parserConfig.maxRecipes()) {
                     newRecipes.add(recipe);
-                    parsedRecipeUrlsCache.add(normalizedUrl);
+                    urlsCache.put(NameOfUrlCaches.PARSED_RECIPE_URLS, normalizedUrl);
                     if (newRecipes.size() % 5 == 0) {
-                        log.debug("Progress: {} new recipes found from {}", newRecipes.size(), parserConfig.maxRecipes());
+                        log.info("Progress: {} new recipes found from {}", newRecipes.size(), parserConfig.maxRecipes());
                     }
                     if (newRecipes.size() >= parserConfig.maxRecipes()) {
                         log.debug("Reached limit in {} new recipes", parserConfig.maxRecipes());
@@ -100,10 +106,10 @@ public class WebsiteParserImpl implements WebsiteParser {
     }
 
     private boolean isNewRecipe(RecipeDto recipe, String normalizedUrl) {
-        if (parsedRecipeUrlsCache.contains(normalizedUrl)) {
+        if (urlsCache.contains(NameOfUrlCaches.PARSED_RECIPE_URLS, normalizedUrl)) {
             return false;
         }
-        return !recipeCache.contains(recipe);
+        return !recipeCache.contains(recipe.name());
     }
 
     private String normalizeUrl(String url) {
@@ -175,8 +181,8 @@ public class WebsiteParserImpl implements WebsiteParser {
                 }
                 String href = link.absUrl(ValidHtmlTag.HREF.value());
                 if (isValidUrl(href) &&
-                        !visitedUrlsCache.contains(href) &&
-                        !parsedRecipeUrlsCache.contains(normalizeUrl(href))) {
+                        !urlsCache.contains(NameOfUrlCaches.VISITED_URLS, href) &&
+                        !urlsCache.contains(NameOfUrlCaches.PARSED_RECIPE_URLS, normalizeUrl(href))) {
                     parseWebsiteRecursive(href, currentDepth++, newRecipes);
                     processedLinks++;
                 }
