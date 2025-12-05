@@ -12,4 +12,13 @@ public enum LanguageCode {
     ENGLISH("en");
 
     private final String code;
+
+    public static LanguageCode fromCode(String code) {
+        for (var language : values()) {
+            if (language.code.equalsIgnoreCase(code)) {
+                return language;
+            }
+        }
+        throw new IllegalArgumentException("Unknown language code: " + code);
+    }
 }

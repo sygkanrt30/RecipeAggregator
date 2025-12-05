@@ -13,6 +13,8 @@ import ru.practice.recipe_aggregator.recipe_management.search_service.controller
 @Component
 public interface RequestMapper {
 
+    @Mapping(target = "ingredientNames", expression = "java(request.ingredientNames())")
+    @Mapping(target = "name", expression = "java(request.name())")
     @Mapping(target = "cookingTimeCondition", expression = "java(mapToFilterCondition(\"cookingTime\", request.cookingTime(), request.cookingTimeOperator()))")
     @Mapping(target = "totalTimeCondition", expression = "java(mapToFilterCondition(\"totalTime\", request.totalTime(), request.totalTimeOperator()))")
     @Mapping(target = "preparationTimeCondition", expression = "java(mapToFilterCondition(\"preparingTime\", request.preparationTime(), request.preparationTimeOperator()))")

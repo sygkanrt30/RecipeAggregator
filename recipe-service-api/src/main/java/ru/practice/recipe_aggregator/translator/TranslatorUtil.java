@@ -14,7 +14,7 @@ public class TranslatorUtil {
     public TranslatorUtil(Translator translator,
                           @Value("${web-site.lang}") String websiteLang) {
         this.translator = translator;
-        this.languageCode = LanguageCode.valueOf(websiteLang);
+        this.languageCode = LanguageCode.fromCode(websiteLang);
     }
 
     public String translateTextDependingOnWebsiteLanguage(String text) {
