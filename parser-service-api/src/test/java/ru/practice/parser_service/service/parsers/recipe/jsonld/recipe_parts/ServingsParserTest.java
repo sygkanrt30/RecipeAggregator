@@ -1,9 +1,8 @@
-package ru.practice.parser_service.service.parsers.jsonld.recipe_parts;
+package ru.practice.parser_service.service.parsers.recipe.jsonld.recipe_parts;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import ru.practice.parser_service.service.parsers.recipe.jsonld.recipe_parts.ServingsParser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

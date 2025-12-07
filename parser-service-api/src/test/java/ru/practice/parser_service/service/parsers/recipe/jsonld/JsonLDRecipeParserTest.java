@@ -1,16 +1,15 @@
-package ru.practice.parser_service.service.parsers.jsonld;
+package ru.practice.parser_service.service.parsers.recipe.jsonld;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.yaml.snakeyaml.Yaml;
 import ru.practice.parser_service.service.mapper.RecipeMapper;
-import ru.practice.parser_service.service.parsers.recipe.jsonld.JsonLDRecipeParser;
 import ru.practice.shared.dto.RecipeDto;
 import ru.practice.shared.dto.ingredient.IngredientDto;
 
@@ -35,7 +34,6 @@ class JsonLDRecipeParserTest {
     @Mock
     private RecipeMapper mapper;
 
-    @InjectMocks
     private JsonLDRecipeParser recipeParser;
 
     private static Map<String, String> jsonLdContents;
@@ -43,6 +41,12 @@ class JsonLDRecipeParserTest {
     @BeforeAll
     static void setUpAll() throws IOException {
         jsonLdContents = loadJsonLdFromYaml();
+    }
+
+    @BeforeEach
+    void setUp() {
+        var extractor = new RecipeExtractor(mapper);
+        recipeParser = new JsonLDRecipeParser(extractor);
     }
 
     @SuppressWarnings("unchecked")

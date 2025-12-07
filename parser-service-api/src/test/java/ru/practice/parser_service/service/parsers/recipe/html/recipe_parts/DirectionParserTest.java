@@ -1,9 +1,8 @@
-package ru.practice.parser_service.service.parsers.html.recipe_parts;
+package ru.practice.parser_service.service.parsers.recipe.html.recipe_parts;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Test;
-import ru.practice.parser_service.service.parsers.recipe.html.recipe_parts.DirectionParser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

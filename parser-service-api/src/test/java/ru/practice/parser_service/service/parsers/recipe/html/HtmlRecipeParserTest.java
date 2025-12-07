@@ -1,4 +1,4 @@
-package ru.practice.parser_service.service.parsers.html;
+package ru.practice.parser_service.service.parsers.recipe.html;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,7 +12,6 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.yaml.snakeyaml.Yaml;
 import ru.practice.parser_service.service.mapper.RecipeMapper;
-import ru.practice.parser_service.service.parsers.recipe.html.HtmlRecipeParser;
 import ru.practice.parser_service.service.parsers.recipe.html.recipe_parts.TimeParser;
 import ru.practice.shared.dto.RecipeDto;
 import ru.practice.shared.dto.ingredient.IngredientDto;
