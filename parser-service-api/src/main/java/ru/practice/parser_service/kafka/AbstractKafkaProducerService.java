@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.Collection;
-import java.util.stream.IntStream;
 
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -18,25 +17,24 @@ public abstract class AbstractKafkaProducerService<T> implements ProducerService
     @Override
     public void sendMessage(T data) {
         kafkaTemplate.send(kafkaTopic, data);
-        log.info("Message is sent to topic '{}'", kafkaTopic);
+        log.debug("Message is sent to topic '{}'", kafkaTopic);
         logItemIfDebugLevel(data);
     }
 
     private void logItemIfDebugLevel(T data) {
-        if (log.isDebugEnabled()) {
+        if (log.isTraceEnabled()) {
             if (data instanceof Collection<?> collection) {
                 logEveryItemIfDebugLevel(collection);
                 return;
             }
-            log.debug("{} sent: {}", getItemType(), data);
+            log.trace("{} sent: {}", getItemType().name(), data);
         }
     }
 
     private void logEveryItemIfDebugLevel(Collection<?> collection) {
-        var iterator = collection.iterator();
-        IntStream.range(0, collection.size())
-                .forEach(i -> log.debug("{} #{}: {}", getItemType(), i, iterator.next()));
+        final int[] i = {0};
+        collection.forEach(item -> log.trace("{} #{}: {}", getItemType().name(), ++i[0], item));
     }
 
-    protected abstract String getItemType();
+    protected abstract ItemType getItemType();
 }

@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({EntityNotFoundException.class, UsernameNotFoundException.class})
-    public ProblemDetail catchEntityNotFoundException(Exception e) {
+    public ProblemDetail catchNotFoundException(Exception e) {
         return getAppErrorHandlerResponseDto(e, HttpStatus.NOT_FOUND);
     }
 

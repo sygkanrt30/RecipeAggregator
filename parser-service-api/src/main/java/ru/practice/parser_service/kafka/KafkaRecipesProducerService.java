@@ -17,7 +17,7 @@ public class KafkaRecipesProducerService extends AbstractKafkaProducerService<Li
     }
 
     @Override
-    protected String getItemType() {
-        return "Recipe";
+    protected ItemType getItemType() {
+        return ItemType.RECIPE;
     }
 }

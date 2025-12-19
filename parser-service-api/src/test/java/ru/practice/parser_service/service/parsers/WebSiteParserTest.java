@@ -6,7 +6,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-import ru.practice.parser_service.config.RecipeParserConfig;
+import ru.practice.parser_service.config.BrowserConfig;
+import ru.practice.parser_service.config.ParserConfig;
 import ru.practice.parser_service.service.cache.NameOfUrlCaches;
 import ru.practice.parser_service.service.cache.RecipeCache;
 import ru.practice.parser_service.service.cache.UrlCache;
@@ -33,19 +34,21 @@ class WebSiteParserTest {
         urlsCache = mock(UrlCache.class);
         RecipeCache<String, RecipeDto> recipeCache = mock(RecipeCache.class);
 
-        var parserConfig = new RecipeParserConfig()
-                .timeout(15000)
-                .minDelayMs(1000)
-                .maxDelayMs(2000)
-                .maxLinksPerPage(50)
-                .maxRecipes(25)
-                .maxDepth(3)
-                .containerSelectors("div.recipe")
-                .recipeTag("recipe")
-                .userAgent("test-agent")
-                .referrer("https://test.com");
+        var parserConfig = new ParserConfig()
+                .setTimeoutMs(15000)
+                .setMinDelayMs(1000)
+                .setMaxDelayMs(2000)
+                .setMaxLinksPerPage(50)
+                .setMaxRecipes(25)
+                .setMaxDepth(3)
+                .setContainerSelectors("div.recipe")
+                .setRecipeTag("recipe");
 
-        webSiteParser = new WebsiteParserImpl(parserConfig, parserOrganizer, urlsCache, recipeCache);
+        var browserConfig = new BrowserConfig()
+                .setUserAgent("test-agent")
+                .setReferrer("https://test.com");
+
+        webSiteParser = new WebsiteParserImpl(parserConfig, browserConfig, parserOrganizer, urlsCache, recipeCache);
         mockedJsoup = mockStatic(Jsoup.class);
     }
 

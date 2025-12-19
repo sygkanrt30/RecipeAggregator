@@ -13,11 +13,11 @@ public abstract class AbstractParserService<T> {
 
     protected abstract String getDataSource();
 
-    protected void logStart() {
+    protected void onStart() {
         log.debug("The beginning of the planned parsing");
     }
 
-    protected void logSuccess(T data) {
+    protected void onFinish(T data) {
         if (data instanceof Collection<?> collection) {
             log.debug("The scheduled parsing is completed. Total items sent: {}", collection.size());
         } else {
@@ -31,7 +31,7 @@ public abstract class AbstractParserService<T> {
 
     public void parseAndSend() {
         String dataSource = getDataSource();
-        logStart();
+        onStart();
         try {
             log.debug("Parsing with source: {}", dataSource);
             T data = parseData(dataSource);
@@ -40,7 +40,7 @@ public abstract class AbstractParserService<T> {
                 return;
             }
             sendData(data);
-            logSuccess(data);
+            onFinish(data);
         } catch (Exception e) {
             handleError(dataSource, e);
         }

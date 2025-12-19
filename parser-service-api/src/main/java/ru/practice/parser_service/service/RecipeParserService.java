@@ -3,7 +3,7 @@ package ru.practice.parser_service.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import ru.practice.parser_service.config.RecipeParserConfig;
+import ru.practice.parser_service.config.BrowserConfig;
 import ru.practice.parser_service.kafka.ProducerService;
 import ru.practice.parser_service.service.parsers.website.WebsiteParser;
 import ru.practice.shared.dto.RecipeDto;
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public final class RecipeParserService extends AbstractParserService<List<RecipeDto>> {
 
-    private final RecipeParserConfig parserConfig;
+    private final BrowserConfig browserConfig;
     private final ProducerService<List<RecipeDto>> producer;
     private final WebsiteParser parser;
 
@@ -31,7 +31,7 @@ public final class RecipeParserService extends AbstractParserService<List<Recipe
 
     @Override
     protected String getDataSource() {
-        return parserConfig.mainUrl();
+        return browserConfig.getMainUrl();
     }
 
     @Scheduled(fixedDelay = 30, timeUnit = TimeUnit.MINUTES, initialDelay = 0)

@@ -5,7 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
-import ru.practice.parser_service.config.RecipeParserConfig;
+import ru.practice.parser_service.config.BrowserConfig;
+import ru.practice.parser_service.config.ParserConfig;
 import ru.practice.parser_service.service.cache.NameOfUrlCaches;
 import ru.practice.parser_service.service.cache.RecipeCache;
 import ru.practice.parser_service.service.cache.UrlCache;
@@ -27,7 +28,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WebsiteParserImpl implements WebsiteParser {
 
-    private final RecipeParserConfig parserConfig;
+    private final ParserConfig parserConfig;
+    private final BrowserConfig browserConfig;
     private final ParserOrganizer parserOrganizer;
     private final UrlCache<NameOfUrlCaches, String> urlsCache;
     private final RecipeCache<String, RecipeDto> recipeCache;
@@ -59,7 +61,7 @@ public class WebsiteParserImpl implements WebsiteParser {
             if (isRecipePage(doc)) {
                 processRecipePage(url, doc, newRecipes);
             }
-            if (newRecipes.size() < parserConfig.maxRecipes()) {
+            if (newRecipes.size() < parserConfig.getMaxRecipes()) {
                 findAndProcessLinks(doc, depth, newRecipes);
             }
         } catch (Exception e) {
@@ -68,11 +70,11 @@ public class WebsiteParserImpl implements WebsiteParser {
     }
 
     private boolean shouldStopParsing(String url, int depth, List<RecipeDto> newRecipes) {
-        if (newRecipes.size() >= parserConfig.maxRecipes()) {
+        if (newRecipes.size() >= parserConfig.getMaxRecipes()) {
             return true;
         }
-        if (depth > parserConfig.maxDepth()) {
-            log.debug("Maximum depth {} for URL exceeded: {}", parserConfig.maxDepth(), url);
+        if (depth > parserConfig.getMaxDepth()) {
+            log.debug("Maximum depth {} for URL exceeded: {}", parserConfig.getMaxDepth(), url);
             return true;
         }
         if (urlsCache.contains(NameOfUrlCaches.VISITED_URLS, url)) {
@@ -87,14 +89,15 @@ public class WebsiteParserImpl implements WebsiteParser {
         try {
             var recipe = parserOrganizer.parseByPriority(doc);
             if (isNewRecipe(recipe, normalizedUrl)) {
-                if (newRecipes.size() < parserConfig.maxRecipes()) {
+                int maxRecipes = parserConfig.getMaxRecipes();
+                if (newRecipes.size() < maxRecipes) {
                     newRecipes.add(recipe);
                     urlsCache.put(NameOfUrlCaches.PARSED_RECIPE_URLS, normalizedUrl);
                     if (newRecipes.size() % 5 == 0) {
-                        log.info("Progress: {} new recipes found from {}", newRecipes.size(), parserConfig.maxRecipes());
+                        log.info("Progress: {} new recipes found from {}", newRecipes.size(), maxRecipes);
                     }
-                    if (newRecipes.size() >= parserConfig.maxRecipes()) {
-                        log.debug("Reached limit in {} new recipes", parserConfig.maxRecipes());
+                    if (newRecipes.size() >= maxRecipes) {
+                        log.debug("Reached limit in {} new recipes", maxRecipes);
                     }
                 }
             } else {
@@ -127,14 +130,14 @@ public class WebsiteParserImpl implements WebsiteParser {
 
     private Document getDocument(String url) {
         try {
-            Thread.sleep(parserConfig.minDelayMs() +
-                    (long) (Math.random() * (parserConfig.maxDelayMs() - parserConfig.minDelayMs())));
+            Thread.sleep(parserConfig.getMinDelayMs() +
+                    (long) (Math.random() * (parserConfig.getMaxDelayMs() - parserConfig.getMinDelayMs())));
             var doc = Jsoup.connect(url)
-                    .userAgent(parserConfig.userAgent())
-                    .referrer(parserConfig.referrer())
-                    .timeout(parserConfig.timeout())
-                    .header("Accept", parserConfig.accept())
-                    .header("Cookie", parserConfig.cookie())
+                    .userAgent(browserConfig.getUserAgent())
+                    .referrer(browserConfig.getReferrer())
+                    .timeout(parserConfig.getTimeoutMs())
+                    .header("Accept", browserConfig.getHeaderAccept())
+                    .header("Cookie", browserConfig.getHeaderAccept())
                     .followRedirects(true)
                     .ignoreHttpErrors(true)
                     .maxBodySize(0)
@@ -162,21 +165,21 @@ public class WebsiteParserImpl implements WebsiteParser {
     }
 
     private boolean isRecipePage(Document doc) {
-        return !doc.select(parserConfig.recipeTag()).isEmpty();
+        return !doc.select(parserConfig.getRecipeTag()).isEmpty();
     }
 
     private void findAndProcessLinks(Document doc, int currentDepth, List<RecipeDto> newRecipes) {
-        if (newRecipes.size() >= parserConfig.maxRecipes()) {
+        if (newRecipes.size() >= parserConfig.getMaxRecipes()) {
             return;
         }
-        int linksToProcess = Math.min(parserConfig.maxLinksPerPage(), parserConfig.maxRecipes() - newRecipes.size());
+        int linksToProcess = Math.min(parserConfig.getMaxLinksPerPage(), parserConfig.getMaxRecipes() - newRecipes.size());
         int processedLinks = 0;
-        for (var tag : doc.select(parserConfig.containerSelectors())) {
+        for (var tag : doc.select(parserConfig.getContainerSelectors())) {
             if (processedLinks >= linksToProcess) {
                 break;
             }
             for (var link : tag.select(ValidHtmlTag.HREF_TAG.value())) {
-                if (processedLinks >= linksToProcess || newRecipes.size() >= parserConfig.maxRecipes()) {
+                if (processedLinks >= linksToProcess || newRecipes.size() >= parserConfig.getMaxRecipes()) {
                     return;
                 }
                 String href = link.absUrl(ValidHtmlTag.HREF.value());
