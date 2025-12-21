@@ -21,26 +21,6 @@ public record IngredientDto(
 
         var cleanedText = text.trim();
 
-        IngredientDto result = RangeQuantityParser.parse(cleanedText);
-        if (result != null)
-            return result;
-
-        result = FractionParser.parse(cleanedText);
-        if (result != null)
-            return result;
-
-        result = QuantityUnitParser.parse(cleanedText);
-        if (result != null)
-            return result;
-
-        result = QuantityOnlyParser.parse(cleanedText);
-        if (result != null)
-            return result;
-
-        result = ParenthesesParser.parse(cleanedText);
-        if (result != null)
-            return result;
-
-        return FallbackParser.parse(cleanedText);
+        return IngredientFromTextExtractor.extract(cleanedText);
     }
 }

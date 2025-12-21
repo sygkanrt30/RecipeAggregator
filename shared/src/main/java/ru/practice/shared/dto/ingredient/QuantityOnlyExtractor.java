@@ -1,7 +1,11 @@
 package ru.practice.shared.dto.ingredient;
 
-final class QuantityOnlyParser {
-    static IngredientDto parse(String text) {
+import java.util.function.Function;
+
+final class QuantityOnlyExtractor implements Function<String, IngredientDto> {
+
+    @Override
+    public IngredientDto apply(String text) {
         var matcher = IngredientPattern.QUANTITY_ONLY.pattern().matcher(text);
         if (matcher.matches()) {
             String quantity = matcher.group(1);

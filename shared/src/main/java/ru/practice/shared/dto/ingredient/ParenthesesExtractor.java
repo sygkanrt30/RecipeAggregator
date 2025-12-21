@@ -1,7 +1,11 @@
 package ru.practice.shared.dto.ingredient;
 
-final class ParenthesesParser {
-    static IngredientDto parse(String text) {
+import java.util.function.Function;
+
+final class ParenthesesExtractor implements Function<String, IngredientDto> {
+
+    @Override
+    public IngredientDto apply(String text) {
         var matcher = IngredientPattern.PARENTHESES.pattern().matcher(text);
         if (matcher.matches()) {
             String mainPart = matcher.group(1).trim();
