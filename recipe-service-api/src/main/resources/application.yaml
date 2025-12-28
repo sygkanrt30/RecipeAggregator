@@ -1,6 +1,19 @@
 spring:
   application:
     name: recipe-aggregator
+  config:
+    import: vault://
+  cloud:
+    vault:
+      uri: http://localhost:8200
+      token: myroot
+      kv:
+        enabled: true
+        backend: secret
+        default-context: ${spring.application.name}
+      ssl:
+        trust-store: classpath:/
+        verification-mode: NONE
   frontend:
     base:
       url: http://localhost:3002
@@ -59,7 +72,7 @@ elasticsearch:
   host-and-port: localhost:9200
 
 jwt:
-  cookie-token-key: '{"kty":"oct","k":"956PBFst1FguLr5irJD-aQ"}'
+  cookie-token-key: ${jwt.cookie-token-key}
 
 web-site:
   lang: 'ru'
@@ -67,8 +80,8 @@ web-site:
 yandex:
   uri: 'https://translate.api.cloud.yandex.net/translate/v2/translate'
   api:
-    key: 'AQVNzNKLpRuhWBf1okbHlSFBHzCPRzm2yN8aRnNN'
-    folder-id: 'b1g0d3qs7g5eumgm9jjb'
+    key: ${yandex.api.key}
+    folder-id: ${yandex.api.folder-id}
 
 csrf:
   token:
