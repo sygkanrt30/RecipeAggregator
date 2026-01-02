@@ -46,7 +46,7 @@ services:
       - IPC_LOCK
     command: server -dev -dev-listen-address="0.0.0.0:8200"
     volumes:
-      - ./vault/data:/vault/data:rw
+      - vault_data:vault/data
 
   db:
     image: postgres:17.5
@@ -200,3 +200,4 @@ volumes:
   postgres_data:
   elasticsearch_data:
   redis_data:
+  vault_data:
