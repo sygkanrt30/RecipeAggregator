@@ -9,16 +9,16 @@ import java.util.regex.Pattern;
 @UtilityClass
 public class ServingsParser {
 
-    private static final int DEFAULT_VALUE = 1;
+    private static final int DEFAULT_SERVINGS_VALUE = 1;
     private static final Pattern NUMBER_PATTERN = Pattern.compile("\\d+");
 
     public int parseServings(String servingsStr) {
         if (servingsStr == null) {
-            return DEFAULT_VALUE;
+            return DEFAULT_SERVINGS_VALUE;
         }
         var str = servingsStr.trim();
         if (str.isEmpty()) {
-            return DEFAULT_VALUE;
+            return DEFAULT_SERVINGS_VALUE;
         }
 
         if (isJsonArray(str)) {
@@ -36,7 +36,7 @@ public class ServingsParser {
 
     private int parseFromString(String str) {
         if (isInvalidString(str)) {
-            return DEFAULT_VALUE;
+            return DEFAULT_SERVINGS_VALUE;
         }
         try {
             var matcher = NUMBER_PATTERN.matcher(str);
@@ -46,7 +46,7 @@ public class ServingsParser {
         } catch (Exception e) {
             log.debug("Failed to parse servings: {}", str);
         }
-        return DEFAULT_VALUE;
+        return DEFAULT_SERVINGS_VALUE;
     }
 
     private boolean isInvalidString(String str) {

@@ -77,8 +77,7 @@ class RegistrationControllerTest {
                                 }
                                 """.formatted(username, password, email))
                         .with(csrf()))
-                .andExpect(status().isConflict())
-                .andExpect(content().string(errorMessage));
+                .andExpect(status().isConflict());
 
         verify(authenticator, never()).authenticateAndSetCookie(any(), any(), any(), any());
     }

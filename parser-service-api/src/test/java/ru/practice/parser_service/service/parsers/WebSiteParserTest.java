@@ -11,7 +11,7 @@ import ru.practice.parser_service.config.ParserConfig;
 import ru.practice.parser_service.service.cache.NameOfUrlCaches;
 import ru.practice.parser_service.service.cache.RecipeCache;
 import ru.practice.parser_service.service.cache.UrlCache;
-import ru.practice.parser_service.service.parsers.recipe.ParserOrganizer;
+import ru.practice.parser_service.service.parsers.recipe.jsonld.RecipeParser;
 import ru.practice.parser_service.service.parsers.website.WebsiteParserImpl;
 import ru.practice.shared.dto.RecipeDto;
 
@@ -23,14 +23,14 @@ import static org.mockito.Mockito.*;
 
 class WebSiteParserTest {
 
-    private ParserOrganizer parserOrganizer;
+    private RecipeParser parser;
     private UrlCache<NameOfUrlCaches, String> urlsCache;
     private WebsiteParserImpl webSiteParser;
     private MockedStatic<Jsoup> mockedJsoup;
 
     @BeforeEach
     void setUp() {
-        parserOrganizer = mock(ParserOrganizer.class);
+        parser = mock(RecipeParser.class);
         urlsCache = mock(UrlCache.class);
         RecipeCache<String, RecipeDto> recipeCache = mock(RecipeCache.class);
 
@@ -48,7 +48,7 @@ class WebSiteParserTest {
                 .setUserAgent("test-agent")
                 .setReferrer("https://test.com");
 
-        webSiteParser = new WebsiteParserImpl(parserConfig, browserConfig, parserOrganizer, urlsCache, recipeCache);
+        webSiteParser = new WebsiteParserImpl(parserConfig, browserConfig, parser, urlsCache, recipeCache);
         mockedJsoup = mockStatic(Jsoup.class);
     }
 
@@ -90,7 +90,7 @@ class WebSiteParserTest {
         mockJsoupConnection("https://www.allrecipes.com/level3", l3Doc);
 
         doThrow(new RuntimeException("Should not parse non-recipe pages"))
-                .when(parserOrganizer).parseByPriority(any(Document.class));
+                .when(parser).parseRecipePage(any(Document.class));
 
         webSiteParser.parse(mainPageUrl);
 
@@ -107,7 +107,7 @@ class WebSiteParserTest {
 
         mockJsoupConnection(testUrl, doc);
         doThrow(new RuntimeException("Not a recipe page"))
-                .when(parserOrganizer).parseByPriority(any(Document.class));
+                .when(parser).parseRecipePage(any(Document.class));
 
         List<RecipeDto> result = webSiteParser.parse(testUrl);
 

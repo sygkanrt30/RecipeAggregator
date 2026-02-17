@@ -41,10 +41,10 @@ public class CacheConfig {
                 .entryTtl(Duration.ofHours(1));
 
         Map<String, RedisCacheConfiguration> cacheConfigurations = Map.of(
-                VISITED_URLS.value(),
+                VISITED_URLS.name(),
                 config.entryTtl(Duration.ofDays(urlsTtl)),
 
-                PARSED_RECIPE_URLS.value(),
+                PARSED_RECIPE_URLS.name(),
                 config.entryTtl(Duration.ofDays(urlsTtl)),
 
                 recipeCacheName,

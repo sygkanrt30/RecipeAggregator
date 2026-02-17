@@ -8,7 +8,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
-import ru.practice.parser_service.service.parsers.recipe.RecipeParser;
 import ru.practice.shared.dto.RecipeDto;
 
 import java.util.Optional;

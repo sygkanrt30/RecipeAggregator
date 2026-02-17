@@ -1,4 +1,4 @@
-package ru.practice.parser_service.service.parsers.recipe;
+package ru.practice.parser_service.service.parsers.recipe.jsonld;
 
 import org.jsoup.nodes.Document;
 import ru.practice.shared.dto.RecipeDto;

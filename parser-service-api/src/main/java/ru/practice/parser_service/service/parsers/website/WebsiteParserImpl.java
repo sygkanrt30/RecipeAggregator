@@ -1,6 +1,5 @@
 package ru.practice.parser_service.service.parsers.website;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,7 +12,7 @@ import ru.practice.parser_service.service.cache.UrlCache;
 import ru.practice.parser_service.service.exception.ParserException;
 import ru.practice.parser_service.service.parsers.enums.InvalidRequestPrefix;
 import ru.practice.parser_service.service.parsers.enums.ValidHtmlTag;
-import ru.practice.parser_service.service.parsers.recipe.ParserOrganizer;
+import ru.practice.parser_service.service.parsers.recipe.jsonld.RecipeParser;
 import ru.practice.shared.dto.RecipeDto;
 
 import java.io.IOException;
@@ -25,14 +24,30 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-@RequiredArgsConstructor
 public class WebsiteParserImpl implements WebsiteParser {
 
     private final ParserConfig parserConfig;
     private final BrowserConfig browserConfig;
-    private final ParserOrganizer parserOrganizer;
+    private final RecipeParser parser;
     private final UrlCache<NameOfUrlCaches, String> urlsCache;
     private final RecipeCache<String, RecipeDto> recipeCache;
+
+    public WebsiteParserImpl(ParserConfig parserConfig,
+                             BrowserConfig browserConfig,
+                             RecipeParser parser,
+                             UrlCache<NameOfUrlCaches, String> urlsCache,
+                             RecipeCache<String, RecipeDto> recipeCache) {
+
+        this.parserConfig = parserConfig;
+        log.debug("PARSER CONFIG: timeout={}, recipeTag={}, containerSelectors={}",
+                parserConfig.getTimeoutMs(), parserConfig.getRecipeTag(), parserConfig.getContainerSelectors());
+        this.browserConfig = browserConfig;
+        log.debug("BROWSER CONFIG: userAgent={}, mainUrl={}",
+                browserConfig.getUserAgent(), browserConfig.getMainUrl());
+        this.parser = parser;
+        this.urlsCache = urlsCache;
+        this.recipeCache = recipeCache;
+    }
 
     @Override
     public List<RecipeDto> parse(String url) {
@@ -87,7 +102,8 @@ public class WebsiteParserImpl implements WebsiteParser {
     private void processRecipePage(String url, Document doc, List<RecipeDto> newRecipes) {
         String normalizedUrl = normalizeUrl(url);
         try {
-            var recipe = parserOrganizer.parseByPriority(doc);
+            var recipe = parser.parseRecipePage(doc).orElseThrow(
+                    () -> new ParserException("Can't parse recipe page from url: " + normalizedUrl));
             if (isNewRecipe(recipe, normalizedUrl)) {
                 int maxRecipes = parserConfig.getMaxRecipes();
                 if (newRecipes.size() < maxRecipes) {
