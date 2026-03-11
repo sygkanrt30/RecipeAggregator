@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 public class TokenCookieAuthenticationConverter implements AuthenticationConverter {
+
     private final Function<String, Token> tokenCookieStringDeserializer;
 
     @Override

@@ -1,93 +1,63 @@
 package ru.practice.recipe_aggregator.recipe_management.search_service.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
+import ru.practice.recipe_aggregator.recipe_management.model.dto.mapper.RequestMapper;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.SearchService;
-import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.FilterService;
-
+import ru.practice.recipe_aggregator.translator.TranslatorUtil;
+import ru.practice.shared.dto.RecipeDto;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/search")
 public class SearchController {
+
     private final SearchService searchService;
-    private final FilterService filterService;
+    private final RequestMapper requestMapper;
+    private final TranslatorUtil translator;
 
-    @GetMapping("/search-by-name/{name}")
-    public List<RecipeResponseDto> searchByName(@PathVariable String name) {
-        var container = SearchContainer.builder()
-                .name(name)
-                .build();
-        return searchService.searchByName(container);
+    @GetMapping("/name/{name}")
+    public List<RecipeDto> searchByName(@PathVariable @Valid @NotBlank String name) {
+        String nameOnEN = translator.translateTextDependingOnWebsiteLanguage(name);
+        List<RecipeDto> resultOnEN = searchService.searchByName(nameOnEN);
+        return translator.translateDtoDependingOnWebsiteLanguage(resultOnEN);
     }
 
-    @GetMapping("/search-by-ingredients")
-    public List<RecipeResponseDto> searchByIngredients(@RequestBody List<String> ingredientsName) {
-        var container = SearchContainer.builder()
-                .ingredientsName(ingredientsName)
-                .build();
-        return searchService.searchByIngredients(container);
+    @PostMapping("/ingredients")
+    public List<RecipeDto> searchByIngredients(@RequestBody @Valid @NotEmpty Set<String> ingredientNames) {
+        var ingredientsOnEN = ingredientNames.stream()
+                .map(translator::translateTextDependingOnWebsiteLanguage).
+                collect(Collectors.toSet());
+        List<RecipeDto> resultOnEN = searchService.searchByIngredients(ingredientsOnEN);
+        return translator.translateDtoDependingOnWebsiteLanguage(resultOnEN);
     }
 
-    @GetMapping("/filter")
-    public List<RecipeResponseDto> filter(
-            @RequestBody List<RecipeResponseDto> recipes,
-            @RequestParam(required = false) Integer maxMins4Cook,
-            @RequestParam(required = false) Integer maxTotalMins,
-            @RequestParam(required = false) Integer maxMins4Prep,
-            @RequestParam(required = false) Integer minServings,
-            @RequestParam(required = false) Integer maxServings) {
-        var container = SearchContainer.builder()
-                .maxMins4Cook(maxMins4Cook)
-                .maxTotalMins(maxTotalMins)
-                .maxMins4Prep(maxMins4Prep)
-                .minServings(minServings)
-                .maxServings(maxServings)
-                .build();
-        return filterService.processWithFilterChain(recipes, container);
+    @PostMapping("/with-filtering")
+    public List<RecipeDto> searchByIngredientsWithFiltering(@RequestBody SearchRequest request) {
+        translateRequestParam(request);
+        var container = requestMapper.toSearchContainer(request);
+        List<RecipeDto> resultOnEN = searchService.searchWithFiltering(container);
+        return translator.translateDtoDependingOnWebsiteLanguage(resultOnEN);
     }
 
-    @GetMapping("/search-by-ingredients-with-filtering")
-    public List<RecipeResponseDto> searchByIngredientsWithFiltering(
-            @RequestParam List<String> ingredientsName,
-            @RequestParam(required = false) Integer maxMins4Cook,
-            @RequestParam(required = false) Integer maxTotalMins,
-            @RequestParam(required = false) Integer maxMins4Prep,
-            @RequestParam(required = false) Integer minServings,
-            @RequestParam(required = false) Integer maxServings
-    ) {
-        var container = SearchContainer.builder()
-                .ingredientsName(ingredientsName)
-                .maxMins4Cook(maxMins4Cook)
-                .maxTotalMins(maxTotalMins)
-                .maxMins4Prep(maxMins4Prep)
-                .minServings(minServings)
-                .maxServings(maxServings)
-                .build();
-        return searchService.searchByIngredientsWithFiltering(container);
-    }
+    private void translateRequestParam(SearchRequest request) {
+        if (request.name() != null) {
+            String nameOnEN = translator.translateTextDependingOnWebsiteLanguage(request.name());
+            request.name(nameOnEN);
+        }
 
-    @GetMapping("/search-by-name-with-filtering")
-    public List<RecipeResponseDto> searchByNameWithFiltering(
-            @RequestParam String name,
-            @RequestParam(required = false) Integer maxMins4Cook,
-            @RequestParam(required = false) Integer maxTotalMins,
-            @RequestParam(required = false) Integer maxMins4Prep,
-            @RequestParam(required = false) Integer minServings,
-            @RequestParam(required = false) Integer maxServings
-    ) {
-        var container = SearchContainer.builder()
-                .name(name)
-                .maxMins4Cook(maxMins4Cook)
-                .maxTotalMins(maxTotalMins)
-                .maxMins4Prep(maxMins4Prep)
-                .minServings(minServings)
-                .maxServings(maxServings)
-                .build();
-        return searchService.searchByNameWithFiltering(container);
+        if (request.ingredientNames() != null) {
+            var ingredientsOnEN = request.ingredientNames().stream()
+                    .map(translator::translateTextDependingOnWebsiteLanguage)
+                    .collect(Collectors.toSet());
+            request.ingredientNames(ingredientsOnEN);
+        }
     }
 }

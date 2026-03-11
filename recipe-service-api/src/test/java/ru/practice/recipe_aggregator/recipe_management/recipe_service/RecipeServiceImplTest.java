@@ -1,220 +1,180 @@
 package ru.practice.recipe_aggregator.recipe_management.recipe_service;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.instancio.Instancio;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.kafka.RecipeKafkaDto;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
+import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.mapper.RecipeMapper;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearch.RecipeDoc;
-import ru.practice.recipe_aggregator.recipe_management.recipe_service.entity.RecipeEntityService;
+import ru.practice.recipe_aggregator.recipe_management.repository.RecipeElasticRepository;
+import ru.practice.shared.dto.RecipeDto;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.instancio.Select.field;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RecipeServiceImplTest {
     @Mock
-    private RecipeMapper recipeMapper;
+    private RecipeElasticRepository recipeRepository;
 
     @Mock
-    private RecipeEntityService recipeEntityService;
+    private ElasticsearchOperations elasticsearchOperations;
+
+    @Mock
+    private RecipeMapper recipeMapper;
 
     @InjectMocks
     private RecipeServiceImpl recipeService;
 
-    @AfterEach
-    void resetMocks() {
-        Mockito.reset(recipeMapper, recipeEntityService);
-    }
+    private static final String INDEX_NAME = "recipe";
 
     @Test
-    void findRecipe_shouldReturnDto_whenRecipeExists() {
-        var recipeName = "Test Recipe";
-        var entity = Instancio.create(RecipeDoc.class);
-        var expectedDto = Instancio.create(RecipeResponseDto.class);
-        when(recipeEntityService.findByName(recipeName))
-                .thenReturn(Optional.of(entity));
-        when(recipeMapper.toRecipeResponseDto(entity))
-                .thenReturn(expectedDto);
+    void findAllByIds_ShouldReturnRecipes_WhenValidIdsProvided() {
+        var id1 = UUID.randomUUID();
+        var id2 = UUID.randomUUID();
+        var recipeIds = List.of(id1, id2);
+        var recipe1 = Instancio.create(RecipeDoc.class);
+        var recipe2 = Instancio.create(RecipeDoc.class);
+        var recipeDto1 = Instancio.create(RecipeDto.class);
+        var recipeDto2 = Instancio.create(RecipeDto.class);
+        var returnedRecipes = List.of(recipe1, recipe2);
+        var expectedRecipes = List.of(recipeDto1, recipeDto2);
+        var testNumberOfPage = 0;
+        var testPageSize = expectedRecipes.size();
+        Pageable pageable = PageRequest.of(testNumberOfPage, testPageSize);
+        when(recipeRepository.findByIdIn(recipeIds, pageable)).thenReturn(new PageImpl<>(returnedRecipes));
+        when(recipeMapper.toRecipeDto(recipe1)).thenReturn(recipeDto1);
+        when(recipeMapper.toRecipeDto(recipe2)).thenReturn(recipeDto2);
 
-        RecipeResponseDto result = recipeService.findRecipeByName(recipeName);
-
-        assertThat(result).isSameAs(expectedDto);
-        verify(recipeEntityService).findByName(recipeName);
-        verify(recipeMapper).toRecipeResponseDto(entity);
-    }
-
-    @Test
-    void findRecipe_shouldThrowException_whenRecipeNotFound() {
-        var recipeName = "Non-existent Recipe";
-        when(recipeEntityService.findByName(recipeName))
-                .thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> recipeService.findRecipeByName(recipeName))
-                .isInstanceOf(EntityNotFoundException.class);
-    }
-
-    @Test
-    void findAllByIds_ShouldReturnDtoList_WhenValidIdsProvided() {
-        var recipeIds = Instancio.ofList(UUID.class).size(3).create();
-        var recipeDocs = Instancio.ofList(RecipeDoc.class).size(3).create();
-        var expectedDtos = Instancio.ofList(RecipeResponseDto.class).size(3).create();
-        when(recipeEntityService.findAllByIds(recipeIds)).thenReturn(recipeDocs);
-        for (var i = 0; i < recipeDocs.size(); i++) {
-            when(recipeMapper.toRecipeResponseDto(recipeDocs.get(i))).thenReturn(expectedDtos.get(i));
-        }
-
-        var result = recipeService.findAllByIds(recipeIds);
+        var result = recipeService.findAllByIds(recipeIds, testNumberOfPage, testPageSize);
 
         assertNotNull(result);
-        assertEquals(3, result.size());
-        assertEquals(expectedDtos, result);
-        verify(recipeEntityService).findAllByIds(recipeIds);
-        verify(recipeMapper, times(3)).toRecipeResponseDto(any(RecipeDoc.class));
+        assertEquals(2, result.size());
+        assertEquals(expectedRecipes, result);
     }
 
     @Test
-    void findAllByIds_ShouldReturnEmptyList_WhenNoRecipesFound() {
-        var recipeIds = Instancio.ofList(UUID.class).size(2).create();
-        when(recipeEntityService.findAllByIds(recipeIds)).thenReturn(List.of());
+    void findAllByIds_ShouldReturnEmptyList_WhenEmptyIdsListProvided() {
+        List<UUID> emptyIds = List.of();
+        var testNumberOfPage = 0;
+        var testPageSize = 10;
+        Pageable pageable = PageRequest.of(testNumberOfPage, testPageSize);
+        when(recipeRepository.findByIdIn(List.of(), pageable)).thenReturn(new PageImpl<>(List.of()));
 
-        var result = recipeService.findAllByIds(recipeIds);
+        var result = recipeService.findAllByIds(emptyIds, testNumberOfPage, testPageSize);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
-        verify(recipeEntityService).findAllByIds(recipeIds);
-        verify(recipeMapper, never()).toRecipeResponseDto(any());
     }
 
     @Test
-    void getIdByName_ShouldReturnRecipeId_WhenRecipeExists() {
+    void findAllByIds_ShouldCallRepositoryWithCorrectStringIds() {
+        var id1 = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        var id2 = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
+        var recipeIds = List.of(id1, id2);
+        var testNumberOfPage = 0;
+        var testPageSize = recipeIds.size();
+        Pageable pageable = PageRequest.of(testNumberOfPage, testPageSize);
+
+        when(recipeRepository.findByIdIn(recipeIds, pageable)).thenReturn(new PageImpl<>(List.of()));
+
+        recipeService.findAllByIds(recipeIds, testNumberOfPage, testPageSize);
+
+        verify(recipeRepository).findByIdIn(recipeIds, pageable);
+    }
+
+    @Test
+    void saveAllWithBatches_ShouldProcessInBatches_WhenMultipleRecipes() {
+        var recipes = Instancio.ofList(RecipeDoc.class).size(25).create();
+
+        recipeService.saveAllWithBatches(recipes);
+
+        verify(elasticsearchOperations, times(3)).bulkIndex(anyList(), eq(IndexCoordinates.of(INDEX_NAME)));
+    }
+
+    @Test
+    void saveAllWithBatches_ShouldProcessSingleBatch_WhenRecipesLessThanBatchSize() {
+        var recipes = Instancio.ofList(RecipeDoc.class).size(5).create();
+
+        recipeService.saveAllWithBatches(recipes);
+
+        verify(elasticsearchOperations, times(1)).bulkIndex(anyList(), eq(IndexCoordinates.of(INDEX_NAME)));
+    }
+
+    @Test
+    void saveAllWithBatches_ShouldHandleExactBatchSize() {
+        var recipes = Instancio.ofList(RecipeDoc.class).size(20).create();
+
+        recipeService.saveAllWithBatches(recipes);
+
+        verify(elasticsearchOperations, times(2)).bulkIndex(anyList(), eq(IndexCoordinates.of(INDEX_NAME)));
+    }
+
+    @Test
+    void saveAllWithBatches_ShouldCreateCorrectIndexQueries() {
         var id = UUID.randomUUID();
-        var recipeName = Instancio.create(String.class);
-        var expectedRecipe = Instancio.of(RecipeDoc.class)
-                .set(field(RecipeDoc::getName), recipeName)
+        var recipe = Instancio.of(RecipeDoc.class)
                 .set(field(RecipeDoc::getId), id)
                 .create();
-        var expectedId = expectedRecipe.getId();
-        when(recipeEntityService.findByName(recipeName)).thenReturn(java.util.Optional.of(expectedRecipe));
+        var recipes = List.of(recipe);
 
-        var result = recipeService.getIdByName(recipeName);
+        recipeService.saveAllWithBatches(recipes);
 
-        assertNotNull(result);
-        assertEquals(expectedId, result);
-        verify(recipeEntityService).findByName(recipeName);
-    }
-
-    @Test
-    void getIdByName_ShouldThrowException_WhenRecipeNotFound() {
-        var recipeName = Instancio.create(String.class);
-        when(recipeEntityService.findByName(recipeName)).thenReturn(java.util.Optional.empty());
-
-        var exception = assertThrows(EntityNotFoundException.class, () ->
-                recipeService.getIdByName(recipeName)
-        );
-
-        assertEquals("There is no recipe with that name", exception.getMessage());
-        verify(recipeEntityService).findByName(recipeName);
-    }
-
-    @Test
-    void saveFromKafka_shouldHandleEmptyList() {
-        recipeService.saveFromKafka(Collections.emptyList());
-
-        verify(recipeEntityService, never()).saveAllWithBatches(any(), anyInt());
-    }
-
-    @Test
-    void saveFromKafka_shouldCalculateBatchSizeCorrectly() {
-        when(recipeEntityService.findAll()).thenReturn(Collections.emptyList());
-        var dtos = Instancio.ofList(RecipeKafkaDto.class)
-                .size(23)
-                .create();
-        List<RecipeDoc> entities = dtos.stream()
-                .map(dto -> {
-                    var entity = Instancio.create(RecipeDoc.class);
-                    when(recipeMapper.fromRecipeKafkaDto(dto)).thenReturn(entity);
-                    return entity;
-                })
-                .toList();
-
-        recipeService.saveFromKafka(dtos);
-
-        verify(recipeEntityService, never()).saveAllWithBatches(entities, 4);
-    }
-
-    @Test
-    void saveFromKafka_shouldHandleSingleItemBatch() {
-        var dto = Instancio.create(RecipeKafkaDto.class);
-        var entity = Instancio.create(RecipeDoc.class);
-        when(recipeEntityService.findAll()).thenReturn(Collections.emptyList());
-        when(recipeMapper.fromRecipeKafkaDto(dto)).thenReturn(entity);
-
-        recipeService.saveFromKafka(List.of(dto));
-
-        verify(recipeEntityService).findAll();
-        verify(recipeMapper).fromRecipeKafkaDto(dto);
-        verify(recipeEntityService).saveAllWithBatches(List.of(entity), 1);
-    }
-
-    @Test
-    void saveFromKafka_shouldFilterExistingAndSaveNewRecipes() {
-        var existingNames = Set.of("Existing1", "Existing2");
-        var existingEntities = existingNames.stream()
-                .map(name -> Instancio.of(RecipeDoc.class)
-                        .set(field(RecipeDoc::getName), name)
-                        .ignore(field(RecipeDoc::getId))
-                        .create())
-                .toList();
-        var kafkaDtos = List.of(
-                createKafkaDtoWithName("Existing1"),
-                createKafkaDtoWithName("New1"),
-                createKafkaDtoWithName("New2")
-        );
-        var newEntity1 = createRecipeWithName("New1");
-        var newEntity2 = createRecipeWithName("New2");
-        when(recipeEntityService.findAll()).thenReturn(existingEntities);
-        when(recipeMapper.fromRecipeKafkaDto(argThat(dto -> dto != null && "New1".equals(dto.name()))))
-                .thenReturn(newEntity1);
-        when(recipeMapper.fromRecipeKafkaDto(argThat(dto -> dto != null && "New2".equals(dto.name()))))
-                .thenReturn(newEntity2);
-
-        recipeService.saveFromKafka(kafkaDtos);
-
-        verify(recipeEntityService).findAll();
-        verify(recipeMapper, never()).fromRecipeKafkaDto(argThat(dto -> dto != null && existingNames.contains(dto.name())));
-        verify(recipeMapper).fromRecipeKafkaDto(argThat(dto -> dto != null && "New1".equals(dto.name())));
-        verify(recipeMapper).fromRecipeKafkaDto(argThat(dto -> dto != null && "New2".equals(dto.name())));
-        verify(recipeEntityService).saveAllWithBatches(
-                argThat(list -> list != null && list.size() == 2 && list.containsAll(List.of(newEntity1, newEntity2))),
-                eq(2)
+        verify(elasticsearchOperations).bulkIndex(
+                argThat((List<IndexQuery> queries) ->
+                        queries.size() == 1 &&
+                                Objects.equals(queries.getFirst().getId(), id.toString()) &&
+                                queries.getFirst().getObject() == recipe
+                ),
+                eq(IndexCoordinates.of(INDEX_NAME))
         );
     }
 
-    private RecipeKafkaDto createKafkaDtoWithName(String name) {
-        return Instancio.of(RecipeKafkaDto.class)
-                .set(field(RecipeKafkaDto::name), name)
-                .create();
+    @Test
+    void saveAllWithBatches_ShouldPropagateException_WhenElasticsearchFails() {
+        var recipes = Instancio.ofList(RecipeDoc.class).size(5).create();
+
+        var exception = new RuntimeException("Elasticsearch error");
+        doThrow(exception).when(elasticsearchOperations).bulkIndex(anyList(), eq(IndexCoordinates.of(INDEX_NAME)));
+
+        var thrownException = assertThrows(RuntimeException.class, () ->
+                recipeService.saveAllWithBatches(recipes)
+        );
+        assertEquals("Elasticsearch error", thrownException.getMessage());
     }
 
-    private RecipeDoc createRecipeWithName(String name) {
-        return Instancio.of(RecipeDoc.class)
-                .set(field(RecipeDoc::getName), name)
-                .ignore(field(RecipeDoc::getId))
-                .create();
+    @Test
+    void saveAllWithBatches_ShouldHandleSingleRecipe() {
+        var recipe = Instancio.create(RecipeDoc.class);
+        var recipes = List.of(recipe);
+
+        recipeService.saveAllWithBatches(recipes);
+
+        verify(elasticsearchOperations, times(1)).bulkIndex(
+                argThat((List<IndexQuery> queries) -> queries.size() == 1),
+                eq(IndexCoordinates.of(INDEX_NAME))
+        );
+    }
+
+    @Test
+    void saveAllWithBatches_ShouldUseCorrectIndexName() {
+        var recipes = Instancio.ofList(RecipeDoc.class).size(3).create();
+
+        recipeService.saveAllWithBatches(recipes);
+
+        verify(elasticsearchOperations).bulkIndex(anyList(), eq(IndexCoordinates.of(INDEX_NAME)));
     }
 }

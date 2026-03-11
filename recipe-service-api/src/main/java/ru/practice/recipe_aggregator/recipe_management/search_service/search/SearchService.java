@@ -1,18 +1,16 @@
 package ru.practice.recipe_aggregator.recipe_management.search_service.search;
 
-
-
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
+import ru.practice.shared.dto.RecipeDto;
 
 import java.util.List;
+import java.util.Set;
 
 public interface SearchService {
-    List<RecipeResponseDto> searchByName(SearchContainer container);
 
-    List<RecipeResponseDto> searchByNameWithFiltering(SearchContainer container);
+    List<RecipeDto> searchByName(String name);
 
-    List<RecipeResponseDto> searchByIngredientsWithFiltering(SearchContainer container);
+    List<RecipeDto> searchWithFiltering(SearchContainer container);
 
-    List<RecipeResponseDto> searchByIngredients(SearchContainer container);
+    List<RecipeDto> searchByIngredients(Set<String> ingredientNames);
 }

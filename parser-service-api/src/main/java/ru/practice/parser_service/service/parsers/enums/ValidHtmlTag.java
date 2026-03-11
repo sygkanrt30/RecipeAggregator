@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 @Getter
 @Accessors(fluent = true)
 public enum ValidHtmlTag {
+
     HREF("href"),
     HTTP("http"),
     HREF_TAG("a[href]");

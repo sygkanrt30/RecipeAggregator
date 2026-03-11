@@ -1,42 +1,52 @@
 version: '3.8'
 
 services:
-  zookeeper:
-    image: zookeeper:3.9.4
+  kafka:
+    image: apache/kafka:4.1.0
+    hostname: kafka
+    container_name: kafka
     ports:
-      - "2181:2181"
+      - "9092:9092"
+      - "9093:9093"
     environment:
-      ALLOW_ANONYMOUS_LOGIN: "yes"
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_LOG_DIRS: /tmp/kafka-logs
+      KAFKA_NUM_PARTITIONS: 1
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
     healthcheck:
-      test: [ "CMD", "zkServer.sh", "status" ]
+      test: [ "CMD", "nc", "-z", "localhost", "9092" ]
       interval: 10s
-      timeout: 5s
-      retries: 5
+      timeout: 10s
+      retries: 15
+      start_period: 30s
     networks:
       - general-network
 
-  kafka:
-    image: apache/kafka:4.1.0
+  vault:
+    image: hashicorp/vault:latest
+    container_name: vault
     ports:
-      - "9092:29092"
+      - "8200:8200"
     environment:
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_HOST://:29092
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_CFG_BROKER_ID: 1
-      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
-    depends_on:
-      zookeeper:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "kafka-topics.sh", "--list", "--bootstrap-server", "kafka:9092" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    networks:
-      - general-network
+      - VAULT_DEV_ROOT_TOKEN_ID=myroot
+      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+    cap_add:
+      - IPC_LOCK
+    command: server -dev -dev-listen-address="0.0.0.0:8200"
+    volumes:
+      - vault_data:vault/data
 
   db:
     image: postgres:17.5
@@ -89,14 +99,33 @@ services:
     networks:
       - general-network
 
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis-cache
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD:-redispass123}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redispass123}", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - general-network
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redispass123}
 
   recipe-service:
     image: recipe-service:latest
     container_name: recipe-service
     restart: always
     build:
-      context: .
-      dockerfile: recipe-service-api/Dockerfile
+      context: ./recipe-service-api
+      dockerfile: ./Dockerfile
     depends_on:
       db:
         condition: service_healthy
@@ -115,7 +144,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
       SPRING_ELASTICSEARCH_CONNECTION_TIMEOUT: 30000
-      SPRING_ELASTICSEARCH_SOCKET_TIMEOUT: 60000
+      SPRING_ELASTICSEARCH_SOCKET_TIMEOUT: 40000
       ELASTICSEARCH_HOST_AND_PORT: elasticsearch:9200
       SPRING_DATA_ELASTICSEARCH_AUTO_CREATE_INDEX: "false"
       SPRING_DATA_ELASTICSEARCH_REPOSITORIES_ENABLED: "true"
@@ -128,10 +157,12 @@ services:
     container_name: parser-service
     restart: always
     build:
-      context: .
-      dockerfile: parser-service-api/Dockerfile
+      context: ./parser-service-api
+      dockerfile: ./Dockerfile
     depends_on:
       kafka:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     ports:
       - "8081:8081"
@@ -146,6 +177,19 @@ services:
     networks:
       - general-network
 
+  frontend:
+    container_name: recipe-aggregator-frontend
+    restart: always
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    depends_on:
+      - recipe-service
+    environment:
+      - REACT_APP_API_URL=http://recipe-service:8082
+
 networks:
   db-network:
     driver: bridge
@@ -155,3 +199,5 @@ networks:
 volumes:
   postgres_data:
   elasticsearch_data:
+  redis_data:
+  vault_data:

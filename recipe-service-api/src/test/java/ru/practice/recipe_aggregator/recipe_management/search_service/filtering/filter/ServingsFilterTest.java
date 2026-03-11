@@ -1,197 +1,217 @@
 package ru.practice.recipe_aggregator.recipe_management.search_service.filtering.filter;
 
-import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import ru.practice.recipe_aggregator.recipe_management.model.dto.container.FilterCondition;
+import ru.practice.recipe_aggregator.recipe_management.model.dto.container.FilterOperator;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
-import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.exception.InvalidConditionException;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.filter.ServingsFilter;
+import ru.practice.shared.dto.RecipeDto;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(MockitoExtension.class)
 class ServingsFilterTest {
-    private ServingsFilter servingsFilter;
-    private List<RecipeResponseDto> recipes;
-    private SearchContainer searchContainer;
+
+    private ServingsFilter filter;
+    private List<RecipeDto> recipes;
 
     @BeforeEach
     void setUp() {
-        servingsFilter = new ServingsFilter();
-        recipes = new ArrayList<>();
-        searchContainer = Instancio.create(SearchContainer.class);
+        filter = new ServingsFilter();
+        recipes = RecipesForFilterTestFactory.createServingsRecipes();
     }
 
     @Test
-    void filter_ShouldRemoveRecipesOutsideServingsRange() {
-        // Arrange
-        recipes.add(createRecipe(2));
-        recipes.add(createRecipe(4));
-        recipes.add(createRecipe(1));
-        recipes.add(createRecipe(6));
+    void filter_WhenFilterConditionIsNull_ShouldDoNothing() {
+        var searchContainer = SearchContainer.builder()
+                .servingsCondition(null)
+                .build();
+        var recipesSizeBefore = recipes.size();
 
-        searchContainer.minServings(2);
-        searchContainer.maxServings(5);
+        filter.filter(recipes, searchContainer);
 
-        // Act
-        servingsFilter.filter(recipes, searchContainer);
-
-        // Assert
-        assertEquals(2, recipes.size());
-        assertTrue(recipes.stream().anyMatch(r -> r.servings() == 2));
-        assertTrue(recipes.stream().anyMatch(r -> r.servings() == 4));
-        assertFalse(recipes.stream().anyMatch(r -> r.servings() == 1));
-        assertFalse(recipes.stream().anyMatch(r -> r.servings() == 6));
+        assertEquals(recipesSizeBefore, recipes.size());
     }
 
     @Test
-    void filter_WhenMaxServingsIsNull_ShouldSetMaxServingsToMaxValue() {
-        // Arrange
-        searchContainer.maxServings(null);
-        searchContainer.minServings(0);
+    void filter_WhenFilterConditionHasValueZero_ShouldDoNothing() {
+        var filterCondition = new FilterCondition("servings", FilterOperator.EQ, 0);
+        var searchContainer = SearchContainer.builder()
+                .servingsCondition(filterCondition)
+                .build();
+        var recipesSizeBefore = recipes.size();
 
-        // Act & Assert
-        assertDoesNotThrow(() -> servingsFilter.filter(recipes, searchContainer));
+        filter.filter(recipes, searchContainer);
+
+        assertEquals(recipesSizeBefore, recipes.size());
     }
 
     @Test
-    void filter_WhenMaxServingsIsNegative_ShouldSetMaxServingsToMaxValue() {
-        // Arrange
-        searchContainer.maxServings(-5);
-        searchContainer.minServings(0);
+    void filter_WhenFilterConditionHasNegativeValue_ShouldDoNothing() {
+        var filterCondition = new FilterCondition("servings", FilterOperator.EQ, -5);
+        var searchContainer = SearchContainer.builder()
+                .servingsCondition(filterCondition)
+                .build();
+        var recipesSizeBefore = recipes.size();
 
-        // Act & Assert
-        assertDoesNotThrow(() -> servingsFilter.filter(recipes, searchContainer));
+        filter.filter(recipes, searchContainer);
+
+        assertEquals(recipesSizeBefore, recipes.size());
     }
 
     @Test
-    void filter_WhenMinServingsIsNull_ShouldSetMinServingsToZero() {
-        // Arrange
-        searchContainer.minServings(null);
-        searchContainer.maxServings(10);
+    void filter_WhenFilterOperationIsEQ_ShouldFilterRecipes() {
+        var filterCondition = new FilterCondition("servings", FilterOperator.EQ, 4);
+        var searchContainer = SearchContainer.builder()
+                .servingsCondition(filterCondition)
+                .build();
+        var recipesSizeBefore = 1;
 
-        // Act & Assert
-        assertDoesNotThrow(() -> servingsFilter.filter(recipes, searchContainer));
+        filter.filter(recipes, searchContainer);
+
+        assertEquals(recipesSizeBefore, recipes.size());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 6})
+    void filter_WhenFilterOperationIsNEQ_ShouldFilterRecipes(int value) {
+        var filterCondition = new FilterCondition("servings", FilterOperator.NEQ, value);
+        var searchContainer = SearchContainer.builder()
+                .servingsCondition(filterCondition)
+                .build();
+        var recipesSizeBefore = 7;
+
+        filter.filter(recipes, searchContainer);
+
+        assertEquals(recipesSizeBefore, recipes.size());
     }
 
     @Test
-    void filter_WhenBothServingsAreNull_ShouldSetDefaultValues() {
-        // Arrange
-        searchContainer.minServings(null);
-        searchContainer.maxServings(null);
+    void filter_WhenFilterOperationIsGT_ShouldFilterRecipes() {
+        var filterCondition = new FilterCondition("servings", FilterOperator.GT, 8);
+        var searchContainer = SearchContainer.builder()
+                .servingsCondition(filterCondition)
+                .build();
+        var recipesSizeBefore = 2;
 
-        // Act & Assert
-        assertDoesNotThrow(() -> servingsFilter.filter(recipes, searchContainer));
+        filter.filter(recipes, searchContainer);
+
+        assertEquals(recipesSizeBefore, recipes.size());
     }
 
     @Test
-    void filter_WhenMinServingsGreaterThanMaxServings_ShouldThrowException() {
-        // Arrange
-        searchContainer.minServings(10);
-        searchContainer.maxServings(5);
+    void filter_WhenFilterOperationIsLT_ShouldFilterRecipes() {
+        var filterCondition = new FilterCondition("servings", FilterOperator.LT, 4);
+        var searchContainer = SearchContainer.builder()
+                .servingsCondition(filterCondition)
+                .build();
+        var recipesSizeBefore = 3;
 
-        // Act & Assert
-        var exception = assertThrows(InvalidConditionException.class,
-                () -> servingsFilter.filter(recipes, searchContainer));
-        assertTrue(exception.getMessage().contains("maxServings must be greater than minServings"));
+        filter.filter(recipes, searchContainer);
+
+        assertEquals(recipesSizeBefore, recipes.size());
     }
 
     @Test
-    void filter_WhenMinServingsNegative_ShouldThrowException() {
-        // Arrange
-        searchContainer.minServings(-1);
-        searchContainer.maxServings(5);
+    void filter_WhenFilterOperationIsGTE_ShouldFilterRecipes() {
+        var filterCondition = new FilterCondition("servings", FilterOperator.GTE, 8);
+        var searchContainer = SearchContainer.builder()
+                .servingsCondition(filterCondition)
+                .build();
+        var recipesSizeBefore = 3;
 
-        // Act & Assert
-        var exception = assertThrows(InvalidConditionException.class,
-                () -> servingsFilter.filter(recipes, searchContainer));
-        assertTrue(exception.getMessage().contains("minServings must be greater than -1"));
+        filter.filter(recipes, searchContainer);
+
+        assertEquals(recipesSizeBefore, recipes.size());
     }
 
     @Test
-    void filter_WhenMinServingsNegativeAndMaxServingsNull_ShouldThrowExceptionAfterSettingDefaults() {
-        // Arrange
-        searchContainer.minServings(-1);
-        searchContainer.maxServings(null);
+    void filter_WhenFilterOperationIsLTE_ShouldFilterRecipes() {
+        var filterCondition = new FilterCondition("servings", FilterOperator.LTE, 2);
+        var searchContainer = SearchContainer.builder()
+                .servingsCondition(filterCondition)
+                .build();
+        var recipesSizeBefore = 3;
 
-        // Act & Assert
-        var exception = assertThrows(InvalidConditionException.class,
-                () -> servingsFilter.filter(recipes, searchContainer));
-        assertTrue(exception.getMessage().contains("minServings must be greater than -1"));
+        filter.filter(recipes, searchContainer);
+
+        assertEquals(recipesSizeBefore, recipes.size());
     }
 
     @Test
-    void filter_ShouldNotRemoveRecipesWhenServingsWithinRange() {
-        // Arrange
-        recipes.add(createRecipe(3));
-        recipes.add(createRecipe(4));
-        recipes.add(createRecipe(5));
-        searchContainer.minServings(3);
-        searchContainer.maxServings(5);
+    void filter_WhenEmptyRecipeList_ShouldDoNothing() {
+        var emptyRecipes = new ArrayList<RecipeDto>();
+        var filterCondition = new FilterCondition("servings", FilterOperator.EQ, 4);
+        var searchContainer = SearchContainer.builder()
+                .servingsCondition(filterCondition)
+                .build();
 
-        // Act
-        servingsFilter.filter(recipes, searchContainer);
+        filter.filter(emptyRecipes, searchContainer);
 
-        // Assert
-        assertEquals(3, recipes.size());
+        assertTrue(emptyRecipes.isEmpty());
     }
 
     @Test
-    void filter_ShouldHandleEmptyRecipesList() {
-        // Arrange
-        searchContainer.minServings(2);
-        searchContainer.maxServings(5);
+    void filter_WhenAllRecipesMatchCondition_ShouldReturnAll() {
+        var filterCondition = new FilterCondition("servings", FilterOperator.GT, 0);
+        var searchContainer = SearchContainer.builder()
+                .servingsCondition(filterCondition)
+                .build();
+        var recipesSizeBefore = recipes.size();
 
-        // Act
-        servingsFilter.filter(recipes, searchContainer);
+        filter.filter(recipes, searchContainer);
 
-        // Assert
+        assertEquals(recipesSizeBefore, recipes.size());
+    }
+
+    @Test
+    void filter_WhenNoRecipesMatchCondition_ShouldReturnEmptyList() {
+        var filterCondition = new FilterCondition("servings", FilterOperator.GT, 50);
+        var searchContainer = SearchContainer.builder()
+                .servingsCondition(filterCondition)
+                .build();
+
+        filter.filter(recipes, searchContainer);
+
         assertTrue(recipes.isEmpty());
     }
 
     @Test
-    void filter_WhenMaxServingsIsZero_ShouldRemoveAllRecipes() {
-        // Arrange
-        recipes.add(createRecipe(1));
-        recipes.add(createRecipe(2));
-        recipes.add(createRecipe(3));
-        searchContainer.minServings(0);
-        searchContainer.maxServings(0);
+    void filter_WhenZeroServingsRecipes_ShouldBeFilteredOut() {
+        var filterCondition = new FilterCondition("servings", FilterOperator.GT, 0);
+        var searchContainer = SearchContainer.builder()
+                .servingsCondition(filterCondition)
+                .build();
 
-        // Act
-        servingsFilter.filter(recipes, searchContainer);
+        filter.filter(recipes, searchContainer);
 
-        // Assert
-        assertTrue(recipes.isEmpty());
+        assertTrue(recipes.stream().anyMatch(recipe -> recipe.servings() == 0));
     }
 
     @Test
-    void filter_WhenMinServingsEqualsMaxServings_ShouldKeepOnlyExactMatches() {
-        // Arrange
-        recipes.add(createRecipe(3));
-        recipes.add(createRecipe(4));
-        recipes.add(createRecipe(3));
-        searchContainer.minServings(3);
-        searchContainer.maxServings(3);
+    void filter_WhenMultipleOperations_ShouldWorkCorrectly() {
+        var recipesCopy = new ArrayList<>(recipes);
 
-        // Act
-        servingsFilter.filter(recipes, searchContainer);
+        var filterCondition1 = new FilterCondition("servings", FilterOperator.GT, 4);
+        var searchContainer1 = SearchContainer.builder()
+                .servingsCondition(filterCondition1)
+                .build();
 
-        // Assert
-        assertEquals(2, recipes.size());
-        assertTrue(recipes.stream().allMatch(r -> r.servings() == 3));
-    }
+        filter.filter(recipesCopy, searchContainer1);
+        assertEquals(4, recipesCopy.size());
 
-    private RecipeResponseDto createRecipe(int servings) {
-        RecipeResponseDto recipe = mock(RecipeResponseDto.class);
-        when(recipe.servings()).thenReturn(servings);
-        return recipe;
+        var filterCondition2 = new FilterCondition("servings", FilterOperator.LTE, 12);
+        var searchContainer2 = SearchContainer.builder()
+                .servingsCondition(filterCondition2)
+                .build();
+
+        filter.filter(recipesCopy, searchContainer2);
+        assertEquals(3, recipesCopy.size());
     }
 }

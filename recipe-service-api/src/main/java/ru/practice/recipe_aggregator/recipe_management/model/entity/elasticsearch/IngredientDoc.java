@@ -13,6 +13,7 @@ import java.util.UUID;
 @Builder
 @Document(indexName = "ingredient")
 public class IngredientDoc {
+
     @Id
     @Field(type = FieldType.Text)
     private UUID id;

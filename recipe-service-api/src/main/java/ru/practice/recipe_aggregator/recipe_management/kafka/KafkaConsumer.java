@@ -1,25 +1,23 @@
 package ru.practice.recipe_aggregator.recipe_management.kafka;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.kafka.RecipeKafkaDto;
-import ru.practice.recipe_aggregator.recipe_management.recipe_service.ConsumerProcessor;
+import ru.practice.recipe_aggregator.recipe_management.processor.ConsumerProcessor;
+import ru.practice.shared.dto.RecipeDto;
 
 import java.util.List;
 
-@Slf4j
-@RequiredArgsConstructor
+
 @Component
-public class KafkaConsumer implements Listener {
-    private final ConsumerProcessor processor;
+public class KafkaConsumer extends AbstractKafkaConsumerService<List<RecipeDto>> {
+
+    public KafkaConsumer(ConsumerProcessor<List<RecipeDto>> processor,
+                         @Value("${custom.kafka.topic}") String topic) {
+        super(processor, topic);
+    }
 
     @Override
-    @KafkaListener(topics = "${custom.kafka.topic}", groupId = "${custom.kafka.group-id}")
-    public void listen(List<RecipeKafkaDto> recipes) {
-        log.info("Listening recipes: {}", recipes.size());
-        processor.saveFromKafka(recipes);
+    protected String getItemType() {
+        return "Recipe";
     }
 }

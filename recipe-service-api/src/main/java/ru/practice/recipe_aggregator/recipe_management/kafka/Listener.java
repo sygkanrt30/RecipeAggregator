@@ -1,10 +1,7 @@
 package ru.practice.recipe_aggregator.recipe_management.kafka;
 
-import ru.practice.recipe_aggregator.recipe_management.model.dto.kafka.RecipeKafkaDto;
+public interface Listener<T> {
 
-import java.util.List;
-
-public interface Listener {
     @SuppressWarnings("unused")
-    void listen(List<RecipeKafkaDto> recipes);
+    void listen(T recipes);
 }

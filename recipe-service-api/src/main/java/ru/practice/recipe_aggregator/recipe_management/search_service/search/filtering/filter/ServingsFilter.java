@@ -1,35 +1,34 @@
 package ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.filter;
 
-
+import lombok.extern.slf4j.Slf4j;
+import ru.practice.recipe_aggregator.recipe_management.model.dto.container.FilterCondition;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
-import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.exception.InvalidConditionException;
+import ru.practice.shared.dto.RecipeDto;
 
 import java.util.List;
 
+@Slf4j
 public class ServingsFilter implements Filter {
+
     @Override
-    public void filter(List<RecipeResponseDto> recipes, SearchContainer searchContainer) {
-        if (searchContainer.maxServings() == null || searchContainer.maxServings() < 0) {
-            searchContainer.maxServings(Integer.MAX_VALUE);
+    public void filter(List<RecipeDto> recipes, SearchContainer searchContainer) {
+        FilterCondition filterCondition = searchContainer.servingsCondition();
+        if (isInvalidCondition(filterCondition)) {
+            log.trace("Filter condition is null");
+            return;
         }
-        if (searchContainer.minServings() == null) {
-            searchContainer.minServings(0);
-        }
-        if (!isValidCondition(searchContainer)) {
-            throw new InvalidConditionException("""
-                    Invalid condition:
-                    maxServings must be greater than minServings,
-                    minServings must be greater than -1
-                    """);
-        }
+        int servingsCondition = filterCondition.value();
         recipes.removeIf(recipe ->
-                recipe.servings() > searchContainer.maxServings() || recipe.servings() < searchContainer.minServings());
+                Filter.isSuitableForRemove(filterCondition, servingsCondition, recipe.servings())
+        );
     }
 
-    private boolean isValidCondition(SearchContainer searchContainer) {
-        int minServings = searchContainer.minServings();
-        int maxServings = searchContainer.maxServings();
-        return minServings <= maxServings && minServings >= 0;
+    private boolean isInvalidCondition(final FilterCondition filterCondition) {
+        return filterCondition == null || filterCondition.value() <= 0;
+    }
+
+    @Override
+    public String getFilterName() {
+        return this.getClass().getSimpleName();
     }
 }

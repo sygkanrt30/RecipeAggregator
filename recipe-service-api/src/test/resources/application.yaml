@@ -1,0 +1,14 @@
+spring:
+  config:
+    import:
+      - optional:vault://
+      - optional:file:.env[.properties]
+
+  cloud:
+    vault:
+      enabled: false
+      authentication: NONE
+
+spring.autoconfigure.exclude:
+  - org.springframework.cloud.vault.config.VaultAutoConfiguration
+  - org.springframework.cloud.vault.config.VaultReactiveAutoConfiguration

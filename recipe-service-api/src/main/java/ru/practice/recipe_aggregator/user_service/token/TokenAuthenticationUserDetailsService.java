@@ -10,6 +10,7 @@ import ru.practice.recipe_aggregator.user_service.repository.UserRepository;
 @RequiredArgsConstructor
 public class TokenAuthenticationUserDetailsService implements
         AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
+
     private final UserRepository userRepository;
 
     @Override

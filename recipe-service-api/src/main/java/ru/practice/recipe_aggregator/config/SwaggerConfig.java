@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SwaggerConfig {
+
     @Bean
     public GroupedOpenApi api(@Value("${application.rest.api.prefix}/v1") String prefix,
                               @Value("${spring.application.name}") String group) {

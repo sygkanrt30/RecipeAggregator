@@ -1,8 +1,30 @@
 spring:
   application:
     name: recipe-aggregator
+  config:
+    import: vault://
+  cloud:
+    vault:
+      uri: http://localhost:8200
+      token: myroot
+      kv:
+        enabled: true
+        backend: secret
+        default-context: ${spring.application.name}
+      ssl:
+        trust-store: classpath:/
+        verification-mode: NONE
+  frontend:
+    base:
+      url: http://localhost:3002
+  backend:
+    url:
+      auth: api/v1/auth/**
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka:9092
+    consumer:
+      properties:
+        security.protocol: PLAINTEXT
   datasource:
     url: jdbc:postgresql://localhost:5435/recipe_service
     username: postgres
@@ -50,8 +72,34 @@ elasticsearch:
   host-and-port: localhost:9200
 
 jwt:
-  cookie-token-key: '{"kty":"oct","k":"956PBFst1FguLr5irJD-aQ"}'
+  cookie-token-key: ${jwt.cookie-token-key}
+
+web-site:
+  lang: 'ru'
+
+yandex:
+  uri: 'https://translate.api.cloud.yandex.net/translate/v2/translate'
+  api:
+    key: ${yandex.api.key}
+    folder-id: ${yandex.api.folder-id}
+
+csrf:
+  token:
+    header-name: X-CSRF-TOKEN
 
 logging:
+  file:
+    path: ./logs
+    name: ./logs/recipe-service.log
   level:
-    org.springframework.security: DEBUG
+    org.springframework.security: INFO
+    root: INFO
+  logback:
+    rollingpolicy:
+      max-file-size: 100MB
+      max-history: 10
+      total-size-cap: 5GB
+      file-name-pattern: ${logging.file.path}/archived/recipe_service.%d{yyyy-MM-dd}.log
+  pattern:
+    console: '%d{dd.MM.yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n'
+    file: '%d{dd.MM.yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n'

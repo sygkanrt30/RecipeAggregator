@@ -11,6 +11,7 @@ import java.util.function.Function;
 
 @Setter
 public class TokenCookieFactory implements Function<Authentication, Token> {
+
     private Duration tokenTtl = Duration.ofDays(1);
 
     @Override

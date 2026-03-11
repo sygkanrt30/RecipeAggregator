@@ -1,33 +1,49 @@
 package ru.practice.recipe_aggregator.recipe_management.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
-import org.springframework.data.repository.query.Param;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import ru.practice.recipe_aggregator.recipe_management.model.entity.elasticsearch.RecipeDoc;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 public interface RecipeElasticRepository extends ElasticsearchRepository<RecipeDoc, UUID> {
-    List<RecipeDoc> findByNameContaining(String namePart);
-
-    Optional<RecipeDoc> findByName(String name);
-
-    @NonNull
-    List<RecipeDoc> findAll();
 
     @Query("""
             {
-              "terms": {
-                "_id": ?0
-              }
+                "bool": {
+                    "should": [
+                        {
+                            "match_phrase_prefix": {
+                                "name": {
+                                    "query": "?0",
+                                    "slop": 10,
+                                    "max_expansions": 50
+                                }
+                            }
+                        },
+                        {
+                            "wildcard": {
+                                "name": {
+                                    "value": "*?0*",
+                                    "case_insensitive": true
+                                }
+                            }
+                        }
+                    ]
+                }
             }
             """)
-    List<RecipeDoc> findByIdsWithQuery(@Param("ids") List<String> ids);
+    Set<RecipeDoc> findByNameMultiMatch(String name);
+
+    Optional<RecipeDoc> findByName(String name);
+
+    Page<RecipeDoc> findByIdIn(Collection<UUID> id, Pageable pageable);
+
+    List<RecipeDoc> findByNameIn(Collection<String> names);
 
     @Query("""
             {
@@ -42,5 +58,5 @@ public interface RecipeElasticRepository extends ElasticsearchRepository<RecipeD
               }
             }
             """)
-    List<RecipeDoc> findByIngredientsContainingAny(List<String> ingredients);
+    Set<RecipeDoc> findByIngredientsContainingAny(Collection<String> ingredients);
 }

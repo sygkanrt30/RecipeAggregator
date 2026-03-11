@@ -16,6 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Document(indexName = "recipe")
 public class RecipeDoc {
+
     @Id
     @Field(type = FieldType.Keyword)
     private UUID id;
@@ -23,14 +24,11 @@ public class RecipeDoc {
     @Field(type = FieldType.Text)
     private String name;
 
-    @Field(type = FieldType.Integer)
-    private int mins4Prep;
+    @Field(type = FieldType.Integer, name = "mins4Prep")
+    private int minsForPreparing;
 
-    @Field(type = FieldType.Integer)
-    private int mins4Cook;
-
-    @Field(type = FieldType.Integer)
-    private int additionalMins;
+    @Field(type = FieldType.Integer, name = "mins4Cook")
+    private int minsForCooking;
 
     @Field(type = FieldType.Integer)
     private int totalMins;

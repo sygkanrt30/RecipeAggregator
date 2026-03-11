@@ -3,7 +3,7 @@ CREATE TABLE app_user (
      username VARCHAR(30) NOT NULL UNIQUE,
      password VARCHAR(100) NOT NULL,
      email VARCHAR(100) NOT NULL UNIQUE,
-     role VARCHAR(10) NOT NULL,
+     role VARCHAR(10) NOT NULL DEFAULT 'USER',
      created_at TIMESTAMP
 );
 
@@ -15,10 +15,11 @@ CREATE TABLE favorite_recipe (
          FOREIGN KEY (user_id)
              REFERENCES app_user(id)
              ON DELETE CASCADE
+             ON UPDATE CASCADE
 );
 
 CREATE TABLE deactivated_token (
-     id BIGINT PRIMARY KEY,
+     id UUID PRIMARY KEY,
      keep_until TIMESTAMP NOT NULL CHECK (keep_until > NOW())
 );
 

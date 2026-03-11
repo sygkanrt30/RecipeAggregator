@@ -1,63 +1,85 @@
 package ru.practice.recipe_aggregator.recipe_management.search_service.filtering;
 
 import org.instancio.Instancio;
+import org.instancio.Select;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import ru.practice.recipe_aggregator.recipe_management.model.dto.container.FilterCondition;
+import ru.practice.recipe_aggregator.recipe_management.model.dto.container.FilterOperator;
 import ru.practice.recipe_aggregator.recipe_management.model.dto.container.SearchContainer;
-import ru.practice.recipe_aggregator.recipe_management.model.dto.response.RecipeResponseDto;
 import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.FilterServiceImpl;
-import ru.practice.recipe_aggregator.recipe_management.search_service.search.filtering.filter.*;
+import ru.practice.shared.dto.RecipeDto;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@ExtendWith(MockitoExtension.class)
 class FilterServiceImplTest {
-    @Test
-    void processWithFilterChain_WithRealFilters_ShouldWorkCorrectly() {
-        var filterService = new FilterServiceImpl();
-        var recipes = new ArrayList<RecipeResponseDto>();
-        var searchContainer = Instancio.create(SearchContainer.class);
-        searchContainer.maxMins4Cook(0);
-        searchContainer.maxMins4Cook(Integer.MAX_VALUE);
-        searchContainer.maxTotalMins(Integer.MAX_VALUE);
-        searchContainer.minServings(0);
-        searchContainer.maxServings(Integer.MAX_VALUE);
-        recipes.add(createRecipe(30, 15, 45, 4));
-        recipes.add(createRecipe(20, 10, 30, 2));
 
-        List<RecipeResponseDto> result = filterService.processWithFilterChain(recipes, searchContainer);
+    private FilterServiceImpl filterService;
+
+    @BeforeEach
+    void setUp() {
+        filterService = new FilterServiceImpl();
+    }
+
+    @Test
+    void processWithFilterChain_WithValidRecipes_ShouldFilterCorrectly() {
+        var recipes = new ArrayList<RecipeDto>();
+        var searchContainer = SearchContainer.builder()
+                .cookingTimeCondition(new FilterCondition("cookingTime", FilterOperator.LTE, 25))
+                .preparationTimeCondition(new FilterCondition("preparationTime", FilterOperator.LTE, 15))
+                .totalTimeCondition(new FilterCondition("totalTime", FilterOperator.LTE, 40))
+                .servingsCondition(new FilterCondition("servings", FilterOperator.GTE, 3))
+                .build();
+
+        recipes.add(createRecipe(20, 10, 30, 4));
+        recipes.add(createRecipe(30, 5, 35, 2));
+        recipes.add(createRecipe(15, 20, 35, 4));
+        recipes.add(createRecipe(40, 10, 50, 4));
+
+        List<RecipeDto> result = filterService.processWithFilterChain(recipes, searchContainer);
 
         assertNotNull(result);
-        assertEquals(2, result.size());
+        assertEquals(1, result.size());
+        assertEquals(4, result.getFirst().servings());
     }
 
     @Test
-    void filterChain_ShouldContainCorrectFilters() throws Exception {
-        var filterService = new FilterServiceImpl();
-        var filterChainField = FilterServiceImpl.class.getDeclaredField("filterChain");
-        filterChainField.setAccessible(true);
-        List<Filter> filterChain = (List<Filter>) filterChainField.get(filterService);
+    void processWithFilterChain_WithNoFiltersApplied_ShouldReturnAllRecipes() {
+        var recipes = new ArrayList<RecipeDto>();
+        var searchContainer = SearchContainer.builder()
+                .cookingTimeCondition(null)
+                .preparationTimeCondition(null)
+                .totalTimeCondition(null)
+                .servingsCondition(null)
+                .build();
 
-        assertNotNull(filterChain);
-        assertEquals(4, filterChain.size());
-        assertInstanceOf(Mins4CookFilter.class, filterChain.get(0));
-        assertInstanceOf(Mins4PrepFilter.class, filterChain.get(1));
-        assertInstanceOf(TotalMinsFilter.class, filterChain.get(2));
-        assertInstanceOf(ServingsFilter.class, filterChain.get(3));
+        recipes.add(createRecipe(30, 15, 45, 4));
+        recipes.add(createRecipe(20, 10, 30, 2));
+        recipes.add(createRecipe(25, 5, 30, 6));
+
+        List<RecipeDto> result = filterService.processWithFilterChain(recipes, searchContainer);
+
+        assertNotNull(result);
+        assertEquals(3, result.size());
     }
 
-    private RecipeResponseDto createRecipe(int cookMins, int prepMins, int totalMins, int servings) {
-        RecipeResponseDto recipe = mock(RecipeResponseDto.class);
-        when(recipe.mins4Cook()).thenReturn(cookMins);
-        when(recipe.mins4Prep()).thenReturn(prepMins);
-        when(recipe.totalMins()).thenReturn(totalMins);
-        when(recipe.servings()).thenReturn(servings);
-        return recipe;
+    private RecipeDto createRecipe(int cookMins, int prepMins, int totalTime, int servings) {
+        return Instancio.of(RecipeDto.class)
+                .set(Select.field(RecipeDto::timeForCooking), Duration.ofMinutes(cookMins))
+                .set(Select.field(RecipeDto::timeForPreparing), Duration.ofMinutes(prepMins))
+                .set(Select.field(RecipeDto::totalTime), Duration.ofMinutes(totalTime))
+                .set(Select.field(RecipeDto::servings), servings)
+                .set(Select.field(RecipeDto::id), UUID.randomUUID())
+                .generate(Select.field(RecipeDto::name), gen -> gen.string().length(5, 15))
+                .generate(Select.field(RecipeDto::ingredients), gen -> gen.collection().size(2))
+                .generate(Select.field(RecipeDto::direction), gen -> gen.string().length(20, 100))
+                .generate(Select.field(RecipeDto::description), gen -> gen.string().length(10, 50))
+                .create();
     }
 }
